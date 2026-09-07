@@ -15,13 +15,13 @@
 
         LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
           #pkgs.raylib
-          #pkgs.glfw
-          #pkgs.libGL
+          pkgs.glfw
+          pkgs.libGL
           pkgs.xorg.libX11
-          #pkgs.xorg.libXrandr
-          #pkgs.xorg.libXi
-          #pkgs.xorg.libXcursor
-          #pkgs.xorg.libXinerama
+          pkgs.xorg.libXrandr
+          pkgs.xorg.libXi
+          pkgs.xorg.libXcursor
+          pkgs.xorg.libXinerama
         ];
       };
     };

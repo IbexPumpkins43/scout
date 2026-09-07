@@ -43,16 +43,17 @@ internal class MapViewer
             this._camera.Target.Y -= mouseDelta.Y / this._camera.Zoom;
         }
 
-        this._camera.Zoom *= 1.1f * Raylib.GetMouseWheelMove();
+        this._camera.Zoom *= MathF.Pow(1.1f, Raylib.GetMouseWheelMove());
         this._camera.Zoom = Raymath.Clamp(this._camera.Zoom, 0.001f, 10.0f);
     }
 
     public void Draw() 
     {
         Raylib.DrawFPS(0, 0);
-        Raylib.DrawText($"", 0, 0, 20, Color.Black);
+        Raylib.DrawText($"{this._mapData.Path}", 0, 20, 20, Color.Black);
 
         Raylib.BeginMode2D(this._camera);
+        Raylib.DrawEllipse(0, 0, 10.0f, 10.0f, Color.Red);
         this.DrawRoads();
         this.DrawBuildings();
         Raylib.EndMode2D();
@@ -90,6 +91,8 @@ internal class MapViewer
 
     private void PrepareRoads()
     {
+        this._drawableRoads = new List<DrawableRoad>();
+
         // Precompute road geometry and bounds so off-screen roads can be culled cheaply
         foreach (var (road, roadIndex) in this._mapData.Roads.Select((road, index) => (road, index)))
         {

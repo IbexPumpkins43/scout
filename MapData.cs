@@ -34,7 +34,7 @@ internal class MapData
         // A valid OSM PBF must begin with an OSMHeader block
         var pbfHeader = pbfReader.ReadNext();
         if (pbfHeader == null)
-        {
+       {
             throw new MapDataException(this.Path, "Header is missing");
         }
         
@@ -72,14 +72,19 @@ internal class MapData
             throw new MapDataException(this.Path, "Map contains no nodes");
         }
 
-        var (originLatitude, originLongitude) = this.NodePositions.First();
-        var metresPerDegree = 111320;
+        var origin = this.NodePositions.First().Value;
+        var originLatitude = origin.Latitude;
+        var originLongitude = origin.Longitude;
+        const int metresPerDegree = 111320;
 
         foreach (var (id, (latitude, longitude)) in this.NodePositions)
         {
             this.NodePositions[id] = new OSMCoordinates(
                 // Use a local origin to keep projected coordinates near 0
-                Latitude: (longitude - originLatitude) * Math.Cos(double.DegreesToRadians(originLatitude)) * metresPerDegree,
+                Latitude: 
+                    (longitude - originLongitude) 
+                    * Math.Cos(double.DegreesToRadians(originLatitude))
+                    * metresPerDegree,
                 // Invert Y so north appears upward
                 Longitude: -(latitude - originLatitude) * metresPerDegree);
         }

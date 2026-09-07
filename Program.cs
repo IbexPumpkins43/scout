@@ -19,6 +19,7 @@ internal class Program
             mapViewer.Update();
 
             Raylib.BeginDrawing();
+            Raylib.ClearBackground(Color.White);
             mapViewer.Draw();
             Raylib.EndDrawing();
         }
