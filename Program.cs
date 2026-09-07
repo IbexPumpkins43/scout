@@ -82,29 +82,4 @@ internal class Program
         Raylib.DrawText($"{exception.Message}", 0, 0, 20, Color.Red);
         Raylib.EndDrawing();
     }
-
-    private static void DrawLoadingAnimation()
-    {
-        var time = (float)Raylib.GetTime();
-        var angle = time * 180.0f;
-
-        Vector2 center = new(Raylib.GetScreenWidth() / 2.0f, Raylib.GetScreenHeight() / 2.0f);
-
-        Raylib.DrawRing(
-            center,
-            30,
-            40,
-            angle,
-            angle + 240,
-            32,
-            Color.DarkGray
-        );
-        Raylib.DrawText(
-            "Loading map...",
-            (int)center.X - 70,
-            (int)center.Y + 60,
-            20,
-            Color.Black
-        );
-    }
 }
