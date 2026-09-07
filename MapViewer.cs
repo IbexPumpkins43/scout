@@ -4,7 +4,7 @@ using Raylib_cs;
 
 namespace Scout;
 
-internal record BoundBox(
+internal readonly record struct BoundBox(
     float MinX,
     float MaxX,
     float MinY,

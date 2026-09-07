@@ -17,7 +17,7 @@ internal sealed record OSMDataBlock(
     PrimitiveBlock Data)
     : OSMBlock(Index);
 
-internal sealed record OSMCoordinates(
+internal readonly record struct OSMCoordinates(
     double Latitude,
     double Longitude);
 
