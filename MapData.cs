@@ -31,10 +31,16 @@ internal class MapData
 
         var osmDecoder = new OSMDecoder();
         
-        // A valid OSM PBF must begin with an OSMHeader block
+        this.ValidateHeader(pbfReader, osmDecoder);
+        this.DecodeBlocks(pbfReader, osmDecoder); 
+        this.ProjectNodes();
+    }
+
+    private void ValidateHeader(PBFReader pbfReader, OSMDecoder osmDecoder) 
+    {
         var pbfHeader = pbfReader.ReadNext();
         if (pbfHeader == null)
-       {
+        {
             throw new MapDataException(this.Path, "Header is missing");
         }
         
@@ -43,8 +49,10 @@ internal class MapData
         {
             throw new MapDataException(this.Path, $"Expected header, but got {"TODO"}");
         }
+    }
 
-        // Decode blocks
+    private void DecodeBlocks(PBFReader pbfReader, OSMDecoder osmDecoder) 
+    {
         var pbfBlock = pbfReader.ReadNext();
         while (pbfBlock != null)
         {
@@ -65,8 +73,12 @@ internal class MapData
                         
             pbfBlock = pbfReader.ReadNext();
         }
+    }
 
-        // Project nodes
+    private void ProjectNodes() 
+    {
+        const int metresPerDegree = 111320;
+
         if (this.NodePositions.Count == 0)
         {
             throw new MapDataException(this.Path, "Map contains no nodes");
@@ -75,7 +87,6 @@ internal class MapData
         var origin = this.NodePositions.First().Value;
         var originLatitude = origin.Latitude;
         var originLongitude = origin.Longitude;
-        const int metresPerDegree = 111320;
 
         foreach (var (id, (latitude, longitude)) in this.NodePositions)
         {
@@ -88,5 +99,6 @@ internal class MapData
                 // Invert Y so north appears upward
                 Longitude: -(latitude - originLatitude) * metresPerDegree);
         }
+
     }
 }
