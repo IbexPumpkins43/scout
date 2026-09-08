@@ -15,10 +15,10 @@ internal class Program
 
         Task<RenderData> loadTask = Task.Run(() =>
         {
-            var mapData = new MapData("Assets/luxembourg.osm.pbf");
+            MapData mapData = new MapData("Assets/luxembourg.osm.pbf");
             mapData.Load();
 
-            var renderData = new RenderData();
+            RenderData renderData = new RenderData();
             renderData.Build(mapData);
 
             return renderData;
@@ -28,7 +28,7 @@ internal class Program
         {
             if (loadTask.IsCompletedSuccessfully && _renderer == null)
             {
-                _renderer = new(loadTask.Result);
+                _renderer = new Renderer(loadTask.Result);
             }
             if (loadTask.IsCompletedSuccessfully)
             {
@@ -62,10 +62,11 @@ internal class Program
         const int fontSize = 20;
         const int ringSize = 10;
 
-        var time = (float)Raylib.GetTime();
-        var angle = time * 180.0f;
-        var loadingMessage = "Loading...";
-        var loadingMessageWidth = Raylib.MeasureText(loadingMessage, fontSize) + 15;
+        float time = (float)Raylib.GetTime();
+        float angle = time * 180.0f;
+
+        string loadingMessage = "Loading...";
+        int loadingMessageWidth = Raylib.MeasureText(loadingMessage, fontSize) + 15;
 
         Raylib.BeginDrawing();
         Raylib.ClearBackground(Color.White);

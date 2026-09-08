@@ -48,9 +48,9 @@ internal class OSMDecoder
 
     public List<OSMNode> DecodeNodes(OSMDataBlock block) 
     {
-        var nodeList = new List<OSMNode>();
+        List<OSMNode> nodeList = new List<OSMNode>();
 
-        foreach (var group in block.Data.Primitivegroup)
+        foreach (PrimitiveGroup group in block.Data.Primitivegroup)
         {
             if (group.Nodes.Count > 0)
             {
@@ -68,25 +68,25 @@ internal class OSMDecoder
 
     public List<OSMWay> DecodeWays(OSMDataBlock block)
     {
-        var ways = new List<OSMWay>();
+        List<OSMWay> ways = new List<OSMWay>();
 
-        foreach (var group in block.Data.Primitivegroup)
+        foreach (PrimitiveGroup group in block.Data.Primitivegroup)
         {
-            foreach (var way in group.Ways)
+            foreach (Way way in group.Ways)
             {
-                var tags = this.DecodeTags(block, way.Keys, way.Vals);
+                OSMTags tags = this.DecodeTags(block, way.Keys, way.Vals);
 
-                var nodeIDs = new List<long>();
-                var nodeID = 0L;
+                List<long> nodeIDs = new List<long>();
+                long nodeID = 0;
 
                 // Way node references are stored as deltas from the previous reference
-                foreach (var nodeIDDelta in way.Refs)
+                foreach (long nodeIDDelta in way.Refs)
                 {
                     nodeID += nodeIDDelta;
                     nodeIDs.Add(nodeID);
                 }
 
-                var newWay = new OSMWay(
+                OSMWay newWay = new OSMWay(
                     ID: way.Id,
                     NodeIDs: nodeIDs,
                     Tags: tags);
@@ -100,11 +100,11 @@ internal class OSMDecoder
 
     private List<OSMNode> DecodeOrdinaryNodes(OSMDataBlock block, RepeatedField<Node> nodes)
     {
-        var nodeList = new List<OSMNode>();
+        List<OSMNode> nodeList = new List<OSMNode>();
 
-        foreach (var node in nodes)
+        foreach (Node node in nodes)
         {
-            var newNode = new OSMNode(
+            OSMNode newNode = new OSMNode(
                 ID: node.Id,
                 Coordinates: this.DecodeCoordinates(block, node.Lat, node.Lon),
                 Tags: this.DecodeTags(block, node.Keys, node.Vals));
@@ -116,12 +116,12 @@ internal class OSMDecoder
 
     private List<OSMNode> DecodeDenseNodes(OSMDataBlock block, DenseNodes nodes)
     {
-        var nodeId = 0L;
-        var nodeLat = 0L;
-        var nodeLon = 0L;
-        var tagIndex = 0L;
+        long nodeId = 0;
+        long nodeLat = 0;
+        long nodeLon = 0;
+        long tagIndex = 0;
 
-        var nodeList = new List<OSMNode>();
+        List<OSMNode> nodeList = new List<OSMNode>();
 
         foreach (var (idDelta, latDelta, lonDelta) in Enumerable.Zip(
             nodes.Id, 
@@ -133,7 +133,7 @@ internal class OSMDecoder
             nodeLat += latDelta;
             nodeLon += lonDelta;
 
-            var newNode = new OSMNode(
+            OSMNode newNode = new OSMNode(
                 ID: nodeId,
                 Coordinates: this.DecodeCoordinates(block, nodeLat, nodeLon),
                 Tags: this.DecodeDenseTags(block, nodes, ref tagIndex));
@@ -145,12 +145,12 @@ internal class OSMDecoder
 
     private OSMTags DecodeTags(OSMDataBlock block, RepeatedField<uint> keys, RepeatedField<uint> vals) 
     {
-        var tags = new OSMTags();
+        OSMTags tags = new OSMTags();
 
         foreach (var (keyIndex, valIndex) in Enumerable.Zip(keys, vals))
         {
-            var key = block.Data.Stringtable.S[(int)keyIndex].ToStringUtf8();
-            var val = block.Data.Stringtable.S[(int)valIndex].ToStringUtf8();
+            string key = block.Data.Stringtable.S[(int)keyIndex].ToStringUtf8();
+            string val = block.Data.Stringtable.S[(int)valIndex].ToStringUtf8();
             tags.Add(key, val);
         }
 
@@ -159,7 +159,7 @@ internal class OSMDecoder
 
     private OSMTags DecodeDenseTags(OSMDataBlock block, DenseNodes nodes, ref long tagIndex)
     {
-        var tags = new OSMTags();
+        OSMTags tags = new OSMTags();
 
         if (nodes.KeysVals.Count == 0)
         {
@@ -169,10 +169,10 @@ internal class OSMDecoder
         // A zero delimiter marks the end of the current node's tags
         while (nodes.KeysVals[(int)tagIndex] != 0)
         {
-            var keyIndex = nodes.KeysVals[(int)tagIndex];
-            var valIndex = nodes.KeysVals[(int)tagIndex + 1];
-            var key = block.Data.Stringtable.S[keyIndex].ToStringUtf8();
-            var val = block.Data.Stringtable.S[valIndex].ToStringUtf8();
+            int keyIndex = nodes.KeysVals[(int)tagIndex];
+            int valIndex = nodes.KeysVals[(int)tagIndex + 1];
+            string key = block.Data.Stringtable.S[keyIndex].ToStringUtf8();
+            string val = block.Data.Stringtable.S[valIndex].ToStringUtf8();
             tags.Add(key, val);
             tagIndex += 2;
         }

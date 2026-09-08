@@ -1,5 +1,4 @@
 using System.Numerics;
-using System.Runtime.InteropServices;
 using Raylib_cs;
 
 namespace Scout;
@@ -17,35 +16,31 @@ internal readonly record struct DrawableRoad(
 
 internal class RenderData
 {
-    public Vector2[] Points { get; private set; }
-    public DrawableRoad[] Roads { get; private set; }
-
-    public RenderData() 
-    {
-    }
+    public Vector2[] Points { get; private set; } = Array.Empty<Vector2>();
+    public DrawableRoad[] Roads { get; private set; } = Array.Empty<DrawableRoad>();
 
     public void Build(MapData mapData) 
     {
-        var allPoints = new List<Vector2>();
-        var roads = new List<DrawableRoad>();
+        List<Vector2> allPoints = new List<Vector2>();
+        List<DrawableRoad> roads = new List<DrawableRoad>();
 
-        foreach (var road in mapData.Roads)
+        foreach (OSMWay road in mapData.Roads)
         {       
-            var start = allPoints.Count;
+            int start = allPoints.Count;
 
-            var minX = float.MaxValue;
-            var maxX = float.MinValue;
-            var minY = float.MaxValue;
-            var maxY = float.MinValue;
+            float minX = float.MaxValue;
+            float maxX = float.MinValue;
+            float minY = float.MaxValue;
+            float maxY = float.MinValue;
 
-            foreach (var nodeId in road.NodeIDs)
+            foreach (long nodeId in road.NodeIDs)
             {
-                if (!mapData.NodePositions.TryGetValue(nodeId, out var node))
+                if (!mapData.NodePositions.TryGetValue(nodeId, out OSMCoordinates node))
                 {
                     continue;
                 }
 
-                var point = new Vector2((float)node.Latitude, (float)node.Longitude);
+                Vector2 point = new Vector2((float)node.Latitude, (float)node.Longitude);
                 allPoints.Add(point);
 
                 minX = MathF.Min(minX, point.X);
@@ -54,15 +49,15 @@ internal class RenderData
                 maxY = MathF.Max(maxY, point.Y);
             }
 
-            var count = allPoints.Count - start;
+            int count = allPoints.Count - start;
             if (count >= 2)
             {
-                var bounds = new BoundBox(
+                BoundBox bounds = new BoundBox(
                     MaxX: maxX,
                     MinX: minX,
                     MaxY: maxY,
                     MinY: minY);
-                var drawableRoad = new DrawableRoad(
+                DrawableRoad drawableRoad = new DrawableRoad(
                     Start: start,
                     Count: count,
                     Bounds: bounds);
@@ -82,20 +77,14 @@ internal class RenderData
     }
 }
 
-internal class Renderer
+internal class Renderer(RenderData renderData)
 {
-    private RenderData _renderData;
-    private Camera2D _camera;
-
-    public Renderer(RenderData renderData) 
-    {
-        this._renderData = renderData;
-        this._camera = new Camera2D(
-            offset: new Vector2(Raylib.GetScreenWidth() / 2, Raylib.GetScreenHeight() / 2),
-            target: new Vector2(0.0f, 0.0f),
-            rotation: 0.0f,
-            zoom: 1.0f);
-    }
+    private RenderData _renderData = renderData;
+    private Camera2D _camera = new Camera2D(
+        offset: new Vector2(Raylib.GetScreenWidth() / 2, Raylib.GetScreenHeight() / 2),
+        target: new Vector2(0.0f, 0.0f),
+        rotation: 0.0f,
+        zoom: 1.0f);
 
     public void Update() 
     {
@@ -107,7 +96,7 @@ internal class Renderer
 
         if (Raylib.IsMouseButtonDown(MouseButton.Left))
         {
-            var mouseDelta = Raylib.GetMouseDelta();
+            Vector2 mouseDelta = Raylib.GetMouseDelta();
             this._camera.Target.X -= mouseDelta.X / this._camera.Zoom;
             this._camera.Target.Y -= mouseDelta.Y / this._camera.Zoom;
         }
@@ -134,7 +123,7 @@ internal class Renderer
         {
             fixed (Vector2* pointsPtr = _renderData.Points)
             {
-                foreach (var road in _renderData.Roads)
+                foreach (DrawableRoad road in _renderData.Roads)
                 {
                     Raylib.DrawLineStrip(pointsPtr + road.Start, (int)road.Count, Color.Green);
                 }
@@ -146,38 +135,4 @@ internal class Renderer
     {
         // TODO: implement this
     }
-
-    /*private void PrepareRoads(MapData mapData)
-    {
-        this._drawableRoads = new List<DrawableRoad>();
-
-        // Precompute road geometry and bounds so off-screen roads can be culled cheaply
-        foreach (var (road, roadIndex) in mapData.Roads.Select((road, index) => (road, index)))
-        {
-            var points = new List<Vector2>();
-            foreach (var nodeId in road.NodeIDs)
-            {
-                if (mapData.NodePositions.ContainsKey(nodeId))
-                {
-                    var node = mapData.NodePositions[nodeId];
-                    points.Add(new Vector2((float)node.Latitude, (float)node.Longitude));
-                }
-            }
-
-            if (points.Count >= 2)
-            {
-                var bounds = new BoundBox(
-                    MinX: points.Min(point => point.X),
-                    MaxX: points.Max(point => point.X),
-                    MinY: points.Min(point => point.Y),
-                    MaxY: points.Max(point => point.Y));
-
-                var drawableRoad = new DrawableRoad(
-                    Points: points,
-                    Bounds: bounds);
-                
-                this._drawableRoads.Add(drawableRoad);
-            }
-        }
-    }*/
 }

@@ -28,31 +28,19 @@ internal class PBFReaderException : Exception
     {}
 }
 
-internal class PBFReader : IDisposable
+internal class PBFReader(string path) : IDisposable
 {
-    private string _path;
+    private string _path = path;
 
-    private Stream? _stream;
-    private BinaryReader? _reader;
+    private Stream? _stream = null;
+    private BinaryReader? _reader = null;
 
-    private List<long> _blockOffsets;
-    private bool _blockOffsetsComplete;
-    private long _nextBlockIndex;
-    private long _nextUndiscoveredBlockOffset;
+    private List<long> _blockOffsets = new List<long>();
+    private bool _blockOffsetsComplete = false;
+    private long _nextBlockIndex = 0;
+    private long _nextUndiscoveredBlockOffset = 0;
 
-    private bool _disposed;
-
-    public PBFReader(string path)
-    {
-        this._path = path;
-        this._stream = null;
-        this._reader = null;
-        this._blockOffsets = new List<long>();
-        this._blockOffsetsComplete = false;
-        this._nextBlockIndex = 0;
-        this._nextUndiscoveredBlockOffset = 0;
-        this._disposed = false;
-    }
+    private bool _disposed = false;
 
     public void Open()
     {
@@ -65,7 +53,7 @@ internal class PBFReader : IDisposable
 
         if (this._reader == null)
         {
-            this._reader = new(this._stream);
+            this._reader = new BinaryReader(this._stream);
         }
     }
 
@@ -100,10 +88,10 @@ internal class PBFReader : IDisposable
             return null;
         }
 
-        var blockIndex = this._nextBlockIndex;
-        var blockOffset = this._stream.Position;
+        long blockIndex = this._nextBlockIndex;
+        long blockOffset = this._stream.Position;
 
-        var block = this.ReadBlock(this._stream, this._reader, blockIndex);
+        PBFBlock block = this.ReadBlock(this._stream, this._reader, blockIndex);
 
         // Cache offsets as blocks are discovered for later indexed access
         if (blockIndex == this._blockOffsets.Count)
@@ -129,7 +117,7 @@ internal class PBFReader : IDisposable
             throw new PBFReaderException(this._path, $"Block index out of bounds: {blockIndex}");
         }
 
-        var originalPosition = this._stream.Position;
+        long originalPosition = this._stream.Position;
         try
         {
             this._stream.Position = this._blockOffsets[(int)blockIndex];
@@ -147,9 +135,9 @@ internal class PBFReader : IDisposable
         try
         {
             // Each file block contains a length-prefixed header followed by its payload
-            var header = this.ReadHeader(reader);
-            var blockType = this.GetBlockType(header);
-            var payload = this.ReadPayload(stream, reader, header);
+            BlobHeader header = this.ReadHeader(reader);
+            PBFBlockType blockType = this.GetBlockType(header);
+            ByteString payload = this.ReadPayload(stream, reader, header);
 
             return new PBFBlock(
                 blockIndex,
@@ -186,16 +174,16 @@ internal class PBFReader : IDisposable
         const int headerMaxSize = 64 * 1024;
 
         // BlobHeader length is stored as a four-byte big-endian integer so this needs doing
-        var headerSizeBytes = new byte[headerSizeLength];
+        byte[] headerSizeBytes = new byte[headerSizeLength];
         this.ReadRequiredBytes(reader, headerSizeBytes, "blob header length");
 
-        var headerSize = BinaryPrimitives.ReadInt32BigEndian(headerSizeBytes);
+        int headerSize = BinaryPrimitives.ReadInt32BigEndian(headerSizeBytes);
         if (headerSize <= 0 || headerSize >= headerMaxSize)
         {
             throw new PBFReaderException(this._path, $"Invalid blob header size: {headerSize}");
         }
 
-        var headerData = new byte[headerSize];
+        byte[] headerData = new byte[headerSize];
         this.ReadRequiredBytes(reader, headerData, "blob header");
 
         return BlobHeader.Parser.ParseFrom(headerData);
@@ -204,16 +192,16 @@ internal class PBFReader : IDisposable
     private ByteString ReadPayload(Stream stream, BinaryReader reader, BlobHeader header)
     {
         // The header specifies the size of the serialized Blob
-        var blobSize = header.Datasize;
+        int blobSize = header.Datasize;
         this.ValidateBlobSize(stream, blobSize);
 
-        var blobData = new byte[blobSize];
+        byte[] blobData = new byte[blobSize];
         this.ReadRequiredBytes(reader, blobData, "blob");
 
-        var blob = Blob.Parser.ParseFrom(blobData);
+        Blob blob = Blob.Parser.ParseFrom(blobData);
 
         // Extract the payload according to the Blob's encoding
-        var payload = ByteString.Empty;
+        ByteString payload = ByteString.Empty;
         if (blob.HasRaw)
         {
             this.ValidatePayloadSize(blob.Raw.Length);
@@ -229,11 +217,11 @@ internal class PBFReader : IDisposable
             }
             this.ValidatePayloadSize(blob.RawSize);
 
-            using var compressedStream = new MemoryStream(blob.ZlibData.ToByteArray());
-            using var zlibStream = new ZLibStream(compressedStream, CompressionMode.Decompress);
+            using MemoryStream compressedStream = new MemoryStream(blob.ZlibData.ToByteArray());
+            using ZLibStream zlibStream = new ZLibStream(compressedStream, CompressionMode.Decompress);
 
-            var payloadBuffer = new byte[blob.RawSize];
-            var payloadLength = zlibStream.ReadAtLeast(payloadBuffer, blob.RawSize, false);
+            byte[] payloadBuffer = new byte[blob.RawSize];
+            int payloadLength = zlibStream.ReadAtLeast(payloadBuffer, blob.RawSize, false);
 
             if (payloadLength != blob.RawSize || zlibStream.ReadByte() != -1)
             {
@@ -266,7 +254,7 @@ internal class PBFReader : IDisposable
             return;
         }
 
-        var originalPosition = stream.Position;
+        long originalPosition = stream.Position;
         try
         {
             stream.Position = this._nextUndiscoveredBlockOffset;
@@ -286,13 +274,13 @@ internal class PBFReader : IDisposable
                         "Blob extends beyond the end of the file");
                 }
 
-                var blockOffset = stream.Position;
-                var header = this.ReadHeader(reader);
+                long blockOffset = stream.Position;
+                BlobHeader header = this.ReadHeader(reader);
 
-                var blobSize = header.Datasize;
+                int blobSize = header.Datasize;
                 this.ValidateBlobSize(stream, blobSize);
 
-                var nextOffset = stream.Position + blobSize;
+                long nextOffset = stream.Position + blobSize;
 
                 this._blockOffsets.Add(blockOffset);
                 this._nextUndiscoveredBlockOffset = nextOffset;

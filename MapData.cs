@@ -11,25 +11,18 @@ internal class MapDataException : Exception
     {}
 }
 
-internal class MapData
+internal class MapData(string path)
 {
-    public string Path { get; private set; }
-    public Dictionary<long, OSMCoordinates> NodePositions { get; private set; }
-    public List<OSMWay> Roads { get; private set; }
-
-    public MapData(string path)
-    {
-        this.Path = path;
-        this.NodePositions = new Dictionary<long, OSMCoordinates>();
-        this.Roads = new List<OSMWay>();
-    }
+    public string Path { get; private set; } = path;
+    public Dictionary<long, OSMCoordinates> NodePositions { get; private set; } = new Dictionary<long, OSMCoordinates>();
+    public List<OSMWay> Roads { get; private set; } = new();
 
     public void Load()
     {
-        using var pbfReader = new PBFReader(Path);
+        using PBFReader pbfReader = new PBFReader(Path);
         pbfReader.Open();
 
-        var osmDecoder = new OSMDecoder();
+        OSMDecoder osmDecoder = new OSMDecoder();
         
         this.ValidateHeader(pbfReader, osmDecoder);
         this.DecodeBlocks(pbfReader, osmDecoder); 
@@ -38,13 +31,13 @@ internal class MapData
 
     private void ValidateHeader(PBFReader pbfReader, OSMDecoder osmDecoder) 
     {
-        var pbfHeader = pbfReader.ReadNext();
+        PBFBlock? pbfHeader = pbfReader.ReadNext();
         if (pbfHeader == null)
         {
             throw new MapDataException(this.Path, "Header is missing");
         }
         
-        var osmHeader = osmDecoder.Parse(pbfHeader);
+        OSMBlock osmHeader = osmDecoder.Parse(pbfHeader);
         if (osmHeader.GetType() != typeof(OSMHeaderBlock))
         {
             throw new MapDataException(this.Path, $"Expected header, but got {"TODO"}");
@@ -53,17 +46,17 @@ internal class MapData
 
     private void DecodeBlocks(PBFReader pbfReader, OSMDecoder osmDecoder) 
     {
-        var pbfBlock = pbfReader.ReadNext();
+        PBFBlock? pbfBlock = pbfReader.ReadNext();
         while (pbfBlock != null)
         {
-            var osmBlock = (OSMDataBlock)osmDecoder.Parse(pbfBlock);
+            OSMDataBlock osmBlock = (OSMDataBlock)osmDecoder.Parse(pbfBlock);
 
-            foreach (var node in osmDecoder.DecodeNodes(osmBlock))
+            foreach (OSMNode node in osmDecoder.DecodeNodes(osmBlock))
             {
                 this.NodePositions.Add(node.ID, node.Coordinates);
             }
 
-            foreach (var way in osmDecoder.DecodeWays(osmBlock))
+            foreach (OSMWay way in osmDecoder.DecodeWays(osmBlock))
             {
                 if (way.Tags.ContainsKey("highway"))
                 {
@@ -84,9 +77,9 @@ internal class MapData
             throw new MapDataException(this.Path, "Map contains no nodes");
         }
 
-        var origin = this.NodePositions.First().Value;
-        var originLatitude = origin.Latitude;
-        var originLongitude = origin.Longitude;
+        OSMCoordinates origin = this.NodePositions.First().Value;
+        double originLatitude = origin.Latitude;
+        double originLongitude = origin.Longitude;
 
         foreach (var (id, (latitude, longitude)) in this.NodePositions)
         {
