@@ -5,8 +5,7 @@ namespace Scout;
 
 internal class Program
 {
-    private static MapData? _mapData;
-    private static MapViewer? _mapViewer;
+    private static Renderer? _renderer;
 
     private static void Main()
     {
@@ -14,15 +13,23 @@ internal class Program
         Raylib.InitWindow(1600, 900, "Scout");
         Raylib.SetTargetFPS(60);
 
-        var loadTask = Task.Run(() =>
+        Task<RenderData> loadTask = Task.Run(() =>
         {
-            _mapData = new("Assets/luxembourg.osm.pbf");
-            _mapData.Load();
-            _mapViewer = new(_mapData);
+            var mapData = new MapData("Assets/luxembourg.osm.pbf");
+            mapData.Load();
+
+            var renderData = new RenderData();
+            renderData.Build(mapData);
+
+            return renderData;
         });
 
         while (!Raylib.WindowShouldClose())
         {
+            if (loadTask.IsCompletedSuccessfully && _renderer == null)
+            {
+                _renderer = new(loadTask.Result);
+            }
             if (loadTask.IsCompletedSuccessfully)
             {
                 ViewerScreen();
@@ -31,7 +38,7 @@ internal class Program
             {
                 ExceptionScreen(loadTask.Exception?.GetBaseException());
             }
-            else if (_mapViewer == null)
+            else if (_renderer == null)
             {
                 LoadingScreen();
             }
@@ -42,11 +49,11 @@ internal class Program
 
     private static void ViewerScreen() 
     {
-        _mapViewer.Update();
+        _renderer.Update();
 
         Raylib.BeginDrawing();
         Raylib.ClearBackground(Color.White);
-        _mapViewer.Draw();
+        _renderer.Draw();
         Raylib.EndDrawing();
     }
 
