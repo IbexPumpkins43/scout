@@ -35,12 +35,12 @@ internal class RenderData
 
             foreach (long nodeId in road.NodeIds)
             {
-                if (!mapData.NodePositions.TryGetValue(nodeId, out OSMCoordinates node))
+                if (!mapData.NodePositions.TryGetValue(nodeId, out MapPosition node))
                 {
                     continue;
                 }
 
-                Vector2 point = new((float)node.Latitude, (float)node.Longitude);
+                Vector2 point = new((float)node.X, (float)node.Y);
                 allPoints.Add(point);
 
                 minX = MathF.Min(minX, point.X);
@@ -53,10 +53,10 @@ internal class RenderData
             if (count >= 2)
             {
                 BoundBox bounds = new(
-                    MaxX: maxX,
                     MinX: minX,
-                    MaxY: maxY,
-                    MinY: minY);
+                    MaxX: maxX,
+                    MinY: minY,
+                    MaxY: maxY);
                 DrawableRoad drawableRoad = new(
                     Start: start,
                     Count: count,
@@ -81,8 +81,8 @@ internal class Renderer(RenderData renderData)
 {
     private RenderData _renderData = renderData;
     private Camera2D _camera = new(
-        offset: new Vector2(Raylib.GetScreenWidth() / 2, Raylib.GetScreenHeight() / 2),
-        target: new Vector2(0.0f, 0.0f),
+        offset: new(Raylib.GetScreenWidth() / 2, Raylib.GetScreenHeight() / 2),
+        target: new(0.0f, 0.0f),
         rotation: 0.0f,
         zoom: 1.0f);
 
@@ -121,11 +121,11 @@ internal class Renderer(RenderData renderData)
         // TODO: only draw roads in the visible view
         unsafe
         {
-            fixed (Vector2* pointsPtr = _renderData.Points)
+            fixed (Vector2* pointsPtr = this._renderData.Points)
             {
-                foreach (DrawableRoad road in _renderData.Roads)
+                foreach (DrawableRoad road in this._renderData.Roads)
                 {
-                    Raylib.DrawLineStrip(pointsPtr + road.Start, (int)road.Count, Color.Green);
+                    Raylib.DrawLineStrip(pointsPtr + road.Start, road.Count, Color.Green);
                 }
             }
         }

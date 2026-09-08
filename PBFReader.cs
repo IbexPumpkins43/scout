@@ -21,11 +21,13 @@ internal class PBFReaderException : Exception
 {
     public PBFReaderException(string path, string message) 
         : base($"{path} : {message}")
-    {}
+    {
+    }
 
     public PBFReaderException(string path, string message, Exception innerException)
         : base($"{path} : {message}", innerException)
-    {}
+    {
+    }
 }
 
 internal class PBFReader(string path) : IDisposable
@@ -40,7 +42,7 @@ internal class PBFReader(string path) : IDisposable
     private long _nextBlockIndex;
     private long _nextUndiscoveredBlockOffset;
 
-    private bool _disposed = false;
+    private bool _disposed;
 
     public void Open()
     {
@@ -53,7 +55,7 @@ internal class PBFReader(string path) : IDisposable
 
         if (this._reader == null)
         {
-            this._reader = new BinaryReader(this._stream);
+            this._reader = new(input: this._stream);
         }
     }
 
@@ -139,10 +141,10 @@ internal class PBFReader(string path) : IDisposable
             PBFBlockType blockType = this.GetBlockType(header);
             ByteString payload = this.ReadPayload(stream, reader, header);
 
-            return new PBFBlock(
-                blockIndex,
-                payload,
-                blockType);
+            return new(
+                Index: blockIndex,
+                Bytes: payload,
+                Type: blockType);
         }
         catch (Exception exception) when (
             exception is IOException
@@ -156,7 +158,7 @@ internal class PBFReader(string path) : IDisposable
         }
     }
 
-    private void ReadRequiredBytes(BinaryReader reader, Span<byte> buffer, string desc)
+    private void ReadRequiredBytes(BinaryReader reader, Span<byte> buffer, string description)
     {
         try
         {
@@ -164,7 +166,7 @@ internal class PBFReader(string path) : IDisposable
         }
         catch (EndOfStreamException eosException)
         {
-            throw new PBFReaderException(this._path, $"Truncated {desc}", eosException);
+            throw new PBFReaderException(this._path, $"Truncated {description}", eosException);
         }
     }
 
@@ -217,8 +219,10 @@ internal class PBFReader(string path) : IDisposable
             }
             this.ValidatePayloadSize(blob.RawSize);
 
-            using MemoryStream compressedStream = new(blob.ZlibData.ToByteArray());
-            using ZLibStream zlibStream = new(compressedStream, CompressionMode.Decompress);
+            using MemoryStream compressedStream = new(buffer: blob.ZlibData.ToByteArray());
+            using ZLibStream zlibStream = new(
+                stream: compressedStream, 
+                mode: CompressionMode.Decompress);
 
             byte[] payloadBuffer = new byte[blob.RawSize];
             int payloadLength = zlibStream.ReadAtLeast(payloadBuffer, blob.RawSize, false);

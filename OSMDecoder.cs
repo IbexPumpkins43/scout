@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Google.Protobuf.Collections;
 using OSMPBF;
 
@@ -42,7 +43,8 @@ internal class OSMDecoder
                 Data: HeaderBlock.Parser.ParseFrom(pbfBlock.Bytes)),
             PBFBlockType.OSMData => new OSMDataBlock(
                 Index: pbfBlock.Index,
-                Data: PrimitiveBlock.Parser.ParseFrom(pbfBlock.Bytes))
+                Data: PrimitiveBlock.Parser.ParseFrom(pbfBlock.Bytes)),
+            _ => throw new UnreachableException()
         };
     }
 
@@ -76,19 +78,19 @@ internal class OSMDecoder
             {
                 OSMTags tags = this.DecodeTags(block, way.Keys, way.Vals);
 
-                List<long> nodeIDs = new();
-                long nodeID = 0;
+                List<long> nodeIds = new();
+                long nodeId = 0;
 
                 // Way node references are stored as deltas from the previous reference
-                foreach (long nodeIDDelta in way.Refs)
+                foreach (long nodeIdDelta in way.Refs)
                 {
-                    nodeID += nodeIDDelta;
-                    nodeIDs.Add(nodeID);
+                    nodeId += nodeIdDelta;
+                    nodeIds.Add(nodeId);
                 }
 
                 OSMWay newWay = new(
                     Id: way.Id,
-                    NodeIds: nodeIDs,
+                    NodeIds: nodeIds,
                     Tags: tags);
 
                 ways.Add(newWay);
@@ -143,7 +145,10 @@ internal class OSMDecoder
         return nodeList;
     }
 
-    private OSMTags DecodeTags(OSMDataBlock block, RepeatedField<uint> keys, RepeatedField<uint> vals) 
+    private OSMTags DecodeTags(
+        OSMDataBlock block,
+        RepeatedField<uint> keys, 
+        RepeatedField<uint> vals) 
     {
         OSMTags tags = new();
 
@@ -185,7 +190,7 @@ internal class OSMDecoder
     private OSMCoordinates DecodeCoordinates(OSMDataBlock block, long lat, long lon)
     {
         // OSM stores coordinates using offsets and granularity in nanodegrees
-        return new OSMCoordinates(
+        return new(
             Latitude: (block.Data.LatOffset + block.Data.Granularity * lat) / 1000000000.0,
             Longitude: (block.Data.LonOffset + block.Data.Granularity * lon) / 1000000000.0);
     }

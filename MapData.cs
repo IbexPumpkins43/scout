@@ -4,22 +4,28 @@ internal class MapDataException : Exception
 {
     public MapDataException(string path, string message) 
         : base($"{path} : {message}")
-    {}
+    {
+    }
 
     public MapDataException(string path, string message, Exception innerException)
         : base($"{path} : {message}", innerException)
-    {}
+    {
+    }
 }
+
+internal readonly record struct MapPosition(
+    double X,
+    double Y);
 
 internal class MapData(string path)
 {
-    public string Path { get; private set; } = path;
-    public Dictionary<long, OSMCoordinates> NodePositions { get; private set; } = new();
-    public List<OSMWay> Roads { get; private set; } = new();
+    public string Path { get; } = path;
+    public Dictionary<long, MapPosition> NodePositions { get; } = new();
+    public List<OSMWay> Roads { get; } = new();
 
     public void Load()
     {
-        using PBFReader pbfReader = new(Path);
+        using PBFReader pbfReader = new(path: this.Path);
         pbfReader.Open();
 
         OSMDecoder osmDecoder = new();
@@ -40,7 +46,9 @@ internal class MapData(string path)
         OSMBlock osmHeader = osmDecoder.Parse(pbfHeader);
         if (osmHeader.GetType() != typeof(OSMHeaderBlock))
         {
-            throw new MapDataException(this.Path, $"Expected header, but got {"TODO"}");
+            throw new MapDataException(
+                this.Path, 
+                $"Expected header, but got {osmHeader.GetType().Name}");
         }
     }
 
@@ -53,7 +61,10 @@ internal class MapData(string path)
 
             foreach (OSMNode node in osmDecoder.DecodeNodes(osmBlock))
             {
-                this.NodePositions.Add(node.Id, node.Coordinates);
+                MapPosition mapPosition = new(
+                    X: node.Coordinates.Latitude,
+                    Y: node.Coordinates.Longitude);
+                this.NodePositions.Add(node.Id, mapPosition);
             }
 
             foreach (OSMWay way in osmDecoder.DecodeWays(osmBlock))
@@ -77,20 +88,20 @@ internal class MapData(string path)
             throw new MapDataException(this.Path, "Map contains no nodes");
         }
 
-        OSMCoordinates origin = this.NodePositions.First().Value;
-        double originLatitude = origin.Latitude;
-        double originLongitude = origin.Longitude;
+        MapPosition origin = this.NodePositions.First().Value;
+        double originX = origin.X;
+        double originY = origin.Y;
 
-        foreach (var (id, (latitude, longitude)) in this.NodePositions)
+        foreach (var (id, (x, y)) in this.NodePositions)
         {
-            this.NodePositions[id] = new OSMCoordinates(
+            this.NodePositions[id] = new(
                 // Use a local origin to keep projected coordinates near 0
-                Latitude: 
-                    (longitude - originLongitude) 
-                    * Math.Cos(double.DegreesToRadians(originLatitude))
+                X: 
+                    (y - originY) 
+                    * Math.Cos(double.DegreesToRadians(originX))
                     * metresPerDegree,
                 // Invert Y so north appears upward
-                Longitude: -(latitude - originLatitude) * metresPerDegree);
+                Y: -(x - originX) * metresPerDegree);
         }
 
     }

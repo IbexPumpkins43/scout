@@ -1,13 +1,12 @@
 namespace Scout;
 
-internal class GraphData : IDisposable
+internal class GraphData()
 {
-    public GraphData() {}
-    public void Dispose() {}
-    public void Build() {}
+    public void Build()
+    {
+    }
 }
 
-internal class Graph
+internal class Graph()
 {
-    public Graph() {}
 }

@@ -15,7 +15,7 @@ internal class Program
 
         Task<RenderData> loadTask = Task.Run(() =>
         {
-            MapData mapData = new("Assets/luxembourg.osm.pbf");
+            MapData mapData = new(path: "Assets/luxembourg.osm.pbf");
             mapData.Load();
 
             RenderData renderData = new();
@@ -26,21 +26,18 @@ internal class Program
 
         while (!Raylib.WindowShouldClose())
         {
-            if (loadTask.IsCompletedSuccessfully && _renderer == null)
+            if (loadTask.IsFaulted)
             {
-                _renderer = new Renderer(loadTask.Result);
+                ExceptionScreen(loadTask.Exception!.GetBaseException());
             }
-            if (loadTask.IsCompletedSuccessfully)
-            {
-                ViewerScreen();
-            }
-            else if (loadTask.IsFaulted)
-            {
-                ExceptionScreen(loadTask.Exception?.GetBaseException());
-            }
-            else if (_renderer == null)
+            else if (!loadTask.IsCompletedSuccessfully)
             {
                 LoadingScreen();
+            }
+            else
+            {
+                _renderer ??= new(renderData: loadTask.Result);
+                ViewerScreen();
             }
         }
 
@@ -49,7 +46,7 @@ internal class Program
 
     private static void ViewerScreen() 
     {
-        _renderer.Update();
+        _renderer!.Update();
 
         Raylib.BeginDrawing();
         Raylib.ClearBackground(Color.White);
@@ -72,7 +69,7 @@ internal class Program
         Raylib.ClearBackground(Color.White);
         Raylib.DrawText(loadingMessage, 0, 0, fontSize, Color.Black);
         Raylib.DrawRing(
-            new Vector2(loadingMessageWidth, ringSize),
+            new(loadingMessageWidth, ringSize),
             ringSize / 2,
             ringSize,
             angle,
