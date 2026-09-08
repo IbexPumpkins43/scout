@@ -14,15 +14,15 @@ internal class MapDataException : Exception
 internal class MapData(string path)
 {
     public string Path { get; private set; } = path;
-    public Dictionary<long, OSMCoordinates> NodePositions { get; private set; } = new Dictionary<long, OSMCoordinates>();
+    public Dictionary<long, OSMCoordinates> NodePositions { get; private set; } = new();
     public List<OSMWay> Roads { get; private set; } = new();
 
     public void Load()
     {
-        using PBFReader pbfReader = new PBFReader(Path);
+        using PBFReader pbfReader = new(Path);
         pbfReader.Open();
 
-        OSMDecoder osmDecoder = new OSMDecoder();
+        OSMDecoder osmDecoder = new();
         
         this.ValidateHeader(pbfReader, osmDecoder);
         this.DecodeBlocks(pbfReader, osmDecoder); 
@@ -53,7 +53,7 @@ internal class MapData(string path)
 
             foreach (OSMNode node in osmDecoder.DecodeNodes(osmBlock))
             {
-                this.NodePositions.Add(node.ID, node.Coordinates);
+                this.NodePositions.Add(node.Id, node.Coordinates);
             }
 
             foreach (OSMWay way in osmDecoder.DecodeWays(osmBlock))

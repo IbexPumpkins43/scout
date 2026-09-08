@@ -21,8 +21,8 @@ internal class RenderData
 
     public void Build(MapData mapData) 
     {
-        List<Vector2> allPoints = new List<Vector2>();
-        List<DrawableRoad> roads = new List<DrawableRoad>();
+        List<Vector2> allPoints = new();
+        List<DrawableRoad> roads = new();
 
         foreach (OSMWay road in mapData.Roads)
         {       
@@ -33,14 +33,14 @@ internal class RenderData
             float minY = float.MaxValue;
             float maxY = float.MinValue;
 
-            foreach (long nodeId in road.NodeIDs)
+            foreach (long nodeId in road.NodeIds)
             {
                 if (!mapData.NodePositions.TryGetValue(nodeId, out OSMCoordinates node))
                 {
                     continue;
                 }
 
-                Vector2 point = new Vector2((float)node.Latitude, (float)node.Longitude);
+                Vector2 point = new((float)node.Latitude, (float)node.Longitude);
                 allPoints.Add(point);
 
                 minX = MathF.Min(minX, point.X);
@@ -52,12 +52,12 @@ internal class RenderData
             int count = allPoints.Count - start;
             if (count >= 2)
             {
-                BoundBox bounds = new BoundBox(
+                BoundBox bounds = new(
                     MaxX: maxX,
                     MinX: minX,
                     MaxY: maxY,
                     MinY: minY);
-                DrawableRoad drawableRoad = new DrawableRoad(
+                DrawableRoad drawableRoad = new(
                     Start: start,
                     Count: count,
                     Bounds: bounds);
@@ -80,7 +80,7 @@ internal class RenderData
 internal class Renderer(RenderData renderData)
 {
     private RenderData _renderData = renderData;
-    private Camera2D _camera = new Camera2D(
+    private Camera2D _camera = new(
         offset: new Vector2(Raylib.GetScreenWidth() / 2, Raylib.GetScreenHeight() / 2),
         target: new Vector2(0.0f, 0.0f),
         rotation: 0.0f,

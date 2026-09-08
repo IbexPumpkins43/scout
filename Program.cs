@@ -15,10 +15,10 @@ internal class Program
 
         Task<RenderData> loadTask = Task.Run(() =>
         {
-            MapData mapData = new MapData("Assets/luxembourg.osm.pbf");
+            MapData mapData = new("Assets/luxembourg.osm.pbf");
             mapData.Load();
 
-            RenderData renderData = new RenderData();
+            RenderData renderData = new();
             renderData.Build(mapData);
 
             return renderData;

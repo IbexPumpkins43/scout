@@ -22,13 +22,13 @@ internal readonly record struct OSMCoordinates(
     double Longitude);
 
 internal sealed record OSMNode(
-    long ID, 
+    long Id, 
     OSMCoordinates Coordinates,
     OSMTags Tags);
 
 internal sealed record OSMWay(
-    long ID,
-    List<long> NodeIDs,
+    long Id,
+    List<long> NodeIds,
     OSMTags Tags);
 
 internal class OSMDecoder
@@ -48,7 +48,7 @@ internal class OSMDecoder
 
     public List<OSMNode> DecodeNodes(OSMDataBlock block) 
     {
-        List<OSMNode> nodeList = new List<OSMNode>();
+        List<OSMNode> nodeList = new();
 
         foreach (PrimitiveGroup group in block.Data.Primitivegroup)
         {
@@ -68,7 +68,7 @@ internal class OSMDecoder
 
     public List<OSMWay> DecodeWays(OSMDataBlock block)
     {
-        List<OSMWay> ways = new List<OSMWay>();
+        List<OSMWay> ways = new();
 
         foreach (PrimitiveGroup group in block.Data.Primitivegroup)
         {
@@ -76,7 +76,7 @@ internal class OSMDecoder
             {
                 OSMTags tags = this.DecodeTags(block, way.Keys, way.Vals);
 
-                List<long> nodeIDs = new List<long>();
+                List<long> nodeIDs = new();
                 long nodeID = 0;
 
                 // Way node references are stored as deltas from the previous reference
@@ -86,9 +86,9 @@ internal class OSMDecoder
                     nodeIDs.Add(nodeID);
                 }
 
-                OSMWay newWay = new OSMWay(
-                    ID: way.Id,
-                    NodeIDs: nodeIDs,
+                OSMWay newWay = new(
+                    Id: way.Id,
+                    NodeIds: nodeIDs,
                     Tags: tags);
 
                 ways.Add(newWay);
@@ -100,12 +100,12 @@ internal class OSMDecoder
 
     private List<OSMNode> DecodeOrdinaryNodes(OSMDataBlock block, RepeatedField<Node> nodes)
     {
-        List<OSMNode> nodeList = new List<OSMNode>();
+        List<OSMNode> nodeList = new();
 
         foreach (Node node in nodes)
         {
-            OSMNode newNode = new OSMNode(
-                ID: node.Id,
+            OSMNode newNode = new(
+                Id: node.Id,
                 Coordinates: this.DecodeCoordinates(block, node.Lat, node.Lon),
                 Tags: this.DecodeTags(block, node.Keys, node.Vals));
             nodeList.Add(newNode);
@@ -121,7 +121,7 @@ internal class OSMDecoder
         long nodeLon = 0;
         long tagIndex = 0;
 
-        List<OSMNode> nodeList = new List<OSMNode>();
+        List<OSMNode> nodeList = new();
 
         foreach (var (idDelta, latDelta, lonDelta) in Enumerable.Zip(
             nodes.Id, 
@@ -133,8 +133,8 @@ internal class OSMDecoder
             nodeLat += latDelta;
             nodeLon += lonDelta;
 
-            OSMNode newNode = new OSMNode(
-                ID: nodeId,
+            OSMNode newNode = new(
+                Id: nodeId,
                 Coordinates: this.DecodeCoordinates(block, nodeLat, nodeLon),
                 Tags: this.DecodeDenseTags(block, nodes, ref tagIndex));
             nodeList.Add(newNode);
@@ -145,7 +145,7 @@ internal class OSMDecoder
 
     private OSMTags DecodeTags(OSMDataBlock block, RepeatedField<uint> keys, RepeatedField<uint> vals) 
     {
-        OSMTags tags = new OSMTags();
+        OSMTags tags = new();
 
         foreach (var (keyIndex, valIndex) in Enumerable.Zip(keys, vals))
         {
@@ -159,7 +159,7 @@ internal class OSMDecoder
 
     private OSMTags DecodeDenseTags(OSMDataBlock block, DenseNodes nodes, ref long tagIndex)
     {
-        OSMTags tags = new OSMTags();
+        OSMTags tags = new();
 
         if (nodes.KeysVals.Count == 0)
         {

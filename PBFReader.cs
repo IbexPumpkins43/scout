@@ -32,13 +32,13 @@ internal class PBFReader(string path) : IDisposable
 {
     private string _path = path;
 
-    private Stream? _stream = null;
-    private BinaryReader? _reader = null;
+    private Stream? _stream;
+    private BinaryReader? _reader;
 
-    private List<long> _blockOffsets = new List<long>();
-    private bool _blockOffsetsComplete = false;
-    private long _nextBlockIndex = 0;
-    private long _nextUndiscoveredBlockOffset = 0;
+    private List<long> _blockOffsets = new();
+    private bool _blockOffsetsComplete;
+    private long _nextBlockIndex;
+    private long _nextUndiscoveredBlockOffset;
 
     private bool _disposed = false;
 
@@ -217,8 +217,8 @@ internal class PBFReader(string path) : IDisposable
             }
             this.ValidatePayloadSize(blob.RawSize);
 
-            using MemoryStream compressedStream = new MemoryStream(blob.ZlibData.ToByteArray());
-            using ZLibStream zlibStream = new ZLibStream(compressedStream, CompressionMode.Decompress);
+            using MemoryStream compressedStream = new(blob.ZlibData.ToByteArray());
+            using ZLibStream zlibStream = new(compressedStream, CompressionMode.Decompress);
 
             byte[] payloadBuffer = new byte[blob.RawSize];
             int payloadLength = zlibStream.ReadAtLeast(payloadBuffer, blob.RawSize, false);
