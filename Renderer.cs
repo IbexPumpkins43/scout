@@ -118,6 +118,8 @@ internal class Renderer(RenderData renderData)
 
     private void DrawRoads()
     {
+        BoundBox viewBounds = this.GetViewBoundBox();
+
         // TODO: only draw roads in the visible view
         unsafe
         {
@@ -125,6 +127,11 @@ internal class Renderer(RenderData renderData)
             {
                 foreach (DrawableRoad road in this._renderData.Roads)
                 {
+                    if (!this.BoundBoxIntersects(road.Bounds, viewBounds))
+                    {
+                        continue;
+                    }
+
                     Raylib.DrawLineStrip(pointsPtr + road.Start, road.Count, Color.Green);
                 }
             }
@@ -134,5 +141,25 @@ internal class Renderer(RenderData renderData)
     private void DrawBuildings()
     {
         // TODO: implement this
+    }
+
+    private BoundBox GetViewBoundBox()
+    {
+        float halfWidth = Raylib.GetScreenWidth() / (2.0f * this._camera.Zoom);
+        float halfHeight = Raylib.GetScreenHeight() / (2.0f * this._camera.Zoom);
+
+        return new(
+            MinX: this._camera.Target.X - halfWidth,
+            MaxX: this._camera.Target.X + halfWidth,
+            MinY: this._camera.Target.Y - halfHeight,
+            MaxY: this._camera.Target.Y + halfHeight);
+    }
+
+    private bool BoundBoxIntersects(BoundBox first, BoundBox second)
+    {
+        return first.MaxX >= second.MinX
+            && first.MinX <= second.MaxX
+            && first.MaxY >= second.MinY
+            && first.MinY <= second.MaxY;
     }
 }
