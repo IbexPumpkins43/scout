@@ -13,15 +13,12 @@ internal class Program
         Raylib.InitWindow(1600, 900, "Scout");
         Raylib.SetTargetFPS(60);
 
-        Task<RenderData> loadTask = Task.Run(() =>
+        Task<MapData> loadTask = Task.Run(() =>
         {
-            MapData mapData = new(path: "Assets/luxembourg.osm.pbf");
-            mapData.Load();
+            MapImporter mapImporter = new(path: "Assets/luxembourg.osm.pbf");
+            MapData mapData = mapImporter.Import();
 
-            RenderData renderData = new();
-            renderData.Build(mapData);
-
-            return renderData;
+            return mapData;
         });
 
         while (!Raylib.WindowShouldClose())
@@ -36,7 +33,7 @@ internal class Program
             }
             else
             {
-                _renderer ??= new(renderData: loadTask.Result);
+                _renderer ??= new(renderData: loadTask.Result.RenderData);
                 ViewerScreen();
             }
         }
@@ -56,20 +53,15 @@ internal class Program
 
     private static void LoadingScreen() 
     {
-        const int fontSize = 20;
-        const int ringSize = 10;
+        const int ringSize = 40;
 
         float time = (float)Raylib.GetTime();
         float angle = time * 180.0f;
 
-        string loadingMessage = "Loading...";
-        int loadingMessageWidth = Raylib.MeasureText(loadingMessage, fontSize) + 15;
-
         Raylib.BeginDrawing();
         Raylib.ClearBackground(Color.White);
-        Raylib.DrawText(loadingMessage, 0, 0, fontSize, Color.Black);
         Raylib.DrawRing(
-            new(loadingMessageWidth, ringSize),
+            new(Raylib.GetScreenWidth() / 2 - ringSize, Raylib.GetScreenHeight() / 2 - ringSize),
             ringSize / 2,
             ringSize,
             angle,

@@ -19,12 +19,12 @@ internal class RenderData
     public Vector2[] Points { get; private set; } = Array.Empty<Vector2>();
     public DrawableRoad[] Roads { get; private set; } = Array.Empty<DrawableRoad>();
 
-    public void Build(MapData mapData) 
+    public void Build(MapNodePositions nodePositions, MapRoads allRoads) 
     {
         List<Vector2> allPoints = new();
         List<DrawableRoad> roads = new();
 
-        foreach (OSMWay road in mapData.Roads)
+        foreach (OSMWay road in allRoads)
         {       
             int start = allPoints.Count;
 
@@ -35,7 +35,7 @@ internal class RenderData
 
             foreach (long nodeId in road.NodeIds)
             {
-                if (!mapData.NodePositions.TryGetValue(nodeId, out MapPosition node))
+                if (!nodePositions.TryGetValue(nodeId, out MapPosition node))
                 {
                     continue;
                 }
