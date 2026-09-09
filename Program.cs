@@ -5,7 +5,11 @@ namespace Scout;
 
 internal class Program
 {
+    private static RenderData? _renderData;
     private static Renderer? _renderer;
+    private static GraphData? _graphData;
+    private static Graph? _graph;
+    private static int[]? _path;
 
     private static void Main()
     {
@@ -21,6 +25,7 @@ internal class Program
             return mapData;
         });
 
+
         while (!Raylib.WindowShouldClose())
         {
             if (loadTask.IsFaulted)
@@ -31,9 +36,17 @@ internal class Program
             {
                 LoadingScreen();
             }
+            else if (_renderer == null || _graph == null || _path == null)
+            {
+                _renderData ??= loadTask.Result.RenderData;
+                _renderer ??= new(renderData: _renderData);
+                _graphData ??= loadTask.Result.GraphData;
+                _graph ??= new(graphData: _graphData);
+                
+                _path = _graph.Dijkstras(new Random().Next(1000), new Random().Next(1000));
+            }
             else
             {
-                _renderer ??= new(renderData: loadTask.Result.RenderData);
                 ViewerScreen();
             }
         }
