@@ -77,9 +77,10 @@ internal class RenderData
     }
 }
 
-internal class Renderer(RenderData renderData)
+internal class Renderer(RenderData renderData, GraphData graphData)
 {
     private RenderData _renderData = renderData;
+    private GraphData _graphData = graphData;
     private Camera2D _camera = new(
         offset: new(Raylib.GetScreenWidth() / 2, Raylib.GetScreenHeight() / 2),
         target: new(0.0f, 0.0f),
@@ -105,7 +106,7 @@ internal class Renderer(RenderData renderData)
         this._camera.Zoom = Raymath.Clamp(this._camera.Zoom, 0.001f, 10.0f);
     }
 
-    public void Draw() 
+    public void Draw(int[]? path = null) 
     {
         Raylib.DrawFPS(0, 0);
 
@@ -113,6 +114,7 @@ internal class Renderer(RenderData renderData)
         Raylib.DrawEllipse(0, 0, 10.0f, 10.0f, Color.Red);
         this.DrawRoads();
         this.DrawBuildings();
+        this.DrawPath(path);
         Raylib.EndMode2D();
     }
 
@@ -141,6 +143,33 @@ internal class Renderer(RenderData renderData)
     private void DrawBuildings()
     {
         // TODO: implement this
+    }
+
+    private void DrawPath(int[]? path)
+    {
+        if (path == null)
+        {
+            return;
+        }
+
+        for (int index = 0; index < path.Length - 1; index++)
+        {
+            GraphNode firstNode =
+                this._graphData.Nodes[path[index]];
+
+            GraphNode secondNode =
+                this._graphData.Nodes[path[index + 1]];
+
+            Vector2 firstPosition = new(
+                (float)firstNode.Position.X,
+                (float)firstNode.Position.Y);
+
+            Vector2 secondPosition = new(
+                (float)secondNode.Position.X,
+                (float)secondNode.Position.Y);
+
+            Raylib.DrawLineV(firstPosition, secondPosition, Color.Red);
+        }
     }
 
     private BoundBox GetViewBoundBox()
