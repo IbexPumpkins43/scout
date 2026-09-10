@@ -38,10 +38,10 @@ internal class Program
             }
             else if (_renderer == null || _graph == null || _path == null)
             {
-                _renderData ??= loadTask.Result.RenderData;
-                _renderer ??= new(renderData: _renderData);
                 _graphData ??= loadTask.Result.GraphData;
                 _graph ??= new(graphData: _graphData);
+                _renderData ??= loadTask.Result.RenderData;
+                _renderer ??= new(renderData: _renderData, graphData: _graphData);
                 
                 _path = _graph.Dijkstras(new Random().Next(1000), new Random().Next(1000));
             }
@@ -60,7 +60,7 @@ internal class Program
 
         Raylib.BeginDrawing();
         Raylib.ClearBackground(Color.White);
-        _renderer.Draw();
+        _renderer.Draw(_path);
         Raylib.EndDrawing();
     }
 
