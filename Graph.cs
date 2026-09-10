@@ -259,6 +259,20 @@ internal class Graph(GraphData graphData)
 
     private int[] BuildPath(int start, int target)
     {
-        return [];
+        int length = 1;
+        for (int node = target; node != start; node = this._previous[node])
+        {
+            length++;
+        }
+
+        int[] path = new int[length];
+        int current = target;
+        for (int index = path.Length - 1; index >= 0; index--)
+        {
+            path[index] = current;
+            current = this._previous[current];
+        }
+
+        return path;
     }
 }
