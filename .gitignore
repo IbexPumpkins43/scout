@@ -1,3 +1,4 @@
-Assets/
+*.osm.pbf
+TODO.md
 bin/
 obj/
