@@ -6,30 +6,6 @@ using OSMPBF;
 
 namespace Scout.Map;
 
-internal enum PBFBlockType
-{
-    OSMHeader,
-    OSMData
-}
-
-internal record PBFBlock(
-    long Index,
-    ByteString Bytes,
-    PBFBlockType Type);
-
-internal class PBFReaderException : Exception
-{
-    public PBFReaderException(string path, string message) 
-        : base($"{path} : {message}")
-    {
-    }
-
-    public PBFReaderException(string path, string message, Exception innerException)
-        : base($"{path} : {message}", innerException)
-    {
-    }
-}
-
 internal class PBFReader(string path) : IDisposable
 {
     private string _path = path;

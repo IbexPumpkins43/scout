@@ -5,6 +5,7 @@ namespace Scout.UI;
 
 internal partial class UIManager
 {
+    // TODO : Continue implementing this
     public bool InputBox(ref string text)
     {
         Rectangle box = new(
