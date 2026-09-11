@@ -19,7 +19,7 @@ internal class ErrorScene(SceneManager sceneManager) : Scene(sceneManager)
         this._exception = exception;
     }
 
-    public override void Unload()
+    public override void Dispose()
     {
         _uiManager.Dispose();
     }

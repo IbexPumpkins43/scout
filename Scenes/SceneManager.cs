@@ -15,12 +15,20 @@ internal class SceneManagerException : Exception
     }
 }
 
-internal class SceneManager
+internal class SceneManager : IDisposable
 {
     private Dictionary<Type, Scene> _scenes = new();
     private Scene? _currentScene;
     private bool _reload;
     private object? _lastSceneResult;
+
+    public void Dispose()
+    {
+        foreach (var (_, scene) in this._scenes)
+        {
+            scene.Dispose();
+        }
+    }
 
     public void RegisterScene<T>() where T : Scene
     {
@@ -49,13 +57,10 @@ internal class SceneManager
             throw new SceneManagerException($"Scene {typeof(T)} does not exist");
         }
 
-        if (this._currentScene != null)
-        {
-            this._currentScene.Unload();
-        }
-
         this._currentScene = this._scenes[typeof(T)];
-        this._reload = true;
+        this._currentScene.Load(); 
+
+        Console.WriteLine($"Switching to {this._currentScene.GetType()}");
     }
 
     public void Run()
@@ -67,25 +72,14 @@ internal class SceneManager
 
         while (!Raylib.WindowShouldClose())
         {
-            if (this._reload)
-            {
-                this._currentScene.Load();
-                this._reload = false;
-            }
+            this._currentScene.Update();
 
             Raylib.BeginDrawing();
             Raylib.ClearBackground(Color.White);
             this._currentScene.Render();
             Raylib.EndDrawing();
-
-            // TODO : this whole loop is a bit messy to follow, this all needs reworking
-            if (this._reload)
-                continue;
-
-            this._currentScene.Update();
         }
 
-        this._currentScene.Unload();
     }
 
     public void SetSceneResult<T>(T result)

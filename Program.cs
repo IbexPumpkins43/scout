@@ -11,7 +11,7 @@ internal class Program
         Raylib.InitWindow(1600, 900, "Scout");
         Raylib.SetTargetFPS(60);
 
-        SceneManager sceneManager = new();
+        using SceneManager sceneManager = new();
         sceneManager.RegisterScene<LoadingScene>();
         sceneManager.RegisterScene<ErrorScene>();
         sceneManager.RegisterScene<ViewerScene>();

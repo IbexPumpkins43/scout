@@ -27,7 +27,7 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
         this._graph = new(this._graphData);
     }
 
-    public override void Unload()
+    public override void Dispose()
     {
         _uiManager.Dispose();
     }
@@ -41,24 +41,32 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
     {
         this._renderer.Draw();
         Raylib.DrawFPS(72, 8);
+       
         this._uiManager.BeginFrame();
-        this._uiManager.SameLine = true;
-        if (this._uiManager.IconButton("open", "Open a map file..."))
-        {
-            using NativeFileDialog fileDiag = new NativeFileDialog()
-                .SelectFile()
-                .AddFilter("OpenStreetMap Protobuf files", "*.osm.pbf");
-
-            if (fileDiag.Open(out string[]? files) == DialogResult.Okay && files != null)
+           this._uiManager.SameLine = true;
+            if (this._uiManager.IconButton("open", "Open a map file..."))
             {
-                this.SceneManager.SetSceneResult<string>(files[0]);
-                this.SceneManager.SwitchTo<LoadingScene>();
+                this.OpenMapFile();
             }
-        }
-        if (this._uiManager.IconButton("quit", "Quit"))
+            if (this._uiManager.IconButton("quit", "Quit"))
+            {
+                Raylib.CloseWindow();
+            }
+        this._uiManager.EndFrame();
+    }
+
+    private void OpenMapFile()
+    {
+        using NativeFileDialog fileDiag = new NativeFileDialog()
+            .SelectFile()
+            .AddFilter("OpenStreetMap Protobuf files", "osm.pbf");
+
+        if (fileDiag.Open(out string[]? files) == DialogResult.Okay 
+            && files != null 
+            && files.Length > 0)
         {
-            Raylib.CloseWindow();
+            this.SceneManager.SetSceneResult<string>(files[0]);
+            this.SceneManager.SwitchTo<LoadingScene>();
         }
-        _uiManager.EndFrame();
     }
 }

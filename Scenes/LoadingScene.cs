@@ -17,7 +17,7 @@ internal class LoadingScene(SceneManager sceneManager) : Scene(sceneManager)
                 path = "Assets/luxembourg.osm.pbf";
             }
 
-            Console.WriteLine("here");
+            Console.WriteLine($"Loading {path}");
 
             MapImporter mapImporter = new(path: path);
             MapData mapData = mapImporter.Import();
@@ -26,7 +26,7 @@ internal class LoadingScene(SceneManager sceneManager) : Scene(sceneManager)
         });
    }
 
-    public override void Unload()
+    public override void Dispose()
     {
         this._loadTask.Dispose();
     }
