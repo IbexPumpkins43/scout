@@ -12,6 +12,7 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
     private Renderer _renderer;
     private GraphData _graphData;
     private Graph _graph;
+    private string myTextBox;
 
     public override void Load()
     {
@@ -52,6 +53,7 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
         {
             Raylib.CloseWindow();
         }
+        this._uiManager.InputBox(ref myTextBox);
         this._uiManager.EndFrame();
     }
 
