@@ -48,7 +48,7 @@ internal class RenderData
             int count = allPoints.Count - start;
             if (count >= 2)
             {
-                RoadType roadType = Road.GetType(road);
+                RoadType roadType = Road.GetRoadType(road);
                 BoundBox bounds = new(
                     MinX: minX,
                     MaxX: maxX,
@@ -90,7 +90,7 @@ internal class RenderData
                 continue;
             }
 
-            PlaceType? type = Place.GetType(place);
+            PlaceType? type = Place.GetPlaceType(place);
             if (type == null)
             {
                 continue;

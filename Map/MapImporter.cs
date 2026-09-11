@@ -66,16 +66,14 @@ internal class MapImporter(string path) : IDisposable
     {
         foreach (OSMNode node in this._osmDecoder.DecodeNodes(block))
         {
+            MapPosition mapPosition = new(
+                X: node.Coordinates.Latitude,
+                Y: node.Coordinates.Longitude);
+            this._nodePositions.Add(node.Id, mapPosition);
+
             if (node.Tags.ContainsKey("place"))
             {
                 this._places.Add(node);
-            }
-            else
-            {
-                MapPosition mapPosition = new(
-                    X: node.Coordinates.Latitude,
-                    Y: node.Coordinates.Longitude);
-                this._nodePositions.Add(node.Id, mapPosition);
             }
         }       
     }

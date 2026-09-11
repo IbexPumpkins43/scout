@@ -35,12 +35,11 @@ internal class Renderer(RenderData renderData, GraphData graphData)
     public void Draw(int[]? path = null) 
     {
         Raylib.BeginMode2D(this._camera);
-        Raylib.DrawEllipse(0, 0, 10.0f, 10.0f, Color.Red);
         this.DrawRoads();
         this.DrawBuildings();
-        this.DrawPlaces();
-        // this.DrawPath(path);
         Raylib.EndMode2D();
+
+        this.DrawPlaces();
     }
 
     private void DrawRoads()
@@ -58,7 +57,7 @@ internal class Renderer(RenderData renderData, GraphData graphData)
                         continue;
                     }
 
-                    RoadStyle style = Road.GetStyle(road.Type);
+                    RoadStyle style = Road.GetRoadStyle(road.Type);
 
                     if (this._camera.Zoom < style.MinimumZoom)
                     {
@@ -71,7 +70,7 @@ internal class Renderer(RenderData renderData, GraphData graphData)
                         Raylib.DrawLineEx(
                             pointsPtr[index],
                             pointsPtr[index + 1],
-                            style.Thickness / MathF.Sqrt(this._camera.Zoom),
+                            style.Thickness / this._camera.Zoom, // MathF.Sqrt(this._camera.Zoom),
                             style.Colour);
                     }
                 }
@@ -83,21 +82,23 @@ internal class Renderer(RenderData renderData, GraphData graphData)
     {
         foreach (DrawablePlace place in this._renderData.Places)
         {
-            Vector2 position = new(
-                (float)place.Position.X,
-                (float)place.Position.Y);
+            Vector2 worldPosition = new((float)place.Position.X, (float)place.Position.Y);
+            Vector2 screenPosition = Raylib.GetWorldToScreen2D(worldPosition, this._camera);
 
-            int fontSize = Place.GetFontSize(place.Type);
+            PlaceStyle style = Place.GetPlaceStyle(place.Type);
+
+            if (this._camera.Zoom < style.MinimumZoom)
+            {
+                continue;
+            }
 
             Raylib.DrawText(
                 place.Name,
-                (int)position.X,
-                (int)position.Y,
-                fontSize,
+                (int)screenPosition.X,
+                (int)screenPosition.Y,
+                style.FontSize,
                 Color.Black);
-
-            Console.WriteLine(place.Name);
-        }    
+        }
     }
 
     private void DrawBuildings()

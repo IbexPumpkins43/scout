@@ -9,6 +9,10 @@ internal enum PlaceType
     Hamlet
 }
 
+internal readonly record struct PlaceStyle(
+    int FontSize,
+    float MinimumZoom);
+
 internal readonly record struct DrawablePlace(
     MapPosition Position,
     string Name,
@@ -16,7 +20,7 @@ internal readonly record struct DrawablePlace(
 
 internal static class Place
 {
-    public static PlaceType? GetType(OSMNode place)
+    public static PlaceType? GetPlaceType(OSMNode place)
     {
         return place.Tags.GetValueOrDefault("place") switch
         {
@@ -29,16 +33,16 @@ internal static class Place
         };
     }
 
-    public static int GetFontSize(PlaceType type)
+    public static PlaceStyle GetPlaceStyle(PlaceType type)
     {
         return type switch
         {
-            PlaceType.Country => 24,
-            PlaceType.City => 20,
-            PlaceType.Town => 16,
-            PlaceType.Village => 14,
-            PlaceType.Hamlet => 12,
-            _ => 12
+            PlaceType.Country => new(FontSize: 24, MinimumZoom: 0.001f),
+            PlaceType.City => new(FontSize: 20, MinimumZoom: 0.002f),
+            PlaceType.Town => new(FontSize: 16, MinimumZoom: 0.01f),
+            PlaceType.Village => new(FontSize: 14, MinimumZoom: 0.03f),
+            PlaceType.Hamlet => new(FontSize: 12, MinimumZoom: 0.08f),
+            _ => new(FontSize: 12, MinimumZoom: 0.08f)
         };
     }
 }
