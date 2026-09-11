@@ -1,39 +1,45 @@
 namespace Scout.Map;
 
-internal class MapImporter(string path)
+internal class MapImporter(string path) : IDisposable
 {
     private string _path = path;
 
+    private PBFReader _pbfReader = new(path);
+    private OSMDecoder _osmDecoder = new();
+
+    private MapNodePositions _nodePositions = new();
+    private MapRoads _roads = new();
+    private MapPlaces _places = new();
+
     public MapData Import()
     {
-        using PBFReader pbfReader = new(path: this._path);
-        pbfReader.Open();
+        this._pbfReader.Open();
 
-        OSMDecoder osmDecoder = new();
-        
-        this.ValidateHeader(pbfReader, osmDecoder);
-
-        MapNodePositions nodePositions = new();
-        MapRoads roads = new();
-        this.DecodeBlocks(pbfReader, osmDecoder, nodePositions, roads); 
-        this.ProjectNodes(nodePositions);
+        this.ValidateHeader();
+        this.DecodeBlocks(); 
+        this.ProjectNodes();
 
         MapData mapData = new();
-        mapData.RenderData.Build(nodePositions, roads);
-        mapData.GraphData.Build(nodePositions, roads);
+        mapData.RenderData.Build(this._nodePositions, this._roads, this._places);
+        mapData.GraphData.Build(this._nodePositions, this._roads);
 
         return mapData;
     }
 
-    private void ValidateHeader(PBFReader pbfReader, OSMDecoder osmDecoder) 
+    public void Dispose()
     {
-        PBFBlock? pbfHeader = pbfReader.ReadNext();
+        this._pbfReader.Dispose();
+    }
+
+    private void ValidateHeader() 
+    {
+        PBFBlock? pbfHeader = this._pbfReader.ReadNext();
         if (pbfHeader == null)
         {
             throw new MapImporterException(this._path, "Header is missing");
         }
         
-        OSMBlock osmHeader = osmDecoder.Parse(pbfHeader);
+        OSMBlock osmHeader = this._osmDecoder.Parse(pbfHeader);
         if (osmHeader.GetType() != typeof(OSMHeaderBlock))
         {
             throw new MapImporterException(
@@ -42,53 +48,65 @@ internal class MapImporter(string path)
         }
     }
 
-    private void DecodeBlocks(
-        PBFReader pbfReader, 
-        OSMDecoder osmDecoder,
-        MapNodePositions nodePositions,
-        MapRoads roads) 
+    private void DecodeBlocks()
     {
-        PBFBlock? pbfBlock = pbfReader.ReadNext();
+        PBFBlock? pbfBlock = this._pbfReader.ReadNext();
         while (pbfBlock != null)
         {
-            OSMDataBlock osmBlock = (OSMDataBlock)osmDecoder.Parse(pbfBlock);
+            OSMDataBlock osmBlock = (OSMDataBlock)this._osmDecoder.Parse(pbfBlock);
 
-            foreach (OSMNode node in osmDecoder.DecodeNodes(osmBlock))
+            this.DecodeNodes(osmBlock);
+            this.DecodeWays(osmBlock);
+                        
+            pbfBlock = this._pbfReader.ReadNext();
+        }
+    }
+
+    private void DecodeNodes(OSMDataBlock block)
+    {
+        foreach (OSMNode node in this._osmDecoder.DecodeNodes(block))
+        {
+            if (node.Tags.ContainsKey("place"))
+            {
+                this._places.Add(node);
+            }
+            else
             {
                 MapPosition mapPosition = new(
                     X: node.Coordinates.Latitude,
                     Y: node.Coordinates.Longitude);
-                nodePositions.Add(node.Id, mapPosition);
+                this._nodePositions.Add(node.Id, mapPosition);
             }
-
-            foreach (OSMWay way in osmDecoder.DecodeWays(osmBlock))
-            {
-                if (way.Tags.ContainsKey("highway"))
-                {
-                    roads.Add(way);
-                }
-            }
-                        
-            pbfBlock = pbfReader.ReadNext();
-        }
+        }       
     }
 
-    private void ProjectNodes(MapNodePositions nodePositions) 
+    private void DecodeWays(OSMDataBlock block)
+    {
+        foreach (OSMWay way in this._osmDecoder.DecodeWays(block))
+        {
+            if (way.Tags.ContainsKey("highway"))
+            {
+                this._roads.Add(way);
+            }
+        }      
+    }
+
+    private void ProjectNodes() 
     {
         const int metresPerDegree = 111320;
 
-        if (nodePositions.Count == 0)
+        if (this._nodePositions.Count == 0)
         {
             throw new MapImporterException(this._path, "Map contains no nodes");
         }
 
-        MapPosition origin = nodePositions.First().Value;
+        MapPosition origin = this._nodePositions.First().Value;
         double originX = origin.X;
         double originY = origin.Y;
 
-        foreach (var (id, (x, y)) in nodePositions)
+        foreach (var (id, (x, y)) in this._nodePositions)
         {
-            nodePositions[id] = new(
+            this._nodePositions[id] = new(
                 // Use a local origin to keep projected coordinates near 0
                 X: 
                     (y - originY) 

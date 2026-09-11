@@ -19,7 +19,7 @@ internal class LoadingScene(SceneManager sceneManager) : Scene(sceneManager)
 
             Console.WriteLine($"Loading {path}");
 
-            MapImporter mapImporter = new(path: path);
+            using MapImporter mapImporter = new(path: path);
             MapData mapData = mapImporter.Import();
 
             return mapData;

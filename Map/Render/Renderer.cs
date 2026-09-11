@@ -38,7 +38,8 @@ internal class Renderer(RenderData renderData, GraphData graphData)
         Raylib.DrawEllipse(0, 0, 10.0f, 10.0f, Color.Red);
         this.DrawRoads();
         this.DrawBuildings();
-        this.DrawPath(path);
+        this.DrawPlaces();
+        // this.DrawPath(path);
         Raylib.EndMode2D();
     }
 
@@ -46,7 +47,6 @@ internal class Renderer(RenderData renderData, GraphData graphData)
     {
         BoundBox viewBounds = this.GetViewBoundBox();
 
-        // TODO: only draw roads in the visible view
         unsafe
         {
             fixed (Vector2* pointsPtr = this._renderData.Points)
@@ -58,7 +58,12 @@ internal class Renderer(RenderData renderData, GraphData graphData)
                         continue;
                     }
 
-                    (Color color, float thickness) = RoadStyles.Get(road.Type);
+                    RoadStyle style = Road.GetStyle(road.Type);
+
+                    if (this._camera.Zoom < style.MinimumZoom)
+                    {
+                        continue;
+                    }
 
                     int end = road.Start + road.Count - 1;
                     for (int index = road.Start; index < end; index++)
@@ -66,17 +71,33 @@ internal class Renderer(RenderData renderData, GraphData graphData)
                         Raylib.DrawLineEx(
                             pointsPtr[index],
                             pointsPtr[index + 1],
-                            thickness,
-                            color);
+                            style.Thickness / MathF.Sqrt(this._camera.Zoom),
+                            style.Colour);
                     }
                 }
             }
         }
     }
 
-    private void DrawLabels()
+    private void DrawPlaces()
     {
-        // TODO: implement this
+        foreach (DrawablePlace place in this._renderData.Places)
+        {
+            Vector2 position = new(
+                (float)place.Position.X,
+                (float)place.Position.Y);
+
+            int fontSize = Place.GetFontSize(place.Type);
+
+            Raylib.DrawText(
+                place.Name,
+                (int)position.X,
+                (int)position.Y,
+                fontSize,
+                Color.Black);
+
+            Console.WriteLine(place.Name);
+        }    
     }
 
     private void DrawBuildings()

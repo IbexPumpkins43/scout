@@ -9,9 +9,10 @@ internal class RenderData
     public DrawablePlace[] Places { get; private set; } = [];
     public DrawableBuilding[] Buildings { get; private set; } = [];
 
-    public void Build(MapNodePositions nodePositions, MapRoads allRoads)
+    public void Build(MapNodePositions nodePositions, MapRoads allRoads, MapPlaces allPlaces)
     {
-        this.BuildRoads(nodePositions, allRoads);   
+        this.BuildRoads(nodePositions, allRoads);
+        this.BuildPlaces(nodePositions, allPlaces); 
     }    
 
     private void BuildRoads(MapNodePositions nodePositions, MapRoads allRoads) 
@@ -47,7 +48,7 @@ internal class RenderData
             int count = allPoints.Count - start;
             if (count >= 2)
             {
-                RoadType roadType = this.GetRoadType(road);
+                RoadType roadType = Road.GetType(road);
                 BoundBox bounds = new(
                     MinX: minX,
                     MaxX: maxX,
@@ -73,26 +74,36 @@ internal class RenderData
         this.Roads = roads.ToArray();
     }
 
-    private RoadType GetRoadType(OSMWay road)
+    private void BuildPlaces(MapNodePositions nodePositions, MapPlaces allPlaces)
     {
-        return road.Tags.GetValueOrDefault("highway") switch
+        List<DrawablePlace> places = new();
+
+        foreach (OSMNode place in allPlaces)
         {
-            "motorway" => RoadType.Motorway,
-            "motorway_link" => RoadType.MotorwayLink,
-            "trunk" => RoadType.Trunk,
-            "trunk_link" => RoadType.TrunkLink,
-            "primary" => RoadType.Primary,
-            "primary_link" => RoadType.PrimaryLink,
-            "secondary" => RoadType.Secondary,
-            "secondary_link" => RoadType.SecondaryLink,
-            "tertiary" => RoadType.Tertiary,
-            "tertiary_link" => RoadType.TertiaryLink,
-            "residential" => RoadType.Residential,
-            "unclassified" => RoadType.Unclassified,
-            "service" => RoadType.Service,
-            "living_street" => RoadType.LivingStreet,
-            _ => RoadType.Other
-        };
+            if (!nodePositions.TryGetValue(place.Id, out MapPosition position))
+            {
+                continue;
+            }
+
+            if (!place.Tags.TryGetValue("name", out string? name))
+            {
+                continue;
+            }
+
+            PlaceType? type = Place.GetType(place);
+            if (type == null)
+            {
+                continue;
+            }
+
+            DrawablePlace drawablePlace = new(
+                Position: position,
+                Name: name,
+                Type: type.Value);
+            places.Add(drawablePlace);
+        }
+
+        this.Places = places.ToArray();
     }
 }
 
