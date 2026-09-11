@@ -1,7 +1,7 @@
-global using MapNodePositions = System.Collections.Generic.Dictionary<long, Scout.MapPosition>;
-global using MapRoads = System.Collections.Generic.List<Scout.OSMWay>;
+global using MapNodePositions = System.Collections.Generic.Dictionary<long, Scout.Map.MapPosition>;
+global using MapRoads = System.Collections.Generic.List<Scout.Map.OSMWay>;
 
-namespace Scout;
+namespace Scout.Map;
 
 internal readonly record struct MapPosition(
     double X,

@@ -4,7 +4,7 @@ using OSMPBF;
 
 using OSMTags = System.Collections.Generic.Dictionary<string, string>;
 
-namespace Scout;
+namespace Scout.Map;
 
 internal abstract record OSMBlock(long Index);
 

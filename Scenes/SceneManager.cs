@@ -1,6 +1,6 @@
 using Raylib_cs;
 
-namespace Scout;
+namespace Scout.Scenes;
 
 internal class SceneManagerException : Exception
 {
@@ -77,6 +77,10 @@ internal class SceneManager
             Raylib.ClearBackground(Color.White);
             this._currentScene.Render();
             Raylib.EndDrawing();
+
+            // TODO : this whole loop is a bit messy to follow, this all needs reworking
+            if (this._reload)
+                continue;
 
             this._currentScene.Update();
         }

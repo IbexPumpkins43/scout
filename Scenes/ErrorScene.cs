@@ -1,9 +1,11 @@
 using Raylib_cs;
+using Scout.UI;
 
-namespace Scout;
+namespace Scout.Scenes;
 
 internal class ErrorScene(SceneManager sceneManager) : Scene(sceneManager)
 {
+    private UIManager _uiManager = new();
     private Exception _exception;
 
     public override void Load()
@@ -17,6 +19,11 @@ internal class ErrorScene(SceneManager sceneManager) : Scene(sceneManager)
         this._exception = exception;
     }
 
+    public override void Unload()
+    {
+        _uiManager.Dispose();
+    }
+
     public override void Update()
     {
         if (Raylib.IsKeyPressed(KeyboardKey.Escape) || Raylib.IsKeyPressed(KeyboardKey.Q))
@@ -27,17 +34,15 @@ internal class ErrorScene(SceneManager sceneManager) : Scene(sceneManager)
  
     public override void Render()
     {
-        const int fontSize = 20;
-
         Raylib.BeginDrawing();
         Raylib.ClearBackground(Color.White);
-        Raylib.DrawText($"{this._exception.Message}", 0, 0, fontSize, Color.Red);
-        Raylib.DrawText(
-            "Press Esc/Q to quit", 
-            0, 
-            Raylib.GetScreenHeight() - fontSize, 
-            fontSize, 
-            Color.Black);
+        _uiManager.BeginFrame();
+        _uiManager.Label($"{this._exception.Message}");
+        if (_uiManager.LabelButton("Quit"))
+        {
+            Raylib.CloseWindow();
+        }
+        _uiManager.EndFrame();
         Raylib.EndDrawing();
    }
 }

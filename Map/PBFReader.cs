@@ -4,7 +4,7 @@ using System.IO.Compression;
 using Google.Protobuf;
 using OSMPBF;
 
-namespace Scout;
+namespace Scout.Map;
 
 internal enum PBFBlockType
 {

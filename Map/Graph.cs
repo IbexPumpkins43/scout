@@ -1,4 +1,4 @@
-namespace Scout;
+namespace Scout.Map;
 
 internal readonly record struct GraphNode(
     MapPosition Position,

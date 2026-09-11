@@ -1,6 +1,7 @@
 using Raylib_cs;
+using Scout.Map;
 
-namespace Scout;
+namespace Scout.Scenes;
 
 internal class LoadingScene(SceneManager sceneManager) : Scene(sceneManager)
 {
@@ -10,12 +11,25 @@ internal class LoadingScene(SceneManager sceneManager) : Scene(sceneManager)
     {       
         this._loadTask = Task.Run(() =>
         {
-            MapImporter mapImporter = new(path: "Assets/luxembourg.osm.pbf");
+            string? path = this.SceneManager.GetLastSceneResult<string>();
+            if (path == null)
+            {
+                path = "Assets/luxembourg.osm.pbf";
+            }
+
+            Console.WriteLine("here");
+
+            MapImporter mapImporter = new(path: path);
             MapData mapData = mapImporter.Import();
 
             return mapData;
         });
    }
+
+    public override void Unload()
+    {
+        this._loadTask.Dispose();
+    }
 
     public override void Update()
     {
@@ -39,7 +53,6 @@ internal class LoadingScene(SceneManager sceneManager) : Scene(sceneManager)
         float time = (float)Raylib.GetTime() * 4;
         float angle = time * 180.0f;
 
-        Raylib.BeginDrawing();
         Raylib.ClearBackground(Color.White);
         Raylib.DrawRing(
             new(Raylib.GetScreenWidth() / 2 - ringSize, Raylib.GetScreenHeight() / 2 - ringSize),
@@ -50,6 +63,5 @@ internal class LoadingScene(SceneManager sceneManager) : Scene(sceneManager)
             32,
             Color.SkyBlue
         );
-        Raylib.EndDrawing();
     }
 }

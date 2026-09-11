@@ -1,15 +1,10 @@
 ﻿using Raylib_cs;
+using Scout.Scenes;
 
 namespace Scout;
 
 internal class Program
 {
-    private static RenderData? _renderData;
-    private static Renderer? _renderer;
-    private static GraphData? _graphData;
-    private static Graph? _graph;
-    private static int[]? _path;
-
     private static void Main()
     {
         Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);

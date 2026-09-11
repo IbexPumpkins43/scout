@@ -1,7 +1,7 @@
 using System.Numerics;
 using Raylib_cs;
 
-namespace Scout;
+namespace Scout.Map;
 
 internal readonly record struct BoundBox(
     float MinX,
@@ -108,8 +108,6 @@ internal class Renderer(RenderData renderData, GraphData graphData)
 
     public void Draw(int[]? path = null) 
     {
-        Raylib.DrawFPS(0, 0);
-
         Raylib.BeginMode2D(this._camera);
         Raylib.DrawEllipse(0, 0, 10.0f, 10.0f, Color.Red);
         this.DrawRoads();
