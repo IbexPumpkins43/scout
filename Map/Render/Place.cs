@@ -37,12 +37,24 @@ internal static class Place
     {
         return type switch
         {
-            PlaceType.Country => new(FontSize: 24, MinimumZoom: 0.001f),
-            PlaceType.City => new(FontSize: 20, MinimumZoom: 0.002f),
-            PlaceType.Town => new(FontSize: 16, MinimumZoom: 0.01f),
-            PlaceType.Village => new(FontSize: 14, MinimumZoom: 0.03f),
-            PlaceType.Hamlet => new(FontSize: 12, MinimumZoom: 0.08f),
-            _ => new(FontSize: 12, MinimumZoom: 0.08f)
+            PlaceType.Country => new(
+                FontSize: 24, 
+                MinimumZoom: 0.001f),
+            PlaceType.City => new(
+                FontSize: 20, 
+                MinimumZoom: 0.002f),
+            PlaceType.Town => new(
+                FontSize: 16, 
+                MinimumZoom: 0.01f),
+            PlaceType.Village => new(
+                FontSize: 14, 
+                MinimumZoom: 0.03f),
+            PlaceType.Hamlet => new(
+                FontSize: 12, 
+                MinimumZoom: 0.08f),
+            _ => new(
+                FontSize: 12, 
+                MinimumZoom: 0.08f)
         };
     }
 }

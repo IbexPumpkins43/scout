@@ -29,6 +29,7 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
 
     public override void Dispose()
     {
+        _renderer.Dispose();
         _uiManager.Dispose();
     }
 

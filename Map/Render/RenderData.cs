@@ -9,15 +9,26 @@ internal class RenderData
     public DrawablePlace[] Places { get; private set; } = [];
     public DrawableBuilding[] Buildings { get; private set; } = [];
 
-    public void Build(MapNodePositions nodePositions, MapRoads allRoads, MapPlaces allPlaces)
-    {
-        this.BuildRoads(nodePositions, allRoads);
-        this.BuildPlaces(nodePositions, allPlaces); 
-    }    
-
-    private void BuildRoads(MapNodePositions nodePositions, MapRoads allRoads) 
+    public void Build(
+        MapNodePositions nodePositions, 
+        MapRoads allRoads, 
+        MapPlaces allPlaces,
+        MapBuildings allBuildings)
     {
         List<Vector2> allPoints = new();
+
+        this.BuildRoads(nodePositions, allRoads, allPoints);
+        this.BuildPlaces(nodePositions, allPlaces); 
+        this.BuildBuildings(nodePositions, allBuildings, allPoints);
+
+        this.Points = allPoints.ToArray();
+    }    
+
+    private void BuildRoads(
+        MapNodePositions nodePositions, 
+        MapRoads allRoads, 
+        List<Vector2> allPoints) 
+    {
         List<DrawableRoad> roads = new();
 
         foreach (OSMWay road in allRoads)
@@ -68,9 +79,6 @@ internal class RenderData
             }
         }
 
-        // TODO :  A big memory spike occurs here as both the list and the array exist at the 
-        //         same time
-        this.Points = allPoints.ToArray();
         this.Roads = roads.ToArray();
     }
 
@@ -104,6 +112,63 @@ internal class RenderData
         }
 
         this.Places = places.ToArray();
+    }
+
+    private void BuildBuildings(
+        MapNodePositions nodePositions, 
+        MapBuildings allBuildings, 
+        List<Vector2> allPoints)
+    {
+        List<DrawableBuilding> buildings = new();
+
+        foreach (OSMWay building in allBuildings)
+        {
+            int start = allPoints.Count;
+
+            float minX = float.MaxValue;
+            float maxX = float.MinValue;
+            float minY = float.MaxValue;
+            float maxY = float.MinValue;
+
+            foreach (long nodeId in building.NodeIds)
+            {
+                if (!nodePositions.TryGetValue(nodeId, out MapPosition node))
+                {
+                    continue;
+                }
+
+                Vector2 point = new(
+                    (float)node.X,
+                    (float)node.Y);
+                allPoints.Add(point);
+
+                minX = MathF.Min(minX, point.X);
+                maxX = MathF.Max(maxX, point.X);
+                minY = MathF.Min(minY, point.Y);
+                maxY = MathF.Max(maxY, point.Y);
+            }
+
+            int count = allPoints.Count - start;
+            if (count >= 3)
+            {
+                BoundBox bounds = new(
+                    MinX: minX,
+                    MaxX: maxX,
+                    MinY: minY,
+                    MaxY: maxY);
+                DrawableBuilding drawableBuilding = new(
+                    Start: start,
+                    Count: count,
+                    Bounds: bounds);
+                buildings.Add(drawableBuilding);
+            }
+            else
+            {
+                allPoints.RemoveRange(start, count);
+            }
+        }
+
+        this.Buildings = buildings.ToArray(); 
     }
 }
 

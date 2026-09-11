@@ -10,6 +10,7 @@ internal class MapImporter(string path) : IDisposable
     private MapNodePositions _nodePositions = new();
     private MapRoads _roads = new();
     private MapPlaces _places = new();
+    private MapBuildings _buildings = new();
 
     public MapData Import()
     {
@@ -20,7 +21,7 @@ internal class MapImporter(string path) : IDisposable
         this.ProjectNodes();
 
         MapData mapData = new();
-        mapData.RenderData.Build(this._nodePositions, this._roads, this._places);
+        mapData.RenderData.Build(this._nodePositions, this._roads, this._places, this._buildings);
         mapData.GraphData.Build(this._nodePositions, this._roads);
 
         return mapData;
@@ -85,6 +86,11 @@ internal class MapImporter(string path) : IDisposable
             if (way.Tags.ContainsKey("highway"))
             {
                 this._roads.Add(way);
+            }
+
+            if (way.Tags.ContainsKey("building"))
+            {
+                this._buildings.Add(way);
             }
         }      
     }

@@ -3,15 +3,25 @@ using Raylib_cs;
 
 namespace Scout.Map;
 
-internal class Renderer(RenderData renderData, GraphData graphData)
+internal class Renderer(RenderData renderData, GraphData graphData) : IDisposable
 {
     private RenderData _renderData = renderData;
     private GraphData _graphData = graphData;
+
+    private bool _redraw = true; 
+    private RenderTexture2D _texture = Raylib.LoadRenderTexture(
+        Raylib.GetScreenWidth(),
+        Raylib.GetScreenHeight());
     private Camera2D _camera = new(
         offset: new(Raylib.GetScreenWidth() / 2, Raylib.GetScreenHeight() / 2),
         target: new(0.0f, 0.0f),
         rotation: 0.0f,
         zoom: 1.0f);
+
+    public void Dispose()
+    {
+        Raylib.UnloadRenderTexture(this._texture);
+    }
 
     public void Update() 
     {
@@ -19,6 +29,13 @@ internal class Renderer(RenderData renderData, GraphData graphData)
         {
             this._camera.Offset.X = Raylib.GetScreenWidth() / 2;
             this._camera.Offset.Y = Raylib.GetScreenHeight() / 2;
+
+            Raylib.UnloadRenderTexture(this._texture);
+            this._texture = Raylib.LoadRenderTexture(
+                Raylib.GetScreenWidth(),
+                Raylib.GetScreenHeight());
+
+            this._redraw = true;
         }
 
         if (Raylib.IsMouseButtonDown(MouseButton.Left))
@@ -26,20 +43,44 @@ internal class Renderer(RenderData renderData, GraphData graphData)
             Vector2 mouseDelta = Raylib.GetMouseDelta();
             this._camera.Target.X -= mouseDelta.X / this._camera.Zoom;
             this._camera.Target.Y -= mouseDelta.Y / this._camera.Zoom;
+
+            this._redraw = true;
         }
 
-        this._camera.Zoom *= MathF.Pow(1.1f, Raylib.GetMouseWheelMove());
-        this._camera.Zoom = Raymath.Clamp(this._camera.Zoom, 0.001f, 10.0f);
+        float mouseWheel = Raylib.GetMouseWheelMove();
+        if (mouseWheel != 0.0f)
+        {
+            this._camera.Zoom *= MathF.Pow(1.1f, mouseWheel);
+            this._camera.Zoom = Raymath.Clamp(this._camera.Zoom, 0.001f, 10.0f);
+
+            this._redraw = true;
+        }
     }
 
-    public void Draw(int[]? path = null) 
+    public void Draw() 
     {
-        Raylib.BeginMode2D(this._camera);
-        this.DrawRoads();
-        this.DrawBuildings();
-        Raylib.EndMode2D();
+        if (this._redraw)
+        {
+            Raylib.BeginTextureMode(this._texture);
+            Raylib.ClearBackground(Color.White);
 
-        this.DrawPlaces();
+            Raylib.BeginMode2D(this._camera);
+            this.DrawRoads();
+            this.DrawBuildings();
+            Raylib.EndMode2D();
+
+            this.DrawPlaces();
+
+            Raylib.EndTextureMode();
+
+            this._redraw = false;
+        }
+
+        Raylib.DrawTextureRec(
+            this._texture.Texture, 
+            new(0, 0, this._texture.Texture.Width, -this._texture.Texture.Height), 
+            new(0, 0), 
+            Color.White);
     }
 
     private void DrawRoads()
@@ -70,7 +111,7 @@ internal class Renderer(RenderData renderData, GraphData graphData)
                         Raylib.DrawLineEx(
                             pointsPtr[index],
                             pointsPtr[index + 1],
-                            style.Thickness / this._camera.Zoom, // MathF.Sqrt(this._camera.Zoom),
+                            style.Thickness / this._camera.Zoom,
                             style.Colour);
                     }
                 }
@@ -103,33 +144,42 @@ internal class Renderer(RenderData renderData, GraphData graphData)
 
     private void DrawBuildings()
     {
-        // TODO: implement this
-    }
-
-    private void DrawPath(int[]? path)
-    {
-        if (path == null)
+        if (this._camera.Zoom < 0.09f)
         {
             return;
         }
 
-        for (int index = 0; index < path.Length - 1; index++)
+        BoundBox viewBounds = this.GetViewBoundBox();
+
+        unsafe
         {
-            GraphNode firstNode =
-                this._graphData.Nodes[path[index]];
+            fixed (Vector2* pointsPtr = this._renderData.Points)
+            {
+                foreach (DrawableBuilding building in this._renderData.Buildings)
+                {
+                    if (!this.BoundBoxIntersects(building.Bounds, viewBounds))
+                    {
+                        continue;
+                    }
 
-            GraphNode secondNode =
-                this._graphData.Nodes[path[index + 1]];
+                    int end = building.Start + building.Count - 1;
 
-            Vector2 firstPosition = new(
-                (float)firstNode.Position.X,
-                (float)firstNode.Position.Y);
+                    for (int index = building.Start; index < end; index++)
+                    {
+                        Raylib.DrawLineEx(
+                            pointsPtr[index],
+                            pointsPtr[index + 1],
+                            1.0f / this._camera.Zoom,
+                            Color.Gray);
+                    }
 
-            Vector2 secondPosition = new(
-                (float)secondNode.Position.X,
-                (float)secondNode.Position.Y);
-
-            Raylib.DrawLineV(firstPosition, secondPosition, Color.Red);
+                    Raylib.DrawLineEx(
+                        pointsPtr[end],
+                        pointsPtr[building.Start],
+                        1.0f / this._camera.Zoom,
+                        Color.Gray);
+                }
+            }
         }
     }
 
