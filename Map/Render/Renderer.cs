@@ -58,10 +58,25 @@ internal class Renderer(RenderData renderData, GraphData graphData)
                         continue;
                     }
 
-                    Raylib.DrawLineStrip(pointsPtr + road.Start, road.Count, Color.Green);
+                    (Color color, float thickness) = RoadStyles.Get(road.Type);
+
+                    int end = road.Start + road.Count - 1;
+                    for (int index = road.Start; index < end; index++)
+                    {
+                        Raylib.DrawLineEx(
+                            pointsPtr[index],
+                            pointsPtr[index + 1],
+                            thickness,
+                            color);
+                    }
                 }
             }
         }
+    }
+
+    private void DrawLabels()
+    {
+        // TODO: implement this
     }
 
     private void DrawBuildings()

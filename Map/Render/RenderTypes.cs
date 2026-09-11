@@ -1,3 +1,5 @@
+using Raylib_cs;
+
 namespace Scout.Map;
 
 internal readonly record struct BoundBox(
@@ -9,16 +11,25 @@ internal readonly record struct BoundBox(
 internal enum RoadType
 {
     Motorway,
+    MotorwayLink,
     Trunk,
+    TrunkLink,
     Primary,
+    PrimaryLink,
     Secondary,
+    SecondaryLink,
     Tertiary,
+    TertiaryLink,
     Residential,
     Unclassified,
     Service,
     LivingStreet,
     Other
 }
+
+internal readonly record struct RoadStyle(
+    Color Colour,
+    float Thickness);
 
 internal readonly record struct DrawableRoad(
     int Start,
@@ -41,4 +52,6 @@ internal readonly record struct DrawablePlace(
     PlaceType Type);
 
 internal readonly record struct DrawableBuilding(
-);
+    int Start,
+    int Count,
+    BoundBox Bounds);

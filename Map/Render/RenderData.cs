@@ -9,7 +9,12 @@ internal class RenderData
     public DrawablePlace[] Places { get; private set; } = [];
     public DrawableBuilding[] Buildings { get; private set; } = [];
 
-    public void Build(MapNodePositions nodePositions, MapRoads allRoads) 
+    public void Build(MapNodePositions nodePositions, MapRoads allRoads)
+    {
+        this.BuildRoads(nodePositions, allRoads);   
+    }    
+
+    private void BuildRoads(MapNodePositions nodePositions, MapRoads allRoads) 
     {
         List<Vector2> allPoints = new();
         List<DrawableRoad> roads = new();
@@ -42,6 +47,7 @@ internal class RenderData
             int count = allPoints.Count - start;
             if (count >= 2)
             {
+                RoadType roadType = this.GetRoadType(road);
                 BoundBox bounds = new(
                     MinX: minX,
                     MaxX: maxX,
@@ -50,7 +56,8 @@ internal class RenderData
                 DrawableRoad drawableRoad = new(
                     Start: start,
                     Count: count,
-                    Bounds: bounds);
+                    Bounds: bounds,
+                    Type: roadType);
                 roads.Add(drawableRoad);
             }
             else
@@ -64,6 +71,28 @@ internal class RenderData
         //         same time
         this.Points = allPoints.ToArray();
         this.Roads = roads.ToArray();
+    }
+
+    private RoadType GetRoadType(OSMWay road)
+    {
+        return road.Tags.GetValueOrDefault("highway") switch
+        {
+            "motorway" => RoadType.Motorway,
+            "motorway_link" => RoadType.MotorwayLink,
+            "trunk" => RoadType.Trunk,
+            "trunk_link" => RoadType.TrunkLink,
+            "primary" => RoadType.Primary,
+            "primary_link" => RoadType.PrimaryLink,
+            "secondary" => RoadType.Secondary,
+            "secondary_link" => RoadType.SecondaryLink,
+            "tertiary" => RoadType.Tertiary,
+            "tertiary_link" => RoadType.TertiaryLink,
+            "residential" => RoadType.Residential,
+            "unclassified" => RoadType.Unclassified,
+            "service" => RoadType.Service,
+            "living_street" => RoadType.LivingStreet,
+            _ => RoadType.Other
+        };
     }
 }
 
