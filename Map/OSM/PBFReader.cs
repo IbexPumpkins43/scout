@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
+using System.Runtime.InteropServices;
 using Google.Protobuf;
 using OSMPBF;
 
@@ -115,7 +116,7 @@ internal class PBFReader(string path) : IDisposable
             // Each file block contains a length-prefixed header followed by its payload
             BlobHeader header = this.ReadHeader(reader);
             PBFBlockType blockType = this.GetBlockType(header);
-            ByteString payload = this.ReadPayload(stream, reader, header);
+            ReadOnlyMemory<byte> payload = this.ReadPayload(stream, reader, header);
 
             return new(
                 Index: blockIndex,
@@ -152,7 +153,7 @@ internal class PBFReader(string path) : IDisposable
         const int headerMaxSize = 64 * 1024;
 
         // BlobHeader length is stored as a four-byte big-endian integer so this needs doing
-        byte[] headerSizeBytes = new byte[headerSizeLength];
+        Span<byte> headerSizeBytes = stackalloc byte[headerSizeLength];
         this.ReadRequiredBytes(reader, headerSizeBytes, "blob header length");
 
         int headerSize = BinaryPrimitives.ReadInt32BigEndian(headerSizeBytes);
@@ -167,7 +168,7 @@ internal class PBFReader(string path) : IDisposable
         return BlobHeader.Parser.ParseFrom(headerData);
     }
 
-    private ByteString ReadPayload(Stream stream, BinaryReader reader, BlobHeader header)
+    private ReadOnlyMemory<byte> ReadPayload(Stream stream, BinaryReader reader, BlobHeader header)
     {
         // The header specifies the size of the serialized Blob
         int blobSize = header.Datasize;
@@ -179,30 +180,50 @@ internal class PBFReader(string path) : IDisposable
         Blob blob = Blob.Parser.ParseFrom(blobData);
 
         // Extract the payload according to the Blob's encoding
-        ByteString payload = ByteString.Empty;
         if (blob.HasRaw)
         {
             this.ValidatePayloadSize(blob.Raw.Length);
-            payload = blob.Raw;
+            return blob.Raw.Memory;
         }
-        else if (blob.HasZlibData)
+        
+        if (!blob.HasZlibData)
         {
-            if (!blob.HasRawSize)
-            {
-                throw new PBFReaderException(
-                    this._path,
-                    "Compressed blob is missing its raw size");
-            }
-            this.ValidatePayloadSize(blob.RawSize);
+            throw new PBFReaderException(this._path, "Unsupported compression format");
+        }
 
-            using MemoryStream compressedStream = new(buffer: blob.ZlibData.ToByteArray());
-            using ZLibStream zlibStream = new(
-                stream: compressedStream, 
-                mode: CompressionMode.Decompress);
+        if (!blob.HasRawSize)
+        {
+            throw new PBFReaderException(
+                this._path,
+                "Compressed blob is missing its raw size");
+        }
 
+        this.ValidatePayloadSize(blob.RawSize);
+
+        // Attempt to get the underlying array of ZlibData, and on failure just copy it
+        MemoryStream compressedStream;
+        if (MemoryMarshal.TryGetArray(blob.ZlibData.Memory, out ArraySegment<byte> segment))
+        {
+            compressedStream = new(
+                buffer: segment.Array!,
+                index: segment.Offset,
+                count: segment.Count,
+                writable: false,
+                publiclyVisible: false);
+        }
+        else
+        {
+            compressedStream = new(buffer: blob.ZlibData.ToByteArray());
+        }
+
+        using (compressedStream)
+        using (ZLibStream zlibStream = new(
+            stream: compressedStream, 
+            mode: CompressionMode.Decompress))
+        {
             byte[] payloadBuffer = new byte[blob.RawSize];
+        
             int payloadLength = zlibStream.ReadAtLeast(payloadBuffer, blob.RawSize, false);
-
             if (payloadLength != blob.RawSize || zlibStream.ReadByte() != -1)
             {
                 throw new PBFReaderException(
@@ -210,14 +231,8 @@ internal class PBFReader(string path) : IDisposable
                     $"Invalid payload size: expected {blob.RawSize}");
             }
 
-            payload = ByteString.CopyFrom(payloadBuffer);
+            return payloadBuffer;
         }
-        else
-        {
-            throw new PBFReaderException(this._path, "Unsupported compression format");
-        }
-
-        return payload;
     }
 
     private void DiscoverOffsets(Stream stream, BinaryReader reader, long blockIndex)

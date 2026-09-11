@@ -10,7 +10,7 @@ internal enum PBFBlockType
 
 internal record PBFBlock(
     long Index,
-    ByteString Bytes,
+    ReadOnlyMemory<byte> Bytes,
     PBFBlockType Type);
 
 internal class PBFReaderException : Exception
