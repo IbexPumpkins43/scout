@@ -43,15 +43,15 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
         Raylib.DrawFPS(72, 8);
        
         this._uiManager.BeginFrame();
-           this._uiManager.SameLine = true;
-            if (this._uiManager.IconButton("open", "Open a map file..."))
-            {
-                this.OpenMapFile();
-            }
-            if (this._uiManager.IconButton("quit", "Quit"))
-            {
-                Raylib.CloseWindow();
-            }
+        this._uiManager.SameLine = true;
+        if (this._uiManager.IconButton("open", "Open a map file..."))
+        {
+            this.OpenMapFile();
+        }
+        if (this._uiManager.IconButton("quit", "Quit"))
+        {
+            Raylib.CloseWindow();
+        }
         this._uiManager.EndFrame();
     }
 

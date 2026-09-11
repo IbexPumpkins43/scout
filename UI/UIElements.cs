@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Raylib_cs;
 
 namespace Scout.UI;
@@ -11,128 +12,117 @@ internal partial class UIManager
         Raylib.DrawText(text, _xOffset, _yOffset, Style.FontSize, Style.TextColour);
         Raylib.EndTextureMode();
 
-        if (SameLine)
-        {
-            _xOffset += Raylib.MeasureText(text, Style.FontSize);
-        }
-        else
-        {
-            _yOffset += Style.FontSize;
-        }
+        this.UpdateOffsets(Raylib.MeasureText(text, Style.FontSize), Style.FontSize);
     }
 
     public bool LabelButton(string text, string? tooltip = null)
     {
-        return this.Button(
-            text: text,
-            width: Raylib.MeasureText(text, Style.FontSize),
-            height: Style.FontSize,
-            tooltip: tooltip,
-            isIcon: false);
+        Rectangle button = new(
+            x: _xOffset + Style.OuterPadding,
+            y: _yOffset + Style.OuterPadding,
+            width: Raylib.MeasureText(text, Style.FontSize) + Style.InnerPadding * 2,
+            height: Style.FontSize + Style.InnerPadding * 2);
+
+        var (borderColour, bgColour, showTooltip, wasClicked) = this.UpdateButton(button);
+
+        Raylib.BeginTextureMode(this._baseTexture);
+
+        this.DrawButton(button, borderColour, bgColour);
+        
+        Raylib.DrawText(
+                text, 
+                _xOffset + Style.InnerPadding + Style.OuterPadding, 
+                _yOffset + Style.InnerPadding + Style.OuterPadding, 
+                Style.FontSize, 
+                Style.TextColour);
+
+        Raylib.EndTextureMode();       
+
+        if (showTooltip && tooltip != null)
+        {
+            this.Tooltip(tooltip);
+        }
+
+        UpdateOffsets((int)button.Width, (int)button.Height);
+
+        return wasClicked;
     }
 
     public bool IconButton(string icon, string? tooltip = null)
-    {        
-        return this.Button(
-            text: icon,
-            width: Style.IconSize,
-            height: Style.IconSize,
-            tooltip: tooltip,
-            isIcon: true);
-   }
-
-    private bool Button(
-        string text, 
-        int width,
-        int height, 
-        string? tooltip = null, 
-        bool isIcon = false)
     {
-        width += Style.InnerPadding * 2;
-        height += Style.InnerPadding * 2;
+        Rectangle button = new(
+            x: _xOffset + Style.OuterPadding,
+            y: _yOffset + Style.OuterPadding,
+            width: Style.IconSize + Style.InnerPadding * 2,
+            height: Style.IconSize + Style.InnerPadding * 2);
 
+        var (borderColour, bgColour, showTooltip, wasClicked) = this.UpdateButton(button);
+
+        Raylib.BeginTextureMode(this._baseTexture);
+
+        this.DrawButton(button, borderColour, bgColour);
+    
+        Vector2 iconLocation = this._iconsLookup[icon];
+        Raylib.DrawTextureRec(
+            this._icons, 
+            new(
+                position: iconLocation, 
+                width: Style.IconSize, 
+                height: Style.IconSize), 
+            new(
+                _xOffset + Style.InnerPadding + Style.OuterPadding, 
+                _yOffset + Style.InnerPadding + Style.OuterPadding),
+            Color.White);
+
+        Raylib.EndTextureMode();       
+
+        if (showTooltip && tooltip != null)
+        {
+            this.Tooltip(tooltip);
+        }
+
+        UpdateOffsets((int)button.Width, (int)button.Height);
+
+        return wasClicked;
+    }
+
+    private (Color, Color, bool, bool) UpdateButton(Rectangle button)
+    {
         Color borderColour = Style.BorderColour;
         Color bgColour = Style.ButtonBgColour;
-        bool returnValue = false;
-        bool drawTooltip = false;
+        bool showTooltip = false;
+        bool wasClicked = false;
 
-        Rectangle button = new Rectangle(
-            x: _xOffset + Style.OuterPadding, 
-            y: _yOffset + Style.OuterPadding, 
-            width: width, 
-            height: height);
         Vector2 mouse = Raylib.GetMousePosition();
         if (Raylib.CheckCollisionPointRec(mouse, button))
         {
             if (Raylib.IsMouseButtonReleased(MouseButton.Left))
             {
-                returnValue = true;
+                wasClicked = true;
             }
             else if (Raylib.IsMouseButtonDown(MouseButton.Left))
             {
                 borderColour = Style.BorderAltColour;
                 bgColour = Style.ButtonBgAltColour;
             }
-            else if (tooltip != null)
+            else
             {
-                drawTooltip = true;
+                showTooltip = true;
             }
         }
 
+        return (borderColour, bgColour, showTooltip, wasClicked);
+    }
 
-        Raylib.BeginTextureMode(this._baseTexture);
-        Raylib.DrawRectangle(
-            _xOffset + Style.OuterPadding, 
-            _yOffset + Style.OuterPadding, 
-            width, 
-            height, 
-            bgColour);
+    private void DrawButton(Rectangle button, Color borderColour, Color bgColour)
+    {        
+        Raylib.DrawRectangleRec(button, bgColour);
         Raylib.DrawRectangleLines(
-            _xOffset + Style.OuterPadding, 
-            _yOffset + Style.OuterPadding, 
-            width, 
-            height, 
+            (int)button.X, 
+            (int)button.Y, 
+            (int)button.Width, 
+            (int)button.Height, 
             borderColour);
-        if (isIcon)
-        {
-            Vector2 iconLocation = this._iconsLookup[text];
-            Raylib.DrawTextureRec(
-                this._icons, 
-                new(
-                    position: iconLocation, 
-                    width: Style.IconSize, 
-                    height: Style.IconSize), 
-                new(
-                    _xOffset + Style.InnerPadding + Style.OuterPadding, 
-                    _yOffset + Style.InnerPadding + Style.OuterPadding),
-                Color.White);
-        }
-        else
-        {
-            Raylib.DrawText(
-                text, 
-                _xOffset + Style.InnerPadding + Style.OuterPadding, 
-                _yOffset + Style.InnerPadding + Style.OuterPadding, 
-                Style.FontSize, 
-                Style.TextColour);
-        }
-        Raylib.EndTextureMode();
-
-        if (drawTooltip)
-        {
-            this.Tooltip(tooltip);
-        }
-
-        if (this.SameLine)
-        {
-            _xOffset += width + Style.OuterPadding;
-        }
-        else
-        {
-            _yOffset += height + Style.OuterPadding;
-        }
-
-        return returnValue;
     }
 
     private void Tooltip(string tip)
@@ -149,4 +139,15 @@ internal partial class UIManager
         Raylib.EndTextureMode();
     }
 
+    private void UpdateOffsets(int width, int height)
+    {
+        if (SameLine)
+        {
+            this._xOffset += width + Style.OuterPadding;
+        }
+        else
+        {
+            this._yOffset += height + Style.OuterPadding;
+        }
+    }
 }
