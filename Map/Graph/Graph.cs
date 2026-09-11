@@ -11,6 +11,7 @@ internal class Graph(GraphData graphData)
 
     public int[] Dijkstras(int start, int target)
     {
+        this._queue.Clear();
         Array.Fill(this._distances, float.PositiveInfinity);
         Array.Fill(this._previous, -1);
 
