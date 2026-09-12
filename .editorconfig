@@ -1,6 +1,7 @@
 root = true
 
 [*]
+insert_final_newline = true
 trim_trailing_whitespace = true
 indent_size = 4
 indent_style = space
@@ -52,3 +53,7 @@ dotnet_style_require_accessibility_modifiers = always:warning
 dotnet_naming_rule.private_fields_should_be_underscore_camel_case.symbols = private_fields
 dotnet_naming_rule.private_fields_should_be_underscore_camel_case.style = underscore_camel_case
 dotnet_naming_rule.private_fields_should_be_underscore_camel_case.severity = warning
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_style.underscore_camel_case.required_prefix = _
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case
