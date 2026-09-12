@@ -21,10 +21,10 @@ csharp_indent_braces = false
 csharp_indent_case_contents = true
 csharp_indent_switch_labels = true
 
+# Standard spacing
 csharp_space_after_cast = false
 csharp_space_after_comma = true
 csharp_space_after_dot = false
-
 csharp_space_before_comma = false
 csharp_space_before_dot = false
 
@@ -42,9 +42,10 @@ dotnet_style_qualification_for_event = true:warning
 # namespace SomeNamespace;
 csharp_style_namespace_declarations = file_scoped:warning
 
+# Enfore braces for control flow bodides
 csharp_prefer_braces = true:warning
 
-# Require ccessiblity modifiers
+# Require accessiblity modifiers
 dotnet_style_require_accessibility_modifiers = always:warning
 
 # Enfore the _camelCase for private fields
