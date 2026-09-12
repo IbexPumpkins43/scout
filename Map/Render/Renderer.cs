@@ -8,7 +8,7 @@ internal class Renderer(RenderData renderData, GraphData graphData) : IDisposabl
     private RenderData _renderData = renderData;
     private GraphData _graphData = graphData;
 
-    private bool _redraw = true; 
+    private bool _redraw = true;
     private RenderTexture2D _texture = Raylib.LoadRenderTexture(
         Raylib.GetScreenWidth(),
         Raylib.GetScreenHeight());
@@ -23,7 +23,7 @@ internal class Renderer(RenderData renderData, GraphData graphData) : IDisposabl
         Raylib.UnloadRenderTexture(this._texture);
     }
 
-    public void Update() 
+    public void Update()
     {
         if (Raylib.IsWindowResized())
         {
@@ -57,7 +57,7 @@ internal class Renderer(RenderData renderData, GraphData graphData) : IDisposabl
         }
     }
 
-    public void Draw() 
+    public void Draw()
     {
         if (this._redraw)
         {
@@ -77,9 +77,9 @@ internal class Renderer(RenderData renderData, GraphData graphData) : IDisposabl
         }
 
         Raylib.DrawTextureRec(
-            this._texture.Texture, 
-            new(0, 0, this._texture.Texture.Width, -this._texture.Texture.Height), 
-            new(0, 0), 
+            this._texture.Texture,
+            new(0, 0, this._texture.Texture.Width, -this._texture.Texture.Height),
+            new(0, 0),
             Color.White);
     }
 

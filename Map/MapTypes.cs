@@ -17,7 +17,7 @@ internal class MapData
 
 internal class MapImporterException : Exception
 {
-    public MapImporterException(string path, string message) 
+    public MapImporterException(string path, string message)
         : base($"{path} : {message}")
     {
     }

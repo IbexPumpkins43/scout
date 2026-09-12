@@ -61,64 +61,64 @@ internal static class Road
         return type switch
         {
             RoadType.Motorway => new(
-                Colour: Color.Orange, 
-                Thickness: 6.0f, 
+                Colour: Color.Orange,
+                Thickness: 6.0f,
                 MinimumZoom: 0.001f),
             RoadType.MotorwayLink => new(
                 Colour: Color.Orange,
-                Thickness: 4.0f, 
+                Thickness: 4.0f,
                 MinimumZoom: 0.003f),
             RoadType.Trunk => new(
-                Colour: Color.Gold, 
-                Thickness: 5.0f, 
+                Colour: Color.Gold,
+                Thickness: 5.0f,
                 MinimumZoom: 0.001f),
             RoadType.TrunkLink => new(
-                Colour: Color.Gold, 
-                Thickness: 3.5f, 
+                Colour: Color.Gold,
+                Thickness: 3.5f,
                 MinimumZoom: 0.003f),
             RoadType.Primary => new(
-                Colour: Color.Yellow, 
-                Thickness: 4.0f, 
+                Colour: Color.Yellow,
+                Thickness: 4.0f,
                 MinimumZoom: 0.002f),
             RoadType.PrimaryLink => new(
-                Colour: Color.Yellow, 
-                Thickness: 3.0f, 
+                Colour: Color.Yellow,
+                Thickness: 3.0f,
                 MinimumZoom: 0.005f),
             RoadType.Secondary => new(
-                Colour: Color.Beige, 
-                Thickness: 3.0f, 
+                Colour: Color.Beige,
+                Thickness: 3.0f,
                 MinimumZoom: 0.005f),
             RoadType.SecondaryLink => new(
-                Colour: Color.Beige, 
-                Thickness: 2.5f, 
+                Colour: Color.Beige,
+                Thickness: 2.5f,
                 MinimumZoom: 0.01f),
             RoadType.Tertiary => new(
-                Colour: Color.LightGray, 
-                Thickness: 2.5f, 
+                Colour: Color.LightGray,
+                Thickness: 2.5f,
                 MinimumZoom: 0.01f),
             RoadType.TertiaryLink => new(
-                Colour: Color.LightGray, 
-                Thickness: 2.0f, 
+                Colour: Color.LightGray,
+                Thickness: 2.0f,
                 MinimumZoom: 0.02f),
             RoadType.Residential => new(
-                Colour: Color.LightGray, 
-                Thickness: 1.5f, 
+                Colour: Color.LightGray,
+                Thickness: 1.5f,
                 MinimumZoom: 0.03f),
             RoadType.Unclassified => new(
-                Colour: Color.LightGray, 
-                Thickness: 1.5f, 
+                Colour: Color.LightGray,
+                Thickness: 1.5f,
                 MinimumZoom: 0.08f),
             RoadType.Service => new(
-                Colour: Color.Gray, 
-                Thickness: 1.0f, 
+                Colour: Color.Gray,
+                Thickness: 1.0f,
                 MinimumZoom: 0.08f),
             RoadType.LivingStreet => new(
-                Colour: Color.Gray, 
-                Thickness: 1.0f, 
+                Colour: Color.Gray,
+                Thickness: 1.0f,
                 MinimumZoom: 0.05f),
             _ => new(
-                Colour: Color.DarkGray, 
-                Thickness: 1.0f, 
+                Colour: Color.DarkGray,
+                Thickness: 1.0f,
                 MinimumZoom: 0.05f)
         };
     }

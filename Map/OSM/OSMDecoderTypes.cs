@@ -1,5 +1,4 @@
-global using OSMTags = System.Collections.Generic.Dictionary<string, string>;
-
+using Google.Protobuf.Collections;
 using OSMPBF;
 
 namespace Scout.Map;
@@ -14,19 +13,38 @@ internal sealed record OSMHeaderBlock(
 internal sealed record OSMDataBlock(
     long Index,
     PrimitiveBlock Data)
-    : OSMBlock(Index);
+    : OSMBlock(Index)
+{
+    private readonly string?[] _stringCache = new string?[Data.Stringtable.S.Count];
+
+    public string GetString(int index)
+    {
+        return this._stringCache[index] ??= this.Data.Stringtable.S[index].ToStringUtf8();
+    }
+}
 
 internal readonly record struct OSMCoordinates(
     double Latitude,
     double Longitude);
 
-internal sealed record OSMNode(
-    long Id, 
+internal readonly record struct OSMNode(
+    long Id,
     OSMCoordinates Coordinates,
     OSMTags Tags);
 
-internal sealed record OSMWay(
+internal readonly record struct OSMNodeView(
     long Id,
-    List<long> NodeIds,
+    OSMCoordinates Coordinates,
+    OSMTagView Tags);
+
+internal readonly record struct OSMWay(
+    long Id,
+    long[] NodeIds,
     OSMTags Tags);
+
+internal readonly record struct OSMWayView(
+    long Id,
+    RepeatedField<long> Refs,
+    OSMTagView Tags);
+
 

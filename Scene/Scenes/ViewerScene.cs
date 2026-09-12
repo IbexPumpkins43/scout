@@ -29,8 +29,8 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
 
     public override void Dispose()
     {
-        _renderer.Dispose();
-        _uiManager.Dispose();
+        this._renderer.Dispose();
+        this._uiManager.Dispose();
     }
 
     public override void Update()
@@ -42,7 +42,7 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
     {
         this._renderer.Draw();
         Raylib.DrawFPS(72, 8);
-       
+
         this._uiManager.BeginFrame();
         this._uiManager.SameLine = true;
         if (this._uiManager.IconButton("open", "Open a map file..."))
@@ -62,8 +62,8 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
             .SelectFile()
             .AddFilter("OpenStreetMap Protobuf files", "osm.pbf");
 
-        if (fileDiag.Open(out string[]? files) == DialogResult.Okay 
-            && files != null 
+        if (fileDiag.Open(out string[]? files) == DialogResult.Okay
+            && files != null
             && files.Length > 0)
         {
             this.SceneManager.SetSceneResult<string>(files[0]);

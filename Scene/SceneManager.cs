@@ -4,7 +4,7 @@ namespace Scout.Scenes;
 
 internal class SceneManagerException : Exception
 {
-    public SceneManagerException(string message) 
+    public SceneManagerException(string message)
         : base(message)
     {
     }
@@ -24,7 +24,7 @@ internal class SceneManager : IDisposable
 
     public void Dispose()
     {
-        foreach (var (_, scene) in this._scenes)
+        foreach ((Type _, Scene? scene) in this._scenes)
         {
             scene.Dispose();
         }
@@ -58,7 +58,7 @@ internal class SceneManager : IDisposable
         }
 
         this._currentScene = this._scenes[typeof(T)];
-        this._currentScene.Load(); 
+        this._currentScene.Load();
 
         Console.WriteLine($"Switching to {this._currentScene.GetType()}");
     }

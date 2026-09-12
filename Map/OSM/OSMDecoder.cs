@@ -12,151 +12,115 @@ internal class OSMDecoder
         {
             PBFBlockType.OSMHeader => new OSMHeaderBlock(
                 Index: pbfBlock.Index,
-                Data: HeaderBlock.Parser.ParseFrom(pbfBlock.Bytes)),
+                Data: HeaderBlock.Parser.ParseFrom(pbfBlock.Bytes.Span)),
             PBFBlockType.OSMData => new OSMDataBlock(
                 Index: pbfBlock.Index,
-                Data: PrimitiveBlock.Parser.ParseFrom(pbfBlock.Bytes)),
+                Data: PrimitiveBlock.Parser.ParseFrom(pbfBlock.Bytes.Span)),
             _ => throw new UnreachableException()
         };
     }
 
-    public List<OSMNode> DecodeNodes(OSMDataBlock block) 
+    public IEnumerable<OSMNodeView> DecodeNodes(OSMDataBlock block)
     {
-        List<OSMNode> nodeList = new();
-
         foreach (PrimitiveGroup group in block.Data.Primitivegroup)
         {
-            if (group.Nodes.Count > 0)
+            foreach (OSMNodeView node in this.DecodeOrdinaryNodes(block, group.Nodes))
             {
-                nodeList.AddRange(this.DecodeOrdinaryNodes(block, group.Nodes));
+                yield return node;
             }
 
             if (group.Dense != null)
             {
-                nodeList.AddRange(this.DecodeDenseNodes(block, group.Dense));
+                foreach (OSMNodeView node in this.DecodeDenseNodes(block, group.Dense))
+                {
+                    yield return node;
+                }
             }
         }
-
-        return nodeList;
     }
 
-    public List<OSMWay> DecodeWays(OSMDataBlock block)
+    public IEnumerable<OSMWayView> DecodeWays(OSMDataBlock block)
     {
-        List<OSMWay> ways = new();
-
         foreach (PrimitiveGroup group in block.Data.Primitivegroup)
         {
             foreach (Way way in group.Ways)
             {
-                OSMTags tags = this.DecodeTags(block, way.Keys, way.Vals);
-
-                List<long> nodeIds = new();
-                long nodeId = 0;
-
-                // Way node references are stored as deltas from the previous reference
-                foreach (long nodeIdDelta in way.Refs)
-                {
-                    nodeId += nodeIdDelta;
-                    nodeIds.Add(nodeId);
-                }
-
-                OSMWay newWay = new(
+                yield return new(
                     Id: way.Id,
-                    NodeIds: nodeIds,
-                    Tags: tags);
-
-                ways.Add(newWay);
+                    Refs: way.Refs,
+                    Tags: new(block, way.Keys, way.Vals));
             }
         }
-
-        return ways;
     }
 
-    private List<OSMNode> DecodeOrdinaryNodes(OSMDataBlock block, RepeatedField<Node> nodes)
+    public long[] DecodeNodeIds(RepeatedField<long> refs)
     {
-        List<OSMNode> nodeList = new();
+        long[] nodeIds = new long[refs.Count];
+        long nodeId = 0;
 
-        foreach (Node node in nodes)
+        for (int i = 0; i < refs.Count; i++)
         {
-            OSMNode newNode = new(
-                Id: node.Id,
-                Coordinates: this.DecodeCoordinates(block, node.Lat, node.Lon),
-                Tags: this.DecodeTags(block, node.Keys, node.Vals));
-            nodeList.Add(newNode);
+            nodeId += refs[i];
+            nodeIds[i] = nodeId;
         }
 
-        return nodeList;
+        return nodeIds;
     }
 
-    private List<OSMNode> DecodeDenseNodes(OSMDataBlock block, DenseNodes nodes)
+    private IEnumerable<OSMNodeView> DecodeOrdinaryNodes(
+        OSMDataBlock block,
+        RepeatedField<Node> nodes)
+    {
+        foreach (Node node in nodes)
+        {
+            yield return new(
+                Id: node.Id,
+                Coordinates: this.DecodeCoordinates(block, node.Lat, node.Lon),
+                Tags: new(block: block, keys: node.Keys, vals: node.Vals));
+        }
+    }
+
+    private IEnumerable<OSMNodeView> DecodeDenseNodes(OSMDataBlock block, DenseNodes nodes)
     {
         long nodeId = 0;
         long nodeLat = 0;
         long nodeLon = 0;
-        long tagIndex = 0;
+        int tagIndex = 0;
 
-        List<OSMNode> nodeList = new();
-
-        foreach (var (idDelta, latDelta, lonDelta) in Enumerable.Zip(
-            nodes.Id, 
-            nodes.Lat, 
-            nodes.Lon))
+        for (int i = 0; i < nodes.Id.Count; i++)
         {
             // Dense IDs and coordinates are stored as deltas from the previous node
-            nodeId += idDelta;
-            nodeLat += latDelta;
-            nodeLon += lonDelta;
+            nodeId += nodes.Id[i];
+            nodeLat += nodes.Lat[i];
+            nodeLon += nodes.Lon[i];
 
-            OSMNode newNode = new(
+            yield return new(
                 Id: nodeId,
                 Coordinates: this.DecodeCoordinates(block, nodeLat, nodeLon),
-                Tags: this.DecodeDenseTags(block, nodes, ref tagIndex));
-            nodeList.Add(newNode);
+                Tags: this.DecodeDenseTagView(block, nodes, ref tagIndex));
         }
-
-        return nodeList;
     }
 
-    private OSMTags DecodeTags(
-        OSMDataBlock block,
-        RepeatedField<uint> keys, 
-        RepeatedField<uint> vals) 
+    private OSMTagView DecodeDenseTagView(OSMDataBlock block, DenseNodes nodes, ref int tagIndex)
     {
-        OSMTags tags = new();
-
-        foreach (var (keyIndex, valIndex) in Enumerable.Zip(keys, vals))
-        {
-            string key = block.Data.Stringtable.S[(int)keyIndex].ToStringUtf8();
-            string val = block.Data.Stringtable.S[(int)valIndex].ToStringUtf8();
-            tags.Add(key, val);
-        }
-
-        return tags;
-    }
-
-    private OSMTags DecodeDenseTags(OSMDataBlock block, DenseNodes nodes, ref long tagIndex)
-    {
-        OSMTags tags = new();
-
         if (nodes.KeysVals.Count == 0)
         {
-            return tags;
+            return default;
         }
 
-        // A zero delimiter marks the end of the current node's tags
-        while (nodes.KeysVals[(int)tagIndex] != 0)
+        int startIndex = tagIndex;
+        while (nodes.KeysVals[tagIndex] != 0)
         {
-            int keyIndex = nodes.KeysVals[(int)tagIndex];
-            int valIndex = nodes.KeysVals[(int)tagIndex + 1];
-            string key = block.Data.Stringtable.S[keyIndex].ToStringUtf8();
-            string val = block.Data.Stringtable.S[valIndex].ToStringUtf8();
-            tags.Add(key, val);
             tagIndex += 2;
         }
 
-        tagIndex++;
+        int tagCount = (tagIndex++ - startIndex) / 2;
+        if (tagCount == 0)
+        {
+            return default;
+        }
 
-        return tags;
+        return new(block: block, nodes: nodes, start: startIndex, count: tagCount);
     }
 
     private OSMCoordinates DecodeCoordinates(OSMDataBlock block, long lat, long lon)

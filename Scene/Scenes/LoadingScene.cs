@@ -8,7 +8,7 @@ internal class LoadingScene(SceneManager sceneManager) : Scene(sceneManager)
     private Task<MapData> _loadTask;
 
     public override void Load()
-    {       
+    {
         this._loadTask = Task.Run(() =>
         {
             string? path = this.SceneManager.GetLastSceneResult<string>();
@@ -24,7 +24,7 @@ internal class LoadingScene(SceneManager sceneManager) : Scene(sceneManager)
 
             return mapData;
         });
-   }
+    }
 
     public override void Dispose()
     {

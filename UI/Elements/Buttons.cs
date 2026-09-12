@@ -8,25 +8,25 @@ internal partial class UIManager
     public bool LabelButton(string text, string? tooltip = null)
     {
         Rectangle button = new(
-            x: _xOffset + Style.OuterPadding,
-            y: _yOffset + Style.OuterPadding,
+            x: this._xOffset + Style.OuterPadding,
+            y: this._yOffset + Style.OuterPadding,
             width: Raylib.MeasureText(text, Style.FontSize) + Style.InnerPadding * 2,
             height: Style.FontSize + Style.InnerPadding * 2);
 
-        var (borderColour, bgColour, showTooltip, wasClicked) = this.UpdateButton(button);
+        (Color borderColour, Color bgColour, bool showTooltip, bool wasClicked) = this.UpdateButton(button);
 
         Raylib.BeginTextureMode(this._baseTexture);
 
         this.DrawBox(button, borderColour, bgColour);
-        
+
         Raylib.DrawText(
-            text, 
-            _xOffset + Style.InnerPadding + Style.OuterPadding, 
-            _yOffset + Style.InnerPadding + Style.OuterPadding, 
-            Style.FontSize, 
+            text,
+            this._xOffset + Style.InnerPadding + Style.OuterPadding,
+            this._yOffset + Style.InnerPadding + Style.OuterPadding,
+            Style.FontSize,
             Style.TextColour);
 
-        Raylib.EndTextureMode();       
+        Raylib.EndTextureMode();
 
         if (showTooltip && tooltip != null)
         {
@@ -41,30 +41,30 @@ internal partial class UIManager
     public bool IconButton(string icon, string? tooltip = null)
     {
         Rectangle button = new(
-            x: _xOffset + Style.OuterPadding,
-            y: _yOffset + Style.OuterPadding,
+            x: this._xOffset + Style.OuterPadding,
+            y: this._yOffset + Style.OuterPadding,
             width: Style.IconSize + Style.InnerPadding * 2,
             height: Style.IconSize + Style.InnerPadding * 2);
 
-        var (borderColour, bgColour, showTooltip, wasClicked) = this.UpdateButton(button);
+        (Color borderColour, Color bgColour, bool showTooltip, bool wasClicked) = this.UpdateButton(button);
 
         Raylib.BeginTextureMode(this._baseTexture);
 
         this.DrawBox(button, borderColour, bgColour);
-    
+
         Vector2 iconLocation = this._iconsLookup[icon];
         Raylib.DrawTextureRec(
-            this._icons, 
+            this._icons,
             new(
-                position: iconLocation, 
-                width: Style.IconSize, 
-                height: Style.IconSize), 
+                position: iconLocation,
+                width: Style.IconSize,
+                height: Style.IconSize),
             new(
-                _xOffset + Style.InnerPadding + Style.OuterPadding, 
-                _yOffset + Style.InnerPadding + Style.OuterPadding),
+                this._xOffset + Style.InnerPadding + Style.OuterPadding,
+                this._yOffset + Style.InnerPadding + Style.OuterPadding),
             Color.White);
 
-        Raylib.EndTextureMode();       
+        Raylib.EndTextureMode();
 
         if (showTooltip && tooltip != null)
         {

@@ -21,7 +21,7 @@ internal class ErrorScene(SceneManager sceneManager) : Scene(sceneManager)
 
     public override void Dispose()
     {
-        _uiManager.Dispose();
+        this._uiManager.Dispose();
     }
 
     public override void Update()
@@ -31,18 +31,18 @@ internal class ErrorScene(SceneManager sceneManager) : Scene(sceneManager)
             Raylib.CloseWindow();
         }
     }
- 
+
     public override void Render()
     {
         Raylib.BeginDrawing();
         Raylib.ClearBackground(Color.White);
-        _uiManager.BeginFrame();
-        _uiManager.Label($"{this._exception.Message}");
-        if (_uiManager.LabelButton("Quit"))
+        this._uiManager.BeginFrame();
+        this._uiManager.Label($"{this._exception.Message}");
+        if (this._uiManager.LabelButton("Quit"))
         {
             Raylib.CloseWindow();
         }
-        _uiManager.EndFrame();
+        this._uiManager.EndFrame();
         Raylib.EndDrawing();
-   }
+    }
 }

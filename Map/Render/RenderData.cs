@@ -10,29 +10,29 @@ internal class RenderData
     public DrawableBuilding[] Buildings { get; private set; } = [];
 
     public void Build(
-        MapNodePositions nodePositions, 
-        MapRoads allRoads, 
+        MapNodePositions nodePositions,
+        MapRoads allRoads,
         MapPlaces allPlaces,
         MapBuildings allBuildings)
     {
         List<Vector2> allPoints = new();
 
         this.BuildRoads(nodePositions, allRoads, allPoints);
-        this.BuildPlaces(nodePositions, allPlaces); 
+        this.BuildPlaces(nodePositions, allPlaces);
         this.BuildBuildings(nodePositions, allBuildings, allPoints);
 
         this.Points = allPoints.ToArray();
-    }    
+    }
 
     private void BuildRoads(
-        MapNodePositions nodePositions, 
-        MapRoads allRoads, 
-        List<Vector2> allPoints) 
+        MapNodePositions nodePositions,
+        MapRoads allRoads,
+        List<Vector2> allPoints)
     {
         List<DrawableRoad> roads = new();
 
         foreach (OSMWay road in allRoads)
-        {       
+        {
             int start = allPoints.Count;
 
             float minX = float.MaxValue;
@@ -115,8 +115,8 @@ internal class RenderData
     }
 
     private void BuildBuildings(
-        MapNodePositions nodePositions, 
-        MapBuildings allBuildings, 
+        MapNodePositions nodePositions,
+        MapBuildings allBuildings,
         List<Vector2> allPoints)
     {
         List<DrawableBuilding> buildings = new();
@@ -168,7 +168,7 @@ internal class RenderData
             }
         }
 
-        this.Buildings = buildings.ToArray(); 
+        this.Buildings = buildings.ToArray();
     }
 }
 

@@ -15,7 +15,7 @@ internal record PBFBlock(
 
 internal class PBFReaderException : Exception
 {
-    public PBFReaderException(string path, string message) 
+    public PBFReaderException(string path, string message)
         : base($"{path} : {message}")
     {
     }

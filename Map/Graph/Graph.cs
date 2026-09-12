@@ -6,7 +6,7 @@ internal class Graph(GraphData graphData)
 
     private float[] _distances = new float[graphData.Nodes.Length];
     private int[] _previous = new int[graphData.Nodes.Length];
-    
+
     private PriorityQueue<int, float> _queue = new();
 
     public int[] Dijkstras(int start, int target)

@@ -7,12 +7,12 @@ namespace Scout.UI;
 internal partial class UIManager : IDisposable
 {
     private RenderTexture2D _baseTexture = Raylib.LoadRenderTexture(
-        Raylib.GetScreenWidth(), 
+        Raylib.GetScreenWidth(),
         Raylib.GetScreenHeight());
     private RenderTexture2D _tooltipTexture = Raylib.LoadRenderTexture(
-        Raylib.GetScreenWidth(), 
+        Raylib.GetScreenWidth(),
         Raylib.GetScreenHeight());
-    
+
     private Texture2D _icons = Raylib.LoadTexture("Assets/icons.png");
     private Dictionary<string, Vector2> _iconsLookup;
 
@@ -27,22 +27,22 @@ internal partial class UIManager : IDisposable
 
         JsonSerializerOptions options = new();
         options.IncludeFields = true;
-        
-        Dictionary<string, Vector2>? iconsLookup = 
+
+        Dictionary<string, Vector2>? iconsLookup =
             JsonSerializer.Deserialize<Dictionary<string, Vector2>>(json, options);
         if (iconsLookup == null)
         {
             throw new InvalidDataException("Failed to deserialise the icon position lookup JSON");
         }
 
-        _iconsLookup = iconsLookup;
+        this._iconsLookup = iconsLookup;
     }
 
     public void Dispose()
     {
-        Raylib.UnloadTexture(_icons);
-        Raylib.UnloadRenderTexture(_baseTexture);
-        Raylib.UnloadRenderTexture(_tooltipTexture);
+        Raylib.UnloadTexture(this._icons);
+        Raylib.UnloadRenderTexture(this._baseTexture);
+        Raylib.UnloadRenderTexture(this._tooltipTexture);
     }
 
     public void BeginFrame()
@@ -50,10 +50,10 @@ internal partial class UIManager : IDisposable
         if (Raylib.IsWindowResized())
         {
             this._baseTexture = Raylib.LoadRenderTexture(
-                Raylib.GetScreenWidth(), 
+                Raylib.GetScreenWidth(),
                 Raylib.GetScreenHeight());
             this._tooltipTexture = Raylib.LoadRenderTexture(
-                Raylib.GetScreenWidth(), 
+                Raylib.GetScreenWidth(),
                 Raylib.GetScreenHeight());
         }
 
@@ -75,14 +75,14 @@ internal partial class UIManager : IDisposable
     public void EndFrame()
     {
         Raylib.DrawTextureRec(
-            _baseTexture.Texture, 
-            new(0, 0, this._baseTexture.Texture.Width, -this._baseTexture.Texture.Height), 
-            new(0, 0), 
+            this._baseTexture.Texture,
+            new(0, 0, this._baseTexture.Texture.Width, -this._baseTexture.Texture.Height),
+            new(0, 0),
             Color.White);
         Raylib.DrawTextureRec(
-            _tooltipTexture.Texture, 
-            new(0, 0, this._tooltipTexture.Texture.Width, -this._tooltipTexture.Texture.Height), 
-            new(0, 0), 
+            this._tooltipTexture.Texture,
+            new(0, 0, this._tooltipTexture.Texture.Width, -this._tooltipTexture.Texture.Height),
+            new(0, 0),
             Color.White);
     }
 }

@@ -17,7 +17,7 @@ internal class MapImporter(string path) : IDisposable
         this._pbfReader.Open();
 
         this.ValidateHeader();
-        this.DecodeBlocks(); 
+        this.DecodeBlocks();
         this.ProjectNodes();
 
         MapData mapData = new();
@@ -32,19 +32,19 @@ internal class MapImporter(string path) : IDisposable
         this._pbfReader.Dispose();
     }
 
-    private void ValidateHeader() 
+    private void ValidateHeader()
     {
         PBFBlock? pbfHeader = this._pbfReader.ReadNext();
         if (pbfHeader == null)
         {
             throw new MapImporterException(this._path, "Header is missing");
         }
-        
+
         OSMBlock osmHeader = this._osmDecoder.Parse(pbfHeader);
         if (osmHeader.GetType() != typeof(OSMHeaderBlock))
         {
             throw new MapImporterException(
-                this._path, 
+                this._path,
                 $"Expected header, but got {osmHeader.GetType().Name}");
         }
     }
@@ -58,44 +58,61 @@ internal class MapImporter(string path) : IDisposable
 
             this.DecodeNodes(osmBlock);
             this.DecodeWays(osmBlock);
-                        
+
             pbfBlock = this._pbfReader.ReadNext();
         }
     }
 
     private void DecodeNodes(OSMDataBlock block)
     {
-        foreach (OSMNode node in this._osmDecoder.DecodeNodes(block))
+        foreach (OSMNodeView node in this._osmDecoder.DecodeNodes(block))
         {
             MapPosition mapPosition = new(
                 X: node.Coordinates.Latitude,
                 Y: node.Coordinates.Longitude);
             this._nodePositions.Add(node.Id, mapPosition);
 
-            if (node.Tags.ContainsKey("place"))
+            if (node.Tags.ContainsKey("place"u8))
             {
-                this._places.Add(node);
+                OSMNode newNode = new(
+                    Id: node.Id,
+                    Coordinates: node.Coordinates,
+                    Tags: node.Tags.Materialize());
+                this._places.Add(newNode);
             }
-        }       
+        }
     }
 
     private void DecodeWays(OSMDataBlock block)
     {
-        foreach (OSMWay way in this._osmDecoder.DecodeWays(block))
+        foreach (OSMWayView way in this._osmDecoder.DecodeWays(block))
         {
-            if (way.Tags.ContainsKey("highway"))
+            bool isRoad = way.Tags.ContainsKey("highway"u8);
+            bool isBuilding = way.Tags.ContainsKey("building"u8);
+
+            if (!isRoad && !isBuilding)
             {
-                this._roads.Add(way);
+                continue;
             }
 
-            if (way.Tags.ContainsKey("building"))
+            OSMWay newWay = new(
+                Id: way.Id,
+                NodeIds: this._osmDecoder.DecodeNodeIds(way.Refs),
+                Tags: way.Tags.Materialize());
+
+            if (isRoad)
             {
-                this._buildings.Add(way);
+                this._roads.Add(newWay);
             }
-        }      
+            else if (isBuilding)
+            {
+                this._buildings.Add(newWay);
+            }
+
+        }
     }
 
-    private void ProjectNodes() 
+    private void ProjectNodes()
     {
         const int metresPerDegree = 111320;
 
@@ -108,12 +125,12 @@ internal class MapImporter(string path) : IDisposable
         double originX = origin.X;
         double originY = origin.Y;
 
-        foreach (var (id, (x, y)) in this._nodePositions)
+        foreach ((long id, (double x, double y)) in this._nodePositions)
         {
             this._nodePositions[id] = new(
                 // Use a local origin to keep projected coordinates near 0
-                X: 
-                    (y - originY) 
+                X:
+                    (y - originY)
                     * Math.Cos(double.DegreesToRadians(originX))
                     * metresPerDegree,
                 // Invert Y so north appears upward

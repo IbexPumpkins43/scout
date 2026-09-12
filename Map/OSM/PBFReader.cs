@@ -185,7 +185,7 @@ internal class PBFReader(string path) : IDisposable
             this.ValidatePayloadSize(blob.Raw.Length);
             return blob.Raw.Memory;
         }
-        
+
         if (!blob.HasZlibData)
         {
             throw new PBFReaderException(this._path, "Unsupported compression format");
@@ -218,11 +218,11 @@ internal class PBFReader(string path) : IDisposable
 
         using (compressedStream)
         using (ZLibStream zlibStream = new(
-            stream: compressedStream, 
+            stream: compressedStream,
             mode: CompressionMode.Decompress))
         {
             byte[] payloadBuffer = new byte[blob.RawSize];
-        
+
             int payloadLength = zlibStream.ReadAtLeast(payloadBuffer, blob.RawSize, false);
             if (payloadLength != blob.RawSize || zlibStream.ReadByte() != -1)
             {

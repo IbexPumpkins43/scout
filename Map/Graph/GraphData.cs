@@ -7,18 +7,18 @@ internal class GraphData
 
     public void Build(MapNodePositions nodePositions, MapRoads roads)
     {
-        Dictionary<long, int> nodeIndices = BuildNodeIndices(nodePositions, roads);
+        Dictionary<long, int> nodeIndices = this.BuildNodeIndices(nodePositions, roads);
 
         int[] edgeCounts = new int[nodeIndices.Count];
-        int edgeCount = CountEdges(roads, nodeIndices, edgeCounts);
+        int edgeCount = this.CountEdges(roads, nodeIndices, edgeCounts);
 
-        GraphNode[] nodes = BuildNodes(nodePositions, nodeIndices, edgeCounts);
+        GraphNode[] nodes = this.BuildNodes(nodePositions, nodeIndices, edgeCounts);
 
         GraphEdge[] edges = new GraphEdge[edgeCount];
-        PrepareEdgeWriteOffsets(
+        this.PrepareEdgeWriteOffsets(
             nodes,
             edgeCounts);
-        BuildEdges(
+        this.BuildEdges(
             roads,
             nodeIndices,
             nodes,
@@ -55,12 +55,12 @@ internal class GraphData
 
         foreach (OSMWay road in roads)
         {
-            for (int index = 0; index < road.NodeIds.Count - 1; index++)
+            for (int index = 0; index < road.NodeIds.Length - 1; index++)
             {
                 long firstId = road.NodeIds[index];
                 long secondId = road.NodeIds[index + 1];
 
-                if (!TryGetNodeIndices(
+                if (!this.TryGetNodeIndices(
                     nodeIndices,
                     firstId,
                     secondId,
@@ -131,12 +131,12 @@ internal class GraphData
     {
         foreach (OSMWay road in roads)
         {
-            for (int index = 0; index < road.NodeIds.Count - 1; index++)
+            for (int index = 0; index < road.NodeIds.Length - 1; index++)
             {
                 long firstId = road.NodeIds[index];
                 long secondId = road.NodeIds[index + 1];
 
-                if (!TryGetNodeIndices(
+                if (!this.TryGetNodeIndices(
                     nodeIndices,
                     firstId,
                     secondId,
@@ -146,7 +146,7 @@ internal class GraphData
                     continue;
                 }
 
-                float distance = CalculateDistance(
+                float distance = this.CalculateDistance(
                     nodes[firstIndex].Position,
                     nodes[secondIndex].Position);
 
