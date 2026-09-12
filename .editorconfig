@@ -1,0 +1,53 @@
+root = true
+
+[*]
+trim_trailing_whitespace = true
+indent_size = 4
+indent_style = space
+max_line_length = 100
+
+[*.cs]
+dotnet_diagnostic.IDE0055.severity = warning
+
+# Standard new line formatting
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+
+# Standard indentation formatting
+csharp_indent_block_contents = true
+csharp_indent_braces = false
+csharp_indent_case_contents = true
+csharp_indent_switch_labels = true
+
+csharp_space_after_cast = false
+csharp_space_after_comma = true
+csharp_space_after_dot = false
+
+csharp_space_before_comma = false
+csharp_space_before_dot = false
+
+# Explicit types over var
+csharp_style_var_for_built_in_types = false:warning
+csharp_style_var_when_type_is_apparent = false:warning
+csharp_style_var_elsewhere = false:warning
+
+# Enforce this._myField and this.MyMethod()
+dotnet_style_qualification_for_field = true:warning
+dotnet_style_qualification_for_property = true:warning
+dotnet_style_qualification_for_method = true:warning
+dotnet_style_qualification_for_event = true:warning
+
+# namespace SomeNamespace;
+csharp_style_namespace_declarations = file_scoped:warning
+
+csharp_prefer_braces = true:warning
+
+# Require ccessiblity modifiers
+dotnet_style_require_accessibility_modifiers = always:warning
+
+# Enfore the _camelCase for private fields
+dotnet_naming_rule.private_fields_should_be_underscore_camel_case.symbols = private_fields
+dotnet_naming_rule.private_fields_should_be_underscore_camel_case.style = underscore_camel_case
+dotnet_naming_rule.private_fields_should_be_underscore_camel_case.severity = warning
