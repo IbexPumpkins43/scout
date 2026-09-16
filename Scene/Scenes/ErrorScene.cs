@@ -3,7 +3,7 @@ using Scout.UI;
 
 namespace Scout.Scenes;
 
-internal class ErrorScene(SceneManager sceneManager) : Scene(sceneManager)
+internal class ErrorScene(SceneManagerData data) : Scene(data)
 {
     private UIManager _uiManager = new();
     private Exception _exception;

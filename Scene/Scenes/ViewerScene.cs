@@ -5,9 +5,8 @@ using Scout.UI;
 
 namespace Scout.Scenes;
 
-internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
+internal class ViewerScene(SceneManagerData data) : Scene(data)
 {
-    private UIManager _uiManager = new();
     private RenderData _renderData;
     private Renderer _renderer;
     private GraphData _graphData;
@@ -29,7 +28,7 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
 
         this._renderData = mapData.RenderData;
         this._graphData = mapData.GraphData;
-        this._renderer = new(this._renderData, this._graphData, this._uiManager.BoldFont);
+        this._renderer = new(this._renderData, this._graphData, this.UIManager.BoldFont);
         this._graph = new(this._graphData);
         this._path = Array.Empty<int>();
         this._pathDirty = false;
@@ -38,7 +37,7 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
     public override void Dispose()
     {
         this._renderer.Dispose();
-        this._uiManager.Dispose();
+        this.UIManager.Dispose();
     }
 
     public override void Update()
@@ -55,20 +54,20 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
             this._pathDirty = false;
         }
 
-        this._uiManager.BeginFrame();
-        this._uiManager.SameLine = true;
-        if (this._uiManager.IconButton("open", "Open a map file..."))
+        this.UIManager.BeginFrame();
+        this.UIManager.SameLine = true;
+        if (this.UIManager.IconButton("open", "Open a map file..."))
         {
             this.OpenMapFile();
         }
-        if (this._uiManager.IconButton("quit", "Quit"))
+        if (this.UIManager.IconButton("quit", "Quit"))
         {
             Raylib.CloseWindow();
         }
-        if (this._uiManager.LabelButton("Randomise", "Generates a random path from A to B using Dijkstra"))
+        if (this.UIManager.LabelButton("Randomise", "Generates a random path from A to B using Dijkstra"))
         {
             Random random = new();
-            this._path = this._graph.Dijkstras(random.Next(0, 10000), random.Next(0, 10000));
+            this._path = this._graph.Dijkstra(random.Next(0, 10000), random.Next(0, 10000));
             this._pathDirty = true;
         }
 
@@ -82,7 +81,7 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
             this._uiManager.InputBox(ref this._locationSearchBox);
         } */
 
-        this._uiManager.EndFrame();
+        this.UIManager.EndFrame();
     }
 
     private void OpenMapFile()

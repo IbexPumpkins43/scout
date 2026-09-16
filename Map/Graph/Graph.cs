@@ -9,7 +9,7 @@ internal class Graph(GraphData graphData)
 
     private PriorityQueue<int, float> _queue = new();
 
-    public int[] Dijkstras(int start, int target)
+    public int[] Dijkstra(int start, int target)
     {
         this._queue.Clear();
         Array.Fill(this._distances, float.PositiveInfinity);

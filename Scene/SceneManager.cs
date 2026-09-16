@@ -1,4 +1,5 @@
 using Raylib_cs;
+using Scout.UI;
 
 namespace Scout.Scenes;
 
@@ -15,12 +16,17 @@ internal class SceneManagerException : Exception
     }
 }
 
+internal readonly record struct SceneManagerData(
+    SceneManager SceneManager,
+    UIManager UIManager);
+
 internal class SceneManager : IDisposable
 {
     private Dictionary<Type, Scene> _scenes = new();
     private Scene? _currentScene;
     private bool _reload;
     private object? _lastSceneResult;
+    private UIManager _uiManager = new();
 
     public void Dispose()
     {
@@ -37,7 +43,9 @@ internal class SceneManager : IDisposable
             throw new SceneManagerException($"Scene {typeof(T)} already exists");
         }
 
-        this._scenes.Add(typeof(T), (T)Activator.CreateInstance(typeof(T), this)!);
+        this._scenes.Add(
+            typeof(T),
+            (T)Activator.CreateInstance(typeof(T), new SceneManagerData(this, _uiManager))!);
     }
 
     public void UnregisterScene<T>() where T : Scene

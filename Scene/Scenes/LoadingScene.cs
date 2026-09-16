@@ -3,7 +3,7 @@ using Scout.Map;
 
 namespace Scout.Scenes;
 
-internal class LoadingScene(SceneManager sceneManager) : Scene(sceneManager)
+internal class LoadingScene(SceneManagerData data) : Scene(data)
 {
     private string? _path;
     private Task<MapData>? _loadTask;
