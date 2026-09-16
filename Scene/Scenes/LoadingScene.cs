@@ -5,21 +5,22 @@ namespace Scout.Scenes;
 
 internal class LoadingScene(SceneManager sceneManager) : Scene(sceneManager)
 {
-    private Task<MapData> _loadTask;
+    private string? _path;
+    private Task<MapData>? _loadTask;
 
     public override void Load()
     {
         this._loadTask = Task.Run(() =>
         {
-            string? path = this.SceneManager.GetLastSceneResult<string>();
-            if (path == null)
+            this._path = this.SceneManager.GetLastSceneResult<string>();
+            if (this._path == null)
             {
-                path = "Assets/luxembourg.osm.pbf";
+                this._path = "Assets/luxembourg.osm.pbf";
             }
 
-            Console.WriteLine($"Loading {path}");
+            Console.WriteLine($"Loading {this._path}");
 
-            using MapImporter mapImporter = new(path: path);
+            using MapImporter mapImporter = new(path: this._path);
             MapData mapData = mapImporter.Import();
 
             return mapData;
@@ -28,11 +29,19 @@ internal class LoadingScene(SceneManager sceneManager) : Scene(sceneManager)
 
     public override void Dispose()
     {
-        this._loadTask.Dispose();
+        if (this._loadTask != null)
+        {
+            this._loadTask.Dispose();
+        }
     }
 
     public override void Update()
     {
+        if (this._loadTask == null)
+        {
+            return;
+        }
+
         if (this._loadTask.IsFaulted)
         {
             this.SceneManager.SetSceneResult<Exception>(
@@ -48,14 +57,16 @@ internal class LoadingScene(SceneManager sceneManager) : Scene(sceneManager)
 
     public override void Render()
     {
-        const int ringSize = 40;
+        const int ringSize = 20;
 
         float time = (float)Raylib.GetTime() * 4;
         float angle = time * 180.0f;
 
         Raylib.ClearBackground(Color.White);
         Raylib.DrawRing(
-            new(Raylib.GetScreenWidth() / 2 - ringSize, Raylib.GetScreenHeight() / 2 - ringSize),
+            new(
+                Raylib.GetScreenWidth() / 2 - ringSize / 2,
+                Raylib.GetScreenHeight() / 2 - ringSize / 2),
             ringSize / 2,
             ringSize,
             angle,

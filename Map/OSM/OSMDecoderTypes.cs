@@ -1,5 +1,4 @@
 using Google.Protobuf.Collections;
-using OSMPBF;
 
 namespace Scout.Map;
 

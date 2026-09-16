@@ -3,10 +3,11 @@ using Raylib_cs;
 
 namespace Scout.Map;
 
-internal class Renderer(RenderData renderData, GraphData graphData) : IDisposable
+internal class Renderer(RenderData renderData, GraphData graphData, Font font) : IDisposable
 {
     private RenderData _renderData = renderData;
     private GraphData _graphData = graphData;
+    private Font _font = font;
 
     private bool _redraw = true;
     private RenderTexture2D _texture = Raylib.LoadRenderTexture(
@@ -133,11 +134,12 @@ internal class Renderer(RenderData renderData, GraphData graphData) : IDisposabl
                 continue;
             }
 
-            Raylib.DrawText(
+            Raylib.DrawTextEx(
+                this._font,
                 place.Name,
-                (int)screenPosition.X,
-                (int)screenPosition.Y,
+                screenPosition,
                 style.FontSize,
+                0.0f,
                 Color.Black);
         }
     }

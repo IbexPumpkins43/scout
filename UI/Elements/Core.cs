@@ -8,10 +8,16 @@ internal partial class UIManager
     public void Label(string text)
     {
         Raylib.BeginTextureMode(this._baseTexture);
-        Raylib.DrawText(text, this._xOffset, this._yOffset, Style.FontSize, Style.TextColour);
+        Raylib.DrawTextEx(
+            this.RegularFont,
+            text,
+            new(this._xOffset, this._yOffset),
+            Style.RegularFontSize,
+            Style.RegularFontSpacing,
+            Style.TextColour);
         Raylib.EndTextureMode();
 
-        this.UpdateOffsets(Raylib.MeasureText(text, Style.FontSize), Style.FontSize);
+        this.UpdateOffsets(Raylib.MeasureText(text, Style.RegularFontSize), Style.RegularFontSize);
     }
 
     public void Icon(string icon)
@@ -20,7 +26,7 @@ internal partial class UIManager
             this._iconsLookup[icon],
             new(Style.IconSize, Style.IconSize));
 
-        Vector2 position = new(this._xOffset + Style.OuterPadding, this._yOffset + Style.OuterPadding);
+        Vector2 position = new(this._xOffset, this._yOffset);
 
         Raylib.DrawTextureRec(this._icons, source, position, Color.White);
     }
@@ -38,7 +44,7 @@ internal partial class UIManager
 
     private void Tooltip(string tip)
     {
-        int width = Raylib.MeasureText(tip, Style.SmallFontSize) + Style.InnerPadding * 2;
+        int width = (int)Raylib.MeasureTextEx(this.RegularFont, tip, Style.SmallFontSize, Style.SmallFontSpacing).X + Style.InnerPadding * 2;
         int height = Style.SmallFontSize + Style.InnerPadding * 2;
 
         Vector2 mouse = Raylib.GetMousePosition();
@@ -48,11 +54,12 @@ internal partial class UIManager
         Raylib.DrawRectangle((int)mouse.X, (int)mouse.Y, width, height, Style.TooltipBgColour);
         Raylib.DrawRectangleLines((int)mouse.X, (int)mouse.Y, width, height, Style.BorderColour);
 
-        Raylib.DrawText(
+        Raylib.DrawTextEx(
+            this.RegularFont,
             tip,
-            (int)mouse.X + Style.InnerPadding,
-            (int)mouse.Y + Style.InnerPadding,
+            new (mouse.X + Style.InnerPadding, mouse.Y + Style.InnerPadding),
             Style.SmallFontSize,
+            Style.SmallFontSpacing,
             Style.TextColour);
 
         Raylib.EndTextureMode();
@@ -62,10 +69,12 @@ internal partial class UIManager
     {
         if (this.SameLine)
         {
+            this._yOffset = Style.OuterPadding;
             this._xOffset += width + Style.OuterPadding;
         }
         else
         {
+            this._xOffset = Style.OuterPadding;
             this._yOffset += height + Style.OuterPadding;
         }
     }

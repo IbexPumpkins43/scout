@@ -13,11 +13,14 @@ internal partial class UIManager : IDisposable
         Raylib.GetScreenWidth(),
         Raylib.GetScreenHeight());
 
-    private Texture2D _icons = Raylib.LoadTexture("Assets/icons.png");
-    private Dictionary<string, Vector2> _iconsLookup;
+    private readonly Texture2D _icons = Raylib.LoadTexture("Assets/icons.png");
+    private readonly Dictionary<string, Vector2> _iconsLookup;
 
     private int _xOffset;
     private int _yOffset;
+
+    public readonly Font RegularFont = Raylib.LoadFontEx("Assets/NotoSans-Regular.ttf", 128, null, 0);
+    public readonly Font BoldFont = Raylib.LoadFontEx("Assets/NotoSans-Bold.ttf", 128, null, 0);
 
     public bool SameLine;
 
@@ -40,6 +43,8 @@ internal partial class UIManager : IDisposable
 
     public void Dispose()
     {
+        Raylib.UnloadFont(this.BoldFont);
+        Raylib.UnloadFont(this.RegularFont);
         Raylib.UnloadTexture(this._icons);
         Raylib.UnloadRenderTexture(this._baseTexture);
         Raylib.UnloadRenderTexture(this._tooltipTexture);
@@ -65,8 +70,8 @@ internal partial class UIManager : IDisposable
         Raylib.ClearBackground(new Color(0, 0, 0, 0));
         Raylib.EndTextureMode();
 
-        this._xOffset = 0;
-        this._yOffset = 0;
+        this._xOffset = Style.OuterPadding;
+        this._yOffset = Style.OuterPadding;
 
         this.SameLine = false;
 

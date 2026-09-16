@@ -13,6 +13,9 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
     private GraphData _graphData;
     private Graph _graph;
 
+    private bool _locationSearchBoxShow;
+    private string _locationSearchBox;
+
     public override void Load()
     {
         MapData? mapData = this.SceneManager.GetLastSceneResult<MapData>();
@@ -23,7 +26,7 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
 
         this._renderData = mapData.RenderData;
         this._graphData = mapData.GraphData;
-        this._renderer = new(this._renderData, this._graphData);
+        this._renderer = new(this._renderData, this._graphData, this._uiManager.BoldFont);
         this._graph = new(this._graphData);
     }
 
@@ -41,7 +44,6 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
     public override void Render()
     {
         this._renderer.Draw();
-        Raylib.DrawFPS(72, 8);
 
         this._uiManager.BeginFrame();
         this._uiManager.SameLine = true;
@@ -53,6 +55,17 @@ internal class ViewerScene(SceneManager sceneManager) : Scene(sceneManager)
         {
             Raylib.CloseWindow();
         }
+
+        if (this._uiManager.IconButton("search", "Search for a place..."))
+        {
+            this._locationSearchBoxShow ^= true;
+        }
+        if (this._locationSearchBoxShow)
+        {
+            this._uiManager.SameLine = false;
+            this._uiManager.InputBox(ref this._locationSearchBox);
+        }
+
         this._uiManager.EndFrame();
     }
 

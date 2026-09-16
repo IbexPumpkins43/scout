@@ -64,10 +64,8 @@ internal readonly struct OSMTagView
     public OSMTagView(OSMDataBlock block, DenseNodes nodes, int start, int count)
     {
         this._block = block;
-
         this._denseNodes = nodes;
         this._denseStart = start;
-
         this.Count = count;
     }
 

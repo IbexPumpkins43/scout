@@ -1,0 +1,27 @@
+TODO
+========================
+- Massive UI refactor
+    - Complete InputBox and List
+        - List
+            - Scrollable
+            - Selectable items
+            - Returns the index of the item picked
+        - InputBox
+            - Placeholder text
+            - Cursor
+            - Trim long text to fit and make it scrollable
+    - Layout
+        - Drop SameLine
+        - NewLine(bool retainX)
+        - Container
+    - Dark mode
+    - Custom file picker
+    - Menu bar
+
+- Features
+    - Place search
+    - Jump to coordinates
+    - Route
+        - From
+        - To
+        - Use Dijkstra to find quickest Route

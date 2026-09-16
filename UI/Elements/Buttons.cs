@@ -8,22 +8,28 @@ internal partial class UIManager
     public bool LabelButton(string text, string? tooltip = null)
     {
         Rectangle button = new(
-            x: this._xOffset + Style.OuterPadding,
-            y: this._yOffset + Style.OuterPadding,
-            width: Raylib.MeasureText(text, Style.FontSize) + Style.InnerPadding * 2,
-            height: Style.FontSize + Style.InnerPadding * 2);
+            x: this._xOffset,
+            y: this._yOffset,
+            width: Raylib.MeasureTextEx(
+                this.RegularFont,
+                text,
+                Style.RegularFontSize,
+                Style.RegularFontSpacing).X + Style.InnerPadding * 2,
+            height: Style.RegularFontSize + Style.InnerPadding * 2);
 
-        (Color borderColour, Color bgColour, bool showTooltip, bool wasClicked) = this.UpdateButton(button);
+        (Color borderColour, Color bgColour, bool showTooltip, bool wasClicked) =
+            this.UpdateButton(button);
 
         Raylib.BeginTextureMode(this._baseTexture);
 
         this.DrawBox(button, borderColour, bgColour);
 
-        Raylib.DrawText(
+        Raylib.DrawTextEx(
+            this.RegularFont,
             text,
-            this._xOffset + Style.InnerPadding + Style.OuterPadding,
-            this._yOffset + Style.InnerPadding + Style.OuterPadding,
-            Style.FontSize,
+            new(this._xOffset + Style.InnerPadding, this._yOffset + Style.InnerPadding),
+            Style.RegularFontSize,
+            Style.RegularFontSpacing,
             Style.TextColour);
 
         Raylib.EndTextureMode();
@@ -41,12 +47,13 @@ internal partial class UIManager
     public bool IconButton(string icon, string? tooltip = null)
     {
         Rectangle button = new(
-            x: this._xOffset + Style.OuterPadding,
-            y: this._yOffset + Style.OuterPadding,
+            x: this._xOffset,
+            y: this._yOffset,
             width: Style.IconSize + Style.InnerPadding * 2,
             height: Style.IconSize + Style.InnerPadding * 2);
 
-        (Color borderColour, Color bgColour, bool showTooltip, bool wasClicked) = this.UpdateButton(button);
+        (Color borderColour, Color bgColour, bool showTooltip, bool wasClicked) =
+            this.UpdateButton(button);
 
         Raylib.BeginTextureMode(this._baseTexture);
 
@@ -60,8 +67,8 @@ internal partial class UIManager
                 width: Style.IconSize,
                 height: Style.IconSize),
             new(
-                this._xOffset + Style.InnerPadding + Style.OuterPadding,
-                this._yOffset + Style.InnerPadding + Style.OuterPadding),
+                this._xOffset + Style.InnerPadding,
+                this._yOffset + Style.InnerPadding),
             Color.White);
 
         Raylib.EndTextureMode();
