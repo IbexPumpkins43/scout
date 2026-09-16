@@ -39,6 +39,9 @@ internal partial class UIManager : IDisposable
         }
 
         this._iconsLookup = iconsLookup;
+
+        Raylib.SetTextureFilter(this.RegularFont.Texture, TextureFilter.Bilinear);
+        Raylib.SetTextureFilter(this.BoldFont.Texture, TextureFilter.Bilinear);
     }
 
     public void Dispose()

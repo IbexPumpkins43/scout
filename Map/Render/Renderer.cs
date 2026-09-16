@@ -84,6 +84,50 @@ internal class Renderer(RenderData renderData, GraphData graphData, Font font) :
             Color.White);
     }
 
+
+    public void DrawPath(int[] path, bool moveCamera = false)
+    {
+        if (path.Length == 0)
+        {
+            return;
+        }
+
+        const float pathThickness = 4.0f;
+        const float markerRadius = 8.0f;
+
+        Raylib.BeginMode2D(this._camera);
+
+        for (int index = 0; index < path.Length - 1; index++)
+        {
+            GraphNode firstNode = this._graphData.Nodes[path[index]];
+            GraphNode secondNode = this._graphData.Nodes[path[index + 1]];
+
+            Vector2 firstPosition = new((float)firstNode.Position.X, (float)firstNode.Position.Y);
+            Vector2 secondPosition = new(
+                (float)secondNode.Position.X,
+                (float)secondNode.Position.Y);
+
+            Raylib.DrawLineEx(firstPosition, secondPosition, pathThickness, Color.Pink);
+        }
+
+        GraphNode startNode = this._graphData.Nodes[path[0]];
+        GraphNode endNode = this._graphData.Nodes[path[path.Length - 1]];
+
+        Vector2 startPosition = new((float)startNode.Position.X, (float)startNode.Position.Y);
+        Vector2 endPosition = new((float)endNode.Position.X, (float)endNode.Position.Y);
+
+        Raylib.DrawCircleV(startPosition, markerRadius, Color.Blue);
+        Raylib.DrawCircleV(endPosition, markerRadius, Color.Red);
+
+        Raylib.EndMode2D();
+
+        if (moveCamera)
+        {
+            this._camera.Target = startPosition;
+        }
+
+    }
+
     private void DrawRoads()
     {
         BoundBox viewBounds = this.GetViewBoundBox();
