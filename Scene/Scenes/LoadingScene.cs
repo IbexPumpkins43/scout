@@ -62,7 +62,6 @@ internal class LoadingScene(SceneManagerData data) : Scene(data)
         float time = (float)Raylib.GetTime() * 4;
         float angle = time * 180.0f;
 
-        Raylib.ClearBackground(Color.White);
         Raylib.DrawRing(
             new(
                 Raylib.GetScreenWidth() / 2 - ringSize / 2,
@@ -74,5 +73,8 @@ internal class LoadingScene(SceneManagerData data) : Scene(data)
             32,
             Color.SkyBlue
         );
+        this.UIManager.BeginFrame();
+        this.UIManager.Label($"Loading {this._path}");
+        this.UIManager.EndFrame();
     }
 }

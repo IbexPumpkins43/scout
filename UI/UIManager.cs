@@ -19,8 +19,8 @@ internal partial class UIManager : IDisposable
     private int _xOffset;
     private int _yOffset;
 
-    public readonly Font RegularFont = Raylib.LoadFontEx("Assets/NotoSans-Regular.ttf", 128, null, 0);
-    public readonly Font BoldFont = Raylib.LoadFontEx("Assets/NotoSans-Bold.ttf", 128, null, 0);
+    public readonly Font RegularFont = Raylib.LoadFontEx("Assets/NotoSans-Regular.ttf", 48, null, 0);
+    public readonly Font BoldFont = Raylib.LoadFontEx("Assets/NotoSans-Bold.ttf", 48, null, 0);
 
     public bool SameLine;
 
