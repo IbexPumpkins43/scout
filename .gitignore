@@ -1,4 +1,4 @@
-*.osm.pbf
 Assets/*.md
+Data/
 bin/
 obj/
