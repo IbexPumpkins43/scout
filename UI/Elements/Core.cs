@@ -5,30 +5,39 @@ namespace Scout.UI;
 
 internal partial class UIManager
 {
-    public void Label(string text)
+    public void Label(
+        string text,
+        Color? colour = null,
+        float? x = null,
+        float? y = null)
     {
         Raylib.BeginTextureMode(this._baseTexture);
         Raylib.DrawTextEx(
             this.RegularFont,
             text,
-            new(this._xOffset, this._yOffset),
+            new(x ?? this._xOffset, y ?? this._yOffset),
             Style.RegularFontSize,
             Style.RegularFontSpacing,
-            Style.TextColour);
+            colour ?? Style.TextColour);
         Raylib.EndTextureMode();
 
         this.UpdateOffsets(Raylib.MeasureText(text, Style.RegularFontSize), Style.RegularFontSize);
     }
 
-    public void Icon(string icon)
+    public void Icon(string icon, float? x = null, float? y = null)
     {
         Rectangle source = new(
-            this._iconsLookup[icon],
-            new(Style.IconSize, Style.IconSize));
+            position: this._iconsLookup[icon],
+            size: new(Style.IconSize, Style.IconSize));
 
-        Vector2 position = new(this._xOffset, this._yOffset);
+        Vector2 position = new(x ?? this._xOffset, y ?? this._yOffset);
 
         Raylib.DrawTextureRec(this._icons, source, position, Color.White);
+
+        if (x != null && y != null)
+        {
+            this.UpdateOffsets(source.Width, source.Height);
+        }
     }
 
     private void DrawBox(Rectangle button, Color borderColour, Color bgColour)
@@ -44,7 +53,11 @@ internal partial class UIManager
 
     private void Tooltip(string tip)
     {
-        int width = (int)Raylib.MeasureTextEx(this.RegularFont, tip, Style.SmallFontSize, Style.SmallFontSpacing).X + Style.InnerPadding * 2;
+        int width = (int)Raylib.MeasureTextEx(
+            this.RegularFont,
+            tip,
+            Style.SmallFontSize,
+            Style.SmallFontSpacing).X + Style.InnerPadding * 2;
         int height = Style.SmallFontSize + Style.InnerPadding * 2;
 
         Vector2 mouse = Raylib.GetMousePosition();
@@ -69,13 +82,14 @@ internal partial class UIManager
     {
         if (this.SameLine)
         {
-            this._yOffset = Style.OuterPadding;
             this._xOffset += width + Style.OuterPadding;
         }
         else
         {
-            this._xOffset = Style.OuterPadding;
             this._yOffset += height + Style.OuterPadding;
         }
     }
+
+    private void UpdateOffsets(float width, float height) =>
+        this.UpdateOffsets((int)width, (int)height);
 }

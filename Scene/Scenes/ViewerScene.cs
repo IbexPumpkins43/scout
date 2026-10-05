@@ -1,7 +1,6 @@
 using NativeFileDialogNET;
 using Raylib_cs;
 using Scout.Map;
-using Scout.UI;
 
 namespace Scout.Scenes;
 

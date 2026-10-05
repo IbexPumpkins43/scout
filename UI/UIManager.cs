@@ -13,20 +13,20 @@ internal partial class UIManager : IDisposable
         Raylib.GetScreenWidth(),
         Raylib.GetScreenHeight());
 
-    private readonly Texture2D _icons = Raylib.LoadTexture("Assets/icons.png");
+    private readonly Texture2D _icons = Raylib.LoadTexture(Config.AssetsPath + "icons.png");
     private readonly Dictionary<string, Vector2> _iconsLookup;
 
     private int _xOffset;
     private int _yOffset;
 
-    public readonly Font RegularFont = Raylib.LoadFontEx("Assets/NotoSans-Regular.ttf", 48, null, 0);
-    public readonly Font BoldFont = Raylib.LoadFontEx("Assets/NotoSans-Bold.ttf", 48, null, 0);
+    public readonly Font RegularFont = Raylib.LoadFontEx(Config.AssetsPath + "NotoSans-Regular.ttf", 48, null, 0);
+    public readonly Font BoldFont = Raylib.LoadFontEx(Config.AssetsPath + "NotoSans-Bold.ttf", 48, null, 0);
 
     public bool SameLine;
 
     public UIManager()
     {
-        string json = File.ReadAllText("Assets/icons.json");
+        string json = File.ReadAllText(Config.AssetsPath + "icons.json");
 
         JsonSerializerOptions options = new();
         options.IncludeFields = true;

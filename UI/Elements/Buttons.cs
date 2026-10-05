@@ -17,21 +17,12 @@ internal partial class UIManager
                 Style.RegularFontSpacing).X + Style.InnerPadding * 2,
             height: Style.RegularFontSize + Style.InnerPadding * 2);
 
-        (Color borderColour, Color bgColour, bool showTooltip, bool wasClicked) =
+        (Color textColour, Color bgColour, Color borderColour, bool showTooltip, bool wasClicked) =
             this.UpdateButton(button);
 
         Raylib.BeginTextureMode(this._baseTexture);
-
         this.DrawBox(button, borderColour, bgColour);
-
-        Raylib.DrawTextEx(
-            this.RegularFont,
-            text,
-            new(this._xOffset + Style.InnerPadding, this._yOffset + Style.InnerPadding),
-            Style.RegularFontSize,
-            Style.RegularFontSpacing,
-            Style.TextColour);
-
+        this.Label(text, textColour, button.X + Style.InnerPadding, button.Y + Style.InnerPadding);
         Raylib.EndTextureMode();
 
         if (showTooltip && tooltip != null)
@@ -39,7 +30,7 @@ internal partial class UIManager
             this.Tooltip(tooltip);
         }
 
-        this.UpdateOffsets((int)button.Width, (int)button.Height);
+        this.UpdateOffsets(button.Width, button.Height);
 
         return wasClicked;
     }
@@ -52,25 +43,12 @@ internal partial class UIManager
             width: Style.IconSize + Style.InnerPadding * 2,
             height: Style.IconSize + Style.InnerPadding * 2);
 
-        (Color borderColour, Color bgColour, bool showTooltip, bool wasClicked) =
+        (_, Color bgColour, Color borderColour, bool showTooltip, bool wasClicked) =
             this.UpdateButton(button);
 
         Raylib.BeginTextureMode(this._baseTexture);
-
         this.DrawBox(button, borderColour, bgColour);
-
-        Vector2 iconLocation = this._iconsLookup[icon];
-        Raylib.DrawTextureRec(
-            this._icons,
-            new(
-                position: iconLocation,
-                width: Style.IconSize,
-                height: Style.IconSize),
-            new(
-                this._xOffset + Style.InnerPadding,
-                this._yOffset + Style.InnerPadding),
-            Color.White);
-
+        this.Icon(icon, this._xOffset + Style.InnerPadding, this._yOffset + Style.InnerPadding);
         Raylib.EndTextureMode();
 
         if (showTooltip && tooltip != null)
@@ -78,15 +56,16 @@ internal partial class UIManager
             this.Tooltip(tooltip);
         }
 
-        this.UpdateOffsets((int)button.Width, (int)button.Height);
+        this.UpdateOffsets(button.Width, button.Height);
 
         return wasClicked;
     }
 
-    private (Color, Color, bool, bool) UpdateButton(Rectangle button)
+    private (Color, Color, Color, bool, bool) UpdateButton(Rectangle button)
     {
-        Color borderColour = Style.BorderColour;
+        Color textColour = Style.TextColour;
         Color bgColour = Style.ButtonBgColour;
+        Color borderColour = Style.BorderColour;
         bool showTooltip = false;
         bool wasClicked = false;
 
@@ -99,8 +78,9 @@ internal partial class UIManager
             }
             else if (Raylib.IsMouseButtonDown(MouseButton.Left))
             {
+                textColour = Style.ButtonDownTextColour;
+                bgColour = Style.ButtonDownBgColour;
                 borderColour = Style.BorderAltColour;
-                bgColour = Style.ButtonBgAltColour;
             }
             else
             {
@@ -108,6 +88,6 @@ internal partial class UIManager
             }
         }
 
-        return (borderColour, bgColour, showTooltip, wasClicked);
+        return (textColour, bgColour, borderColour, showTooltip, wasClicked);
     }
 }
