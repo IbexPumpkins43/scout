@@ -1,7 +1,7 @@
 .idea/
 .swp
 TODO.txt
-OLD/
+.OLD/
 Data/Maps
 bin/
 obj/
