@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Settings>
+    <AssetsPath>/home/ptarmigan/Git/scout/Assets/</AssetsPath>
+    <DataPath>/home/ptarmigan/Git/scout/Data/</DataPath>
+    <ColourMode>Dark</ColourMode>
+
+    <Repositories>
+        <Repository>
+            <Id>geofabrik</Id>
+            <Name>Geofabrik</Name>
+            <Url>https://google.com</Url>
+        </Repository>
+    </Repositories>
+</Settings>
