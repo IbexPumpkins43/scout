@@ -1,5 +1,4 @@
 ﻿using Raylib_cs;
-using Scout.Scenes;
 using Scout.Settings;
 
 namespace Scout;
@@ -13,7 +12,7 @@ internal class Program
         Raylib.InitWindow(1600, 900, "Scout");
         Raylib.SetTargetFPS(60);
 
-        Settings.Settings.Load();
+        SettingsData.Load();
 
         Raylib.CloseWindow();
     }

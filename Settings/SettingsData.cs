@@ -2,7 +2,7 @@ using System.Xml.Linq;
 
 namespace Scout.Settings;
 
-internal static class Settings
+internal static class SettingsData
 {
     private static bool _loaded;
 
@@ -29,7 +29,15 @@ internal static class Settings
             throw new SettingsException("Malformed settings root");
         }
 
-        // Load the paths
+        LoadPaths(settingsRoot);
+        LoadColourScheme(settingsRoot);
+        LoadRepositories(settingsRoot);
+
+        _loaded = true;
+    }
+
+    private static void LoadPaths(XElement settingsRoot)
+    {
         XElement? assetsPath = settingsRoot.Element("AssetsPath");
         if (assetsPath == null || assetsPath.IsEmpty)
         {
@@ -44,8 +52,10 @@ internal static class Settings
 
         AssetsPath = assetsPath.Value;
         DataPath = dataPath.Value;
+    }
 
-        // Load the colour scheme option
+    private static void LoadColourScheme(XElement settingsRoot)
+    {
         XElement? colourScheme = settingsRoot.Element("ColourScheme");
         if (colourScheme == null || colourScheme.IsEmpty)
         {
@@ -57,9 +67,9 @@ internal static class Settings
         }
 
         ColorScheme = colourScheme.Value;
+    }
 
-        // TODO : Parse repositiories into a list
-
-        _loaded = true;
+    private static void LoadRepositories(XElement settingsRoot)
+    {
     }
 }
