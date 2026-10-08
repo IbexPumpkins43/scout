@@ -1,18 +1,18 @@
 using OSMPBF;
 
-namespace Scout.Map;
+namespace Scout.Map.Osm;
 
-internal abstract record OSMBlock(long Index);
+internal abstract record OsmBlock(long Index);
 
-internal sealed record OSMHeaderBlock(
+internal sealed record OsmHeaderBlock(
     long Index,
     HeaderBlock Data)
-    : OSMBlock(Index);
+    : OsmBlock(Index);
 
-internal sealed record OSMDataBlock(
+internal sealed record OsmDataBlock(
     long Index,
     PrimitiveBlock Data)
-    : OSMBlock(Index)
+    : OsmBlock(Index)
 {
     private readonly string?[] _stringCache = new string?[Data.Stringtable.S.Count];
 

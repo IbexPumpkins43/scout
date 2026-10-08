@@ -1,3 +1,5 @@
+using Scout.Map.Osm;
+
 namespace Scout.Map;
 
 internal enum PlaceType
@@ -20,7 +22,7 @@ internal readonly record struct DrawablePlace(
 
 internal static class Place
 {
-    public static PlaceType? GetPlaceType(OSMNode place)
+    public static PlaceType? GetPlaceType(OsmNode place)
     {
         return place.Tags.GetValueOrDefault("place") switch
         {

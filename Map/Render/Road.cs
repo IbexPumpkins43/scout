@@ -1,4 +1,5 @@
 using Raylib_cs;
+using Scout.Map.Osm;
 
 namespace Scout.Map;
 
@@ -34,7 +35,7 @@ internal readonly record struct DrawableRoad(
 
 internal static class Road
 {
-    public static RoadType GetRoadType(OSMWay road)
+    public static RoadType GetRoadType(OsmWay road)
     {
         return road.Tags.GetValueOrDefault("highway") switch
         {

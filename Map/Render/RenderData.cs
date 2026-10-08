@@ -1,4 +1,5 @@
 using System.Numerics;
+using Scout.Map.Osm;
 
 namespace Scout.Map;
 
@@ -31,7 +32,7 @@ internal class RenderData
     {
         List<DrawableRoad> roads = new();
 
-        foreach (OSMWay road in allRoads)
+        foreach (OsmWay road in allRoads)
         {
             int start = allPoints.Count;
 
@@ -86,7 +87,7 @@ internal class RenderData
     {
         List<DrawablePlace> places = new();
 
-        foreach (OSMNode place in allPlaces)
+        foreach (OsmNode place in allPlaces)
         {
             if (!nodePositions.TryGetValue(place.Id, out MapPosition position))
             {
@@ -121,7 +122,7 @@ internal class RenderData
     {
         List<DrawableBuilding> buildings = new();
 
-        foreach (OSMWay building in allBuildings)
+        foreach (OsmWay building in allBuildings)
         {
             int start = allPoints.Count;
 

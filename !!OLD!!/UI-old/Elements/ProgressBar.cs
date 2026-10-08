@@ -24,8 +24,6 @@ internal partial class UIManager
         this.Label($"{status}/{maxStatus}", Style.TextColour, progressBar.X + progressBar.Width + Style.OuterPadding, progressBar.Y + Style.InnerPadding);
         if (text != null)
         {
-            
-            this.Label($"{text ?? ""}", Style.TextColour,);
         }
         Raylib.EndTextureMode();
     }

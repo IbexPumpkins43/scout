@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 using Google.Protobuf;
 using OSMPBF;
 
-namespace Scout.Map;
+namespace Scout.Map.Osm;
 
-internal class PBFReader(string path) : IDisposable
+internal class PbfReader(string path) : IDisposable
 {
     private string _path = path;
 
@@ -336,8 +336,8 @@ internal class PBFReader(string path) : IDisposable
     {
         return header.Type switch
         {
-            "OSMHeader" => PBFBlockType.OSMHeader,
-            "OSMData" => PBFBlockType.OSMData,
+            "OSMHeader" => PBFBlockType.OsmHeader,
+            "OSMData" => PBFBlockType.OsmData,
             _ => throw new PBFReaderException(this._path, $"Invalid block type: {header.Type}")
         };
     }

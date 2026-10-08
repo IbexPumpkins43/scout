@@ -1,11 +1,9 @@
-using Google.Protobuf;
-
-namespace Scout.Map;
+namespace Scout.Map.Osm;
 
 internal enum PBFBlockType
 {
-    OSMHeader,
-    OSMData
+    OsmHeader,
+    OsmData
 }
 
 internal record PBFBlock(

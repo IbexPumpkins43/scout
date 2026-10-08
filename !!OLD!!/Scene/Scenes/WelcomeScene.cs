@@ -1,14 +1,39 @@
+using System.Numerics;
+using Scout.UI;
+using Scout.UI.Elements;
+
 namespace Scout.Scenes;
 
 internal class WelcomeScene(SceneManagerData data) : Scene(data)
 {
+    public override void Load()
+    {
+        this.UiManager.UiTree = new UiTree(new )
+        {
+            new()
+            {
+                new Container()
+                {
+                    Size = new Vector2(200, 200),
+                }
+            }
+        };
+    }
+    public override void Update() {}
+
+    public override void Render()
+    {
+        this.UiManager.Draw();
+    }
+
+    /*
     private List<string> _items = new();
     private int _itemsOffset = 0;
     private int _itemSelected = -1;
 
     public override void Load()
     {
-        foreach (string file in Directory.GetFiles(Config.DataPath + "Maps/"))
+        foreach (string file in Directory.GetFiles(Settings.Settings.DataPath + "Maps/"))
         {
             int lastFwdSlash = file.LastIndexOf('/') + 1;
             int length = file.Length - lastFwdSlash;
@@ -69,5 +94,5 @@ internal class WelcomeScene(SceneManagerData data) : Scene(data)
             this.UIManager.SameLine = false;
         }
         this.UIManager.EndFrame();
-    }
+    }*/
 }

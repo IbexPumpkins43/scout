@@ -1,15 +1,15 @@
 using Google.Protobuf.Collections;
 using OSMPBF;
 
-namespace Scout.Map;
+namespace Scout.Map.Osm;
 
-internal readonly record struct OSMTag(
+internal readonly record struct OsmTag(
     string Key,
     string Value);
 
-internal readonly struct OSMTags(OSMTag[] tags)
+internal readonly struct OsmTags(OsmTag[] tags)
 {
-    private readonly OSMTag[]? _tags = tags;
+    private readonly OsmTag[]? _tags = tags;
 
     public bool ContainsKey(string key)
     {
@@ -41,9 +41,9 @@ internal readonly struct OSMTags(OSMTag[] tags)
     }
 }
 
-internal readonly struct OSMTagView
+internal readonly struct OsmTagView
 {
-    private readonly OSMDataBlock? _block;
+    private readonly OsmDataBlock? _block;
 
     private readonly RepeatedField<uint>? _keys;
     private readonly RepeatedField<uint>? _vals;
@@ -53,7 +53,7 @@ internal readonly struct OSMTagView
 
     public int Count { get; }
 
-    public OSMTagView(OSMDataBlock block, RepeatedField<uint> keys, RepeatedField<uint> vals)
+    public OsmTagView(OsmDataBlock block, RepeatedField<uint> keys, RepeatedField<uint> vals)
     {
         this._block = block;
         this._keys = keys;
@@ -61,7 +61,7 @@ internal readonly struct OSMTagView
         this.Count = keys.Count;
     }
 
-    public OSMTagView(OSMDataBlock block, DenseNodes nodes, int start, int count)
+    public OsmTagView(OsmDataBlock block, DenseNodes nodes, int start, int count)
     {
         this._block = block;
         this._denseNodes = nodes;
@@ -83,14 +83,14 @@ internal readonly struct OSMTagView
         return false;
     }
 
-    public OSMTags Materialize()
+    public OsmTags Materialize()
     {
         if (this.Count == 0)
         {
             return default;
         }
 
-        OSMTag[] tags = new OSMTag[this.Count];
+        OsmTag[] tags = new OsmTag[this.Count];
 
         for (int i = 0; i < tags.Length; i++)
         {

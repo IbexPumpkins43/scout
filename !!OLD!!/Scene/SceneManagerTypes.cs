@@ -17,4 +17,4 @@ internal class SceneManagerException : Exception
 
 internal readonly record struct SceneManagerData(
     SceneManager SceneManager,
-    UIManager UIManager);
+    UiManager UiManager);

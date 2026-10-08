@@ -2,36 +2,36 @@ using System.Diagnostics;
 using Google.Protobuf.Collections;
 using OSMPBF;
 
-namespace Scout.Map;
+namespace Scout.Map.Osm;
 
-internal class OSMDecoder
+internal class OsmDecoder
 {
-    public OSMBlock Parse(PBFBlock pbfBlock)
+    public OsmBlock Parse(PBFBlock pbfBlock)
     {
         return pbfBlock.Type switch
         {
-            PBFBlockType.OSMHeader => new OSMHeaderBlock(
+            PBFBlockType.OsmHeader => new OsmHeaderBlock(
                 Index: pbfBlock.Index,
                 Data: HeaderBlock.Parser.ParseFrom(pbfBlock.Bytes.Span)),
-            PBFBlockType.OSMData => new OSMDataBlock(
+            PBFBlockType.OsmData => new OsmDataBlock(
                 Index: pbfBlock.Index,
                 Data: PrimitiveBlock.Parser.ParseFrom(pbfBlock.Bytes.Span)),
             _ => throw new UnreachableException()
         };
     }
 
-    public IEnumerable<OSMNodeView> DecodeNodes(OSMDataBlock block)
+    public IEnumerable<OsmNodeView> DecodeNodes(OsmDataBlock block)
     {
         foreach (PrimitiveGroup group in block.Data.Primitivegroup)
         {
-            foreach (OSMNodeView node in this.DecodeOrdinaryNodes(block, group.Nodes))
+            foreach (OsmNodeView node in this.DecodeOrdinaryNodes(block, group.Nodes))
             {
                 yield return node;
             }
 
             if (group.Dense != null)
             {
-                foreach (OSMNodeView node in this.DecodeDenseNodes(block, group.Dense))
+                foreach (OsmNodeView node in this.DecodeDenseNodes(block, group.Dense))
                 {
                     yield return node;
                 }
@@ -39,7 +39,7 @@ internal class OSMDecoder
         }
     }
 
-    public IEnumerable<OSMWayView> DecodeWays(OSMDataBlock block)
+    public IEnumerable<OsmWayView> DecodeWays(OsmDataBlock block)
     {
         foreach (PrimitiveGroup group in block.Data.Primitivegroup)
         {
@@ -67,8 +67,8 @@ internal class OSMDecoder
         return nodeIds;
     }
 
-    private IEnumerable<OSMNodeView> DecodeOrdinaryNodes(
-        OSMDataBlock block,
+    private IEnumerable<OsmNodeView> DecodeOrdinaryNodes(
+        OsmDataBlock block,
         RepeatedField<Node> nodes)
     {
         foreach (Node node in nodes)
@@ -80,7 +80,7 @@ internal class OSMDecoder
         }
     }
 
-    private IEnumerable<OSMNodeView> DecodeDenseNodes(OSMDataBlock block, DenseNodes nodes)
+    private IEnumerable<OsmNodeView> DecodeDenseNodes(OsmDataBlock block, DenseNodes nodes)
     {
         long nodeId = 0;
         long nodeLat = 0;
@@ -101,7 +101,7 @@ internal class OSMDecoder
         }
     }
 
-    private OSMTagView DecodeDenseTagView(OSMDataBlock block, DenseNodes nodes, ref int tagIndex)
+    private OsmTagView DecodeDenseTagView(OsmDataBlock block, DenseNodes nodes, ref int tagIndex)
     {
         if (nodes.KeysVals.Count == 0)
         {
@@ -123,9 +123,9 @@ internal class OSMDecoder
         return new(block: block, nodes: nodes, start: startIndex, count: tagCount);
     }
 
-    private OSMCoordinates DecodeCoordinates(OSMDataBlock block, long lat, long lon)
+    private OsmCoordinates DecodeCoordinates(OsmDataBlock block, long lat, long lon)
     {
-        // OSM stores coordinates using offsets and granularity in nanodegrees
+        // Osm stores coordinates using offsets and granularity in nanodegrees
         return new(
             Latitude: (block.Data.LatOffset + block.Data.Granularity * lat) / 1000000000.0,
             Longitude: (block.Data.LonOffset + block.Data.Granularity * lon) / 1000000000.0);

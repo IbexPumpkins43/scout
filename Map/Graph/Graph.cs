@@ -1,4 +1,4 @@
-namespace Scout.Map;
+namespace Scout.Map.Graph;
 
 internal class Graph(GraphData graphData)
 {

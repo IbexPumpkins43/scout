@@ -1,11 +1,13 @@
+using Scout.Map.Osm;
+
 namespace Scout.Map;
 
 internal class MapImporter(string path) : IDisposable
 {
     private string _path = path;
 
-    private PBFReader _pbfReader = new(path);
-    private OSMDecoder _osmDecoder = new();
+    private PbfReader _pbfReader = new(path);
+    private OsmDecoder _osmDecoder = new();
 
     private MapNodePositions _nodePositions = new();
     private MapRoads _roads = new();
@@ -40,8 +42,8 @@ internal class MapImporter(string path) : IDisposable
             throw new MapImporterException(this._path, "Header is missing");
         }
 
-        OSMBlock osmHeader = this._osmDecoder.Parse(pbfHeader);
-        if (osmHeader.GetType() != typeof(OSMHeaderBlock))
+        OsmBlock osmHeader = this._osmDecoder.Parse(pbfHeader);
+        if (osmHeader.GetType() != typeof(OsmHeaderBlock))
         {
             throw new MapImporterException(
                 this._path,
@@ -54,7 +56,7 @@ internal class MapImporter(string path) : IDisposable
         PBFBlock? pbfBlock = this._pbfReader.ReadNext();
         while (pbfBlock != null)
         {
-            OSMDataBlock osmBlock = (OSMDataBlock)this._osmDecoder.Parse(pbfBlock);
+            OsmDataBlock osmBlock = (OsmDataBlock)this._osmDecoder.Parse(pbfBlock);
 
             this.DecodeNodes(osmBlock);
             this.DecodeWays(osmBlock);
@@ -63,9 +65,9 @@ internal class MapImporter(string path) : IDisposable
         }
     }
 
-    private void DecodeNodes(OSMDataBlock block)
+    private void DecodeNodes(OsmDataBlock block)
     {
-        foreach (OSMNodeView node in this._osmDecoder.DecodeNodes(block))
+        foreach (OsmNodeView node in this._osmDecoder.DecodeNodes(block))
         {
             MapPosition mapPosition = new(
                 X: node.Coordinates.Latitude,
@@ -74,7 +76,7 @@ internal class MapImporter(string path) : IDisposable
 
             if (node.Tags.ContainsKey("place"u8))
             {
-                OSMNode newNode = new(
+                OsmNode newNode = new(
                     Id: node.Id,
                     Coordinates: node.Coordinates,
                     Tags: node.Tags.Materialize());
@@ -83,9 +85,9 @@ internal class MapImporter(string path) : IDisposable
         }
     }
 
-    private void DecodeWays(OSMDataBlock block)
+    private void DecodeWays(OsmDataBlock block)
     {
-        foreach (OSMWayView way in this._osmDecoder.DecodeWays(block))
+        foreach (OsmWayView way in this._osmDecoder.DecodeWays(block))
         {
             bool isRoad = way.Tags.ContainsKey("highway"u8);
             bool isBuilding = way.Tags.ContainsKey("building"u8);
@@ -95,7 +97,7 @@ internal class MapImporter(string path) : IDisposable
                 continue;
             }
 
-            OSMWay newWay = new(
+            OsmWay newWay = new(
                 Id: way.Id,
                 NodeIds: this._osmDecoder.DecodeNodeIds(way.Refs),
                 Tags: way.Tags.Materialize());

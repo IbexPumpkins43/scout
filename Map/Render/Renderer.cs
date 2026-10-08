@@ -1,5 +1,6 @@
 using System.Numerics;
 using Raylib_cs;
+using Scout.Map.Graph;
 
 namespace Scout.Map;
 

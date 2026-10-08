@@ -10,7 +10,7 @@ internal class SceneManager : IDisposable
     private bool _reload;
     private object? _lastSceneResult;
 
-    private readonly UIManager _uiManager = new();
+    private readonly UiManager _uiManager = new();
 
     public void Dispose()
     {

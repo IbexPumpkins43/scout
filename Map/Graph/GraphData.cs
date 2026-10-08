@@ -1,4 +1,6 @@
-namespace Scout.Map;
+using Scout.Map.Osm;
+
+namespace Scout.Map.Graph;
 
 internal class GraphData
 {
@@ -33,7 +35,7 @@ internal class GraphData
     {
         Dictionary<long, int> nodeIndices = new();
 
-        foreach (OSMWay road in roads)
+        foreach (OsmWay road in roads)
         {
             foreach (long nodeId in road.NodeIds)
             {
@@ -53,7 +55,7 @@ internal class GraphData
     {
         int totalEdgeCount = 0;
 
-        foreach (OSMWay road in roads)
+        foreach (OsmWay road in roads)
         {
             for (int index = 0; index < road.NodeIds.Length - 1; index++)
             {
@@ -129,7 +131,7 @@ internal class GraphData
         GraphEdge[] edges,
         int[] edgeOffsets)
     {
-        foreach (OSMWay road in roads)
+        foreach (OsmWay road in roads)
         {
             for (int index = 0; index < road.NodeIds.Length - 1; index++)
             {

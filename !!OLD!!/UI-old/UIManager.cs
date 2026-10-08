@@ -1,6 +1,7 @@
 using System.Numerics;
 using System.Text.Json;
 using Raylib_cs;
+using Scout.Settings;
 
 namespace Scout.UI;
 
@@ -13,20 +14,20 @@ internal partial class UIManager : IDisposable
         Raylib.GetScreenWidth(),
         Raylib.GetScreenHeight());
 
-    private readonly Texture2D _icons = Raylib.LoadTexture(Config.AssetsPath + "icons.png");
+    private readonly Texture2D _icons = Raylib.LoadTexture(Settings.Settings.AssetsPath + "icons.png");
     private readonly Dictionary<string, Vector2> _iconsLookup;
 
     private int _xOffset;
     private int _yOffset;
 
-    public readonly Font RegularFont = Raylib.LoadFontEx(Config.AssetsPath + "NotoSans-Regular.ttf", 48, null, 0);
-    public readonly Font BoldFont = Raylib.LoadFontEx(Config.AssetsPath + "NotoSans-Bold.ttf", 48, null, 0);
+    public readonly Font RegularFont = Raylib.LoadFontEx(Settings.Settings.AssetsPath + "NotoSans-Regular.ttf", 48, null, 0);
+    public readonly Font BoldFont = Raylib.LoadFontEx(Settings.Settings.AssetsPath + "NotoSans-Bold.ttf", 48, null, 0);
 
     public bool SameLine;
 
     public UIManager()
     {
-        string json = File.ReadAllText(Config.AssetsPath + "icons.json");
+        string json = File.ReadAllText(Settings.Settings.AssetsPath + "icons.json");
 
         JsonSerializerOptions options = new();
         options.IncludeFields = true;

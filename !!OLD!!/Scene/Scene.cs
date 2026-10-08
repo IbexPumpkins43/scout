@@ -5,7 +5,7 @@ namespace Scout.Scenes;
 internal abstract class Scene(SceneManagerData data) : IDisposable
 {
     protected SceneManager SceneManager { get; } = data.SceneManager;
-    protected UIManager UIManager { get; } = data.UIManager;
+    protected UiManager UiManager { get; } = data.UiManager;
 
     public virtual void Load() { }
     public virtual void Dispose() { }
