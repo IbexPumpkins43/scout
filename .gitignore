@@ -1,5 +1,6 @@
 .idea/
-Assets/*.md
-Data/
+.swp
+!!OLD!!/
+Data/Maps
 bin/
 obj/
