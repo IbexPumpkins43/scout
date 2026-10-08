@@ -15,14 +15,6 @@ internal class Program
 
         Settings.Settings.Load();
 
-        using SceneManager sceneManager = new();
-        //sceneManager.RegisterScene<LoadingScene>();
-        sceneManager.RegisterScene<ErrorScene>();
-        sceneManager.RegisterScene<WelcomeScene>();
-        //sceneManager.RegisterScene<ViewerScene>();
-        sceneManager.SwitchTo<WelcomeScene>();
-        sceneManager.Run();
-
         Raylib.CloseWindow();
     }
 }
