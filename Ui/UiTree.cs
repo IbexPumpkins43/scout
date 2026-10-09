@@ -6,7 +6,7 @@ namespace Scout.Ui;
 
 internal class UiNode
 {
-    public Vector2 DesiredSize;
+    public Vector2? DesiredSize;
     public Vector2 ActualSize;
     public Rectangle Bounds;
 
@@ -51,11 +51,10 @@ internal class UiTree : Container
     private void Render(UiNode node)
     {
         // TODO : Replace this urgently
-        if (node.GetType() == typeof(TestElement))
-            Raylib.DrawRectangleLinesEx(node.Bounds, 6.0f, ((TestElement)node).Color);
-        else if (node.GetType() == typeof(Container))
+        if (node is TestElement element)
+            Raylib.DrawRectangleLinesEx(node.Bounds, 6.0f, element.Color);
+        else if (node is Container container)
         {
-            Container container = (Container)node;
             if (container.Hidden)
                 return;
             if (container.BackgroundColour != null)
@@ -86,7 +85,7 @@ internal class UiTree : Container
     private void UpdateRootDimensions()
     {
         // The root of the tree is just the size of the window
-        this.DesiredSize = 0.0f;//new(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+        this.DesiredSize = new(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
         this.ActualSize = new(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
         this.Bounds = new(
             x: 0.0f,
@@ -99,20 +98,15 @@ internal class UiTree : Container
     // Recursive verison
     private void CalculateActualSizes(UiNode node, int nodeIdx)
     {
-        if (node is Container)
+        // Skip hidden containers and their children
+        if (node is Container container && container.Hidden)
         {
-            Container container = (Container)node;
-            if (container.Hidden)
-            {
-                return;
-            }
+            return;
         }
 
         // If the element is part of a container
-        if (node.Parent is Container)
+        if (node.Parent is Container parent)
         {
-            Container parent = (Container)node.Parent;
-
             Rectangle newNodeBounds = parent.Orientation == ContainerOrientation.Vertical
                 ? this.CalculateVertContainerElement(parent, node, nodeIdx)
                 : this.CalculateHorizContainerElement(parent, node, nodeIdx);
@@ -140,19 +134,19 @@ internal class UiTree : Container
         {
             case ContainerFill.None: break;
             case ContainerFill.FillHorizontally:
-                nodeBounds.Width = parent.Bounds.Width / parent.ChildrenCount;
+                nodeBounds.Width = parent.Bounds.Width / parent.VisibleContainersCount;
                 nodeBounds.Height = node.Bounds.Height;
-                nodeBounds.X += nodeBounds.Width * nodeIdx;
+                nodeBounds.X += parent.GetXOffset(nodeIdx);
                 break;
             case ContainerFill.FillVertically:
                 nodeBounds.Width = node.Bounds.Width;
-                nodeBounds.Height = parent.Bounds.Height / parent.ChildrenCount;
-                nodeBounds.Y += nodeBounds.Height * nodeIdx;
+                nodeBounds.Height = parent.Bounds.Height / parent.VisibleContainersCount;
+                nodeBounds.Y += parent.GetYOffset(nodeIdx);
                 break;
             case ContainerFill.FillBoth:
                 nodeBounds.Width = parent.Bounds.Width;
-                nodeBounds.Height = parent.Bounds.Height / parent.ChildrenCount;
-                nodeBounds.Y += nodeBounds.Height * nodeIdx;
+                nodeBounds.Height = parent.Bounds.Height / parent.VisibleContainersCount;
+                nodeBounds.Y += parent.GetYOffset(nodeIdx);
                 break;
         }
 
@@ -177,9 +171,11 @@ internal class UiTree : Container
                 // TODO
                 break;
             case ContainerFill.FillBoth:
-                nodeBounds.Width = parent.Bounds.Width / parent.VisibleChildrenCount;
+                nodeBounds.Width = node.DesiredSize?.X ?? (parent.FlexibleCount > 0
+                    ? parent.FlexibleSpaceX / parent.FlexibleCount
+                    : 0.0f);
                 nodeBounds.Height = parent.Bounds.Height;
-                nodeBounds.X += nodeBounds.Width * (nodeIdx - parent.HiddenContainersCount);
+                nodeBounds.X += parent.GetXOffset(nodeIdx);
                 break;
         }
 

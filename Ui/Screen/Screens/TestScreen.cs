@@ -15,7 +15,7 @@ public class TestScreen : IScreen
                 Orientation = ContainerOrientation.Vertical,
                 Fill = ContainerFill.FillHorizontally,
                 BackgroundColour = Color.Blue,
-                DesiredSize = 300.0f,
+                DesiredSize = new(300.0f, 0.0f),
                 Children = []
             },
             new Container()
@@ -26,8 +26,8 @@ public class TestScreen : IScreen
                 Children = []
             }
         ]);
-        /* Full example
-        UiManager.Tree = new(
+        // Full example
+        /*UiManager.Tree = new(
         [
             new Container()
             {
