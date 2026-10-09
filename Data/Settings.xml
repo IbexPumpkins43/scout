@@ -2,7 +2,7 @@
 <Settings>
     <AssetsPath>/home/ptarmigan/Git/scout/Data/Assets/</AssetsPath>
     <DataPath>/home/ptarmigan/Git/scout/Data/</DataPath>
-    <ColourMode>Dark</ColourMode>
+    <ColourScheme>LightMode</ColourScheme>
 
     <Repositories>
         <Repository Id="geofabrik" Name="GEOFABRIK" Url="https://google.com" />

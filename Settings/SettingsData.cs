@@ -61,7 +61,7 @@ internal static class SettingsData
         {
             throw new SettingsException("ColourScheme", "missing or empty");
         }
-        if (colourScheme.Value != "DarkMode" || colourScheme.Value != "LightMode")
+        if (colourScheme.Value != "DarkMode" && colourScheme.Value != "LightMode")
         {
             throw new SettingsException("ColourScheme", "only values are DarkMode or LightMode");
         }
