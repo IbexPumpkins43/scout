@@ -1,7 +1,7 @@
 ﻿using Raylib_cs;
 using Scout.Settings;
 using Scout.Ui;
-using Scout.Ui.Screens;
+using Scout.Ui.Screen.Screens;
 
 namespace Scout;
 
@@ -21,9 +21,14 @@ internal class Program
 
         while (!Raylib.WindowShouldClose())
         {
-            UiManager.ScreenManager.RenderCurrentScreen();
+            if (UiManager.Tree != null)
+            {
+                UiManager.Tree.Update();
+                UiManager.Tree.Render();
+            }
         }
 
+        UiManager.Cleanup();
         Raylib.CloseWindow();
     }
 }

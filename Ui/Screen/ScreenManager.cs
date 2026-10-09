@@ -23,7 +23,7 @@ internal class ScreenManager : IDisposable
 
         this._screens.Add(
             typeof(T),
-            (T)Activator.CreateInstance(typeof(T), this)!);
+            (T)Activator.CreateInstance<T>());
     }
 
     public void UnregisterScreen<T>() where T : IScreen
