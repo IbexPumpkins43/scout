@@ -33,7 +33,7 @@ internal class UiTree : Container
     public void Render()
     {
         Raylib.BeginDrawing();
-        Raylib.ClearBackground(Color.White);
+        Raylib.ClearBackground(UiManager.ColourScheme.Background);
         this.Render(this);
         Raylib.EndDrawing();
     }

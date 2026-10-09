@@ -2,25 +2,25 @@ using Raylib_cs;
 
 namespace Scout.Ui.Style.Colour;
 
-internal interface IColourScheme
+internal abstract class ColourScheme
 {
-    public static Color TextColour;
-    public static Color TextColourAlt;
+    public Color TextColour { get; protected set; }
+    public Color TextColourAlt { get; protected set; }
 
-    public static Color ButtonBackgroundColour;
-    public static Color ButtonBackgroundAltColour;
-    public static Color ButtonDownBackgroundColour;
-    public static Color ButtonDownTextColour;
+    public Color ButtonBackgroundColour { get; protected set; }
+    public Color ButtonBackgroundAltColour { get; protected set; }
+    public Color ButtonDownBackgroundColour { get; protected set; }
+    public Color ButtonDownTextColour { get; protected set; }
 
-    public static Color ListBackgroundColourA;
-    public static Color ListBackgroundColourB;
-    public static Color ListItemSelectedBackgroundColor;
-    public static Color ListTextColour;
-    public static Color ListItemSelectedTextColour;
+    public Color ListBackgroundColourA { get; protected set; }
+    public Color ListBackgroundColourB { get; protected set; }
+    public Color ListItemSelectedBackgroundColor { get; protected set; }
+    public Color ListTextColour { get; protected set; }
+    public Color ListItemSelectedTextColour { get; protected set; }
 
-    public static Color TooltipBackgroundColour;
+    public Color TooltipBackgroundColour { get; protected set; }
 
-    public static Color BorderColour;
-    public static Color BorderColourAlt;
-    public static Color Background;
+    public Color BorderColour { get; protected set; }
+    public Color BorderColourAlt { get; protected set; }
+    public Color Background { get; protected set; }
 }

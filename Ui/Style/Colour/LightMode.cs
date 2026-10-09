@@ -2,25 +2,28 @@ using Raylib_cs;
 
 namespace Scout.Ui.Style.Colour;
 
-internal class LightMode : IColourScheme
+internal class LightMode : ColourScheme
 {
-    public static Color TextColour = Color.Black;
-    public static Color TextColourAlt = Color.LightGray;
+    public LightMode()
+    {
+        this.TextColour = Color.Black;
+        this.TextColourAlt = Color.LightGray;
 
-    public static Color ButtonBackgroundColour = Color.White;
-    public static Color ButtonBackgroundAltColour = Color.LightGray;
-    public static Color ButtonDownBackgroundColour = Color.Blue;
-    public static Color ButtonDownTextColour = Color.White;
+        this.ButtonBackgroundColour = Color.White;
+        this.ButtonBackgroundAltColour = Color.LightGray;
+        this.ButtonDownBackgroundColour = Color.Blue;
+        this.ButtonDownTextColour = Color.White;
 
-    public static Color ListBackgroundColourA = Color.White;
-    public static Color ListBackgroundColourB = Color.LightGray;
-    public static Color ListItemSelectedBackgroundColor = Color.Blue;
-    public static Color ListTextColour = Color.Black;
-    public static Color ListItemSelectedTextColour = Color.White;
+        this.ListBackgroundColourA = Color.White;
+        this.ListBackgroundColourB = Color.LightGray;
+        this.ListItemSelectedBackgroundColor = Color.Blue;
+        this.ListTextColour = Color.Black;
+        this.ListItemSelectedTextColour = Color.White;
 
-    public static Color TooltipBackgroundColour = Color.Yellow;
+        this.TooltipBackgroundColour = Color.Yellow;
 
-    public static Color BorderColour = Color.Black;
-    public static Color BorderColourAlt = Color.Gray;
-    public static Color Background = Color.White;
+        this.BorderColour = Color.Black;
+        this.BorderColourAlt = Color.Gray;
+        this.Background = Color.White;
+    }
 }
