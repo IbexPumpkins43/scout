@@ -47,25 +47,9 @@ internal class UiTree : Container
         {
             Raylib.DrawRectangleLinesEx(node.Bounds, 6.0f, element.Color);
         }
-        else if (node is Container container)
+        else if (node is not UiTree)
         {
-            if (container.Hidden)
-            {
-                return;
-            }
-
-            if (container.BackgroundColour != null)
-            {
-                Raylib.DrawRectangleRec(node.Bounds, container.BackgroundColour.Value);
-            }
-        }
-        else if (node is Label label)
-        {
-            label.Render();
-        }
-        else
-        {
-            Raylib.DrawRectangleLinesEx(node.Bounds, 6.0f, Color.Red);
+            node.Render();
         }
 
         foreach (UiNode child in node.Children ?? [])

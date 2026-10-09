@@ -9,40 +9,77 @@ public class AssetsManager : IDisposable
     public Texture2D IconsTilemap { get; private set; }
     public Dictionary<string, Rectangle> IconsLookup { get; private set; }
 
-    public Font RegularFont { get; private set; }
-    public Font BoldFont { get; private set; }
+    private Dictionary<int, Font> _regularFontCache = new();
+    private Dictionary<int, Font> _boldFontCache = new();
 
     public AssetsManager()
     {
-        this.LoadAssets();
+        this.LoadIcons();
         this.LoadIconsLookup();
+        this.BuildFontCache();
     }
 
     public void Dispose()
     {
         Raylib.UnloadTexture(this.IconsTilemap);
-        Raylib.UnloadFont(this.RegularFont);
-        Raylib.UnloadFont(this.BoldFont);
+
+        foreach ((_, Font font) in this._regularFontCache)
+        {
+            Raylib.UnloadFont(font);
+        }
+
+        foreach ((_, Font font) in this._boldFontCache)
+        {
+            Raylib.UnloadFont(font);
+        }
     }
 
-    private void LoadAssets()
+    // Load the appropiate size regular font on the fly so it looks good
+    public Font GetRegularFont(int size)
+    {
+        if (!this._regularFontCache.ContainsKey(size))
+        {
+            Console.WriteLine($"Loading regular font at {size}");
+
+            Font regularFont =
+                Raylib.LoadFontEx(SettingsData.AssetsPath + "NotoSans-Regular.ttf", size, null, 0);
+            if (!Raylib.IsFontValid(regularFont))
+            {
+                throw new UiManagerException($"Failed to load the regular font at {size}px");
+            }
+
+            this._regularFontCache.Add(size, regularFont);
+        }
+
+        return this._regularFontCache[size];
+    }
+
+    // Load the appropiate size bold font on the fly so it looks good
+    public Font GetBoldFont(int size)
+    {
+        if (!this._boldFontCache.ContainsKey(size))
+        {
+            Console.WriteLine($"Loading bold font at {size}");
+
+            Font boldFont =
+                Raylib.LoadFontEx(SettingsData.AssetsPath + "NotoSans-Regular.ttf", size, null, 0);
+            if (!Raylib.IsFontValid(boldFont))
+            {
+                throw new UiManagerException($"Failed to load the bold font at {size}px");
+            }
+
+            this._boldFontCache.Add(size, boldFont);
+        }
+
+        return this._boldFontCache[size];
+    }
+
+    private void LoadIcons()
     {
         this.IconsTilemap = Raylib.LoadTexture(SettingsData.AssetsPath + "icons.png");
         if (!Raylib.IsTextureValid(this.IconsTilemap))
         {
             throw new UiManagerException("Failed to load the icons tilemap");
-        }
-
-        this.RegularFont = Raylib.LoadFontEx(SettingsData.AssetsPath + "NotoSans-Regular.ttf", 48, null, 0);
-        if (!Raylib.IsFontValid(this.RegularFont))
-        {
-            throw new UiManagerException("Failed to load the regular font");
-        }
-
-        this.BoldFont = Raylib.LoadFontEx(SettingsData.AssetsPath + "NotoSans-Bold.ttf", 48, null, 0);
-        if (!Raylib.IsFontValid(this.BoldFont))
-        {
-            throw new UiManagerException("Failed to load the bold font");
         }
     }
 
@@ -88,5 +125,17 @@ public class AssetsManager : IDisposable
 
             this.IconsLookup.Add(iconName, iconRectangle);
         }
+    }
+
+    // This just preloads the defined fonts sizes by the style
+    private void BuildFontCache()
+    {
+        this.GetRegularFont(Style.Font.SmallSize);
+        this.GetRegularFont(Style.Font.MediumSize);
+        this.GetRegularFont(Style.Font.LargeSize);
+
+        this.GetBoldFont(Style.Font.SmallSize);
+        this.GetBoldFont(Style.Font.MediumSize);
+        this.GetBoldFont(Style.Font.LargeSize);
     }
 }

@@ -60,4 +60,12 @@ internal class Container : UiNode
         (this.Children ?? [])[..idx]
         .Where(child => child is not Container || !((Container)child).Hidden)
         .Sum(child => child.Bounds.Height);
+
+    public override void Render()
+    {
+        if (!this.Hidden && this.BackgroundColour != null)
+        {
+            Raylib.DrawRectangleRec(this.Bounds, this.BackgroundColour.Value);
+        }
+    }
 }

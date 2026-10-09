@@ -5,11 +5,11 @@ namespace Scout.Ui.Elements;
 
 internal class Label : UiNode
 {
-    public string Text;
+    public required string Text;
     public Color Colour = UiManager.ColourScheme.TextColour;
-    public Font Font = UiManager.AssetsManager.RegularFont;
-    public int FontSize = Style.Font.RegularSize;
-    public float FontSpacing = Style.Font.RegularSpacing;
+    public Font Font = UiManager.AssetsManager.GetRegularFont(Style.Font.LargeSize);
+    public int FontSize = Style.Font.MediumSize;
+    public float FontSpacing = Style.Font.MediumSpacing;
 
     private Vector2 _textSize;
     private Vector2 _textPosition;
@@ -17,7 +17,7 @@ internal class Label : UiNode
     public override void UpdateLayout()
     {
         this._textSize = Raylib.MeasureTextEx(
-            UiManager.AssetsManager.RegularFont,
+            this.Font,
             this.Text,
             this.FontSize,
             this.FontSpacing);
