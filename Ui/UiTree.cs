@@ -94,26 +94,16 @@ internal class UiTree : Container
     private void CalculateActualSizes(UiNode node, int nodeIdx)
     {
         // If the element is not the tree root
-        if (node.GetType() != typeof(UiTree) && node.Parent != null)
+        if (node.Parent != null)
         {
-            // If the element belongs to a container
-            if (node.Parent.GetType() == typeof(Container))
-            {
-                Container container = (Container)node.Parent;
+            Container container = (Container)node.Parent;
 
-                Rectangle newNodeBounds = container.Orientation == ContainerOrientation.Vertical
-                    ? this.CalculateVertContainerElement(container, node, nodeIdx)
-                    : this.CalculateHorizContainerElement(container, node, nodeIdx);
+            Rectangle newNodeBounds = container.Orientation == ContainerOrientation.Vertical
+                ? this.CalculateVertContainerElement(container, node, nodeIdx)
+                : this.CalculateHorizContainerElement(container, node, nodeIdx);
 
-                node.ActualSize = newNodeBounds.Position;
-                node.Bounds = newNodeBounds;
-            }
-            // If the element does not belong to a container
-            else
-            {
-                // TODO : This may get removed in the future, not sure
-                this.CalculateRougeElement(node, nodeIdx);
-            }
+            node.ActualSize = newNodeBounds.Size;
+            node.Bounds = newNodeBounds;
         }
 
         if (node.Children != null)

@@ -21,4 +21,5 @@ internal class Container : UiNode
     public ContainerOrientation Orientation;
     public ContainerFill Fill;
     public Color? BackgroundColour;
+    public bool Hidden;
 }
