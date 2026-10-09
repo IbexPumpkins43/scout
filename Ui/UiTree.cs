@@ -10,8 +10,6 @@ internal class UiNode
     public Vector2 ActualSize;
     public Rectangle Bounds;
 
-    public bool ChildrenShouldFill;
-
     public UiNode? Parent;
     public UiNode[]? Children;
 }
@@ -21,11 +19,10 @@ internal class UiTree : UiNode
     public UiTree(UiNode[] children)
     {
         this.Children = children;
-        this.ChildrenShouldFill = true;
 
         this.SetParents();
         this.UpdateRootDimensions();
-        this.RecalculateActualSizes(this, 0, 0.0f);
+        this.RecalculateActualSizes(this, 0, 0.0f, 0.0f);
     }
 
     public void Update()
@@ -33,7 +30,7 @@ internal class UiTree : UiNode
         if (Raylib.IsWindowResized())
         {
             this.UpdateRootDimensions();
-            this.RecalculateActualSizes(this, 0, 0.0f);
+            this.RecalculateActualSizes(this, 0, 0.0f, 0.0f);
         }
     }
 
@@ -83,34 +80,92 @@ internal class UiTree : UiNode
             size: this.ActualSize);
     }
 
-    private void RecalculateActualSizes(UiNode node, int nodeIdx, float xOffset)
+    // Recursive verison
+    private void RecalculateActualSizes(UiNode node, int nodeIdx, float xOffset, float yOffset)
     {
+        // If the element is not the tree root
         if (node.GetType() != typeof(UiTree) && node.Parent != null)
         {
-            // Rectangle doesn't allow for easy expansion so this is what I have to do
-            // float parentX = node.Parent.Bounds.X;
-            // float parentY = node.Parent.Bounds.Y;
-            float parentWidth = node.Parent.Bounds.Width;
-            float parentHeight = node.Parent.Bounds.Height;
+            // If the element belongs to a container
+            if (node.Parent.GetType() == typeof(Container))
+            {
+                Container container = (Container)node.Parent;
 
-            float childWidth = parentWidth / (node.Parent.Children ?? []).Length;
+                float childX = container.Bounds.X; //xOffset;
+                float childY = container.Bounds.Y; //yOffset;
+                float childWidth = 0.0f;
+                float childHeight = 0.0f;
 
-            node.ActualSize = new(childWidth, parentHeight);
-            node.Bounds = new(
-                x: childWidth * nodeIdx,
-                y: 0.0f,
-                size: node.ActualSize);
+                if (container.Orientation == ContainerOrientation.Vertical)
+                {
+                    switch (container.Fill)
+                    {
+                        case ContainerFill.None: break;
+                        case ContainerFill.FillHorizontally:
+                            childWidth = container.Bounds.Width / (container.Children ?? []).Length;
+                            childHeight = node.Bounds.Height;
+                            childX += childWidth * nodeIdx;
+                            break;
+                        case ContainerFill.FillVertically:
+                            childWidth = node.Bounds.Width;
+                            childHeight = container.Bounds.Height / (container.Children ?? []).Length;
+                            childY += childHeight * nodeIdx;
+                            break;
+                        case ContainerFill.FillBoth:
+                            childWidth = container.Bounds.Width;
+                            childHeight = container.Bounds.Height / (container.Children ?? []).Length;
+                            childY += childHeight * nodeIdx;
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (container.Fill)
+                    {
+                        case ContainerFill.None: break;
+                        case ContainerFill.FillHorizontally: break;
+                        case ContainerFill.FillVertically: break;
+                        case ContainerFill.FillBoth:
+                            childWidth = container.Bounds.Width / (container.Children ?? []).Length;;
+                            childHeight = container.Bounds.Height;
+                            childX += childWidth * nodeIdx;
+                            break;
+                    }
+                }
+
+                node.ActualSize = new(childWidth, childHeight);
+                node.Bounds = new(
+                    x: childX,
+                    y: childY,
+                    size: node.ActualSize);
+            }
+            // If the element does not belong to a container
+            else
+            {
+                float parentWidth = node.Parent.Bounds.Width;
+                float parentHeight = node.Parent.Bounds.Height;
+
+                float childWidth = parentWidth / (node.Parent.Children ?? []).Length;
+
+                node.ActualSize = new(childWidth, parentHeight);
+                node.Bounds = new(
+                    x: childWidth * nodeIdx,
+                    y: 0.0f,
+                    size: node.ActualSize);
+            }
         }
+        // If the element is the tree root
         else
         {
             xOffset = node.Bounds.X;
+            yOffset = node.Bounds.Y;
         }
 
         if (node.Children != null)
         {
             for (int i = 0; i < node.Children.Length; i++)
             {
-                this.RecalculateActualSizes(node.Children[i], i, xOffset);
+                this.RecalculateActualSizes(node.Children[i], i, xOffset, yOffset);
             }
         }
     }

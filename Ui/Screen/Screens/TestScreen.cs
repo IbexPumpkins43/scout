@@ -9,18 +9,47 @@ public class TestScreen : IScreen
     {
         UiManager.Tree = new(
         [
-            new TestElement(100, 100, Color.Red)
+            new Container()
             {
+                Orientation = ContainerOrientation.Horizontal,
+                Fill = ContainerFill.FillBoth,
                 Children =
                 [
-                    new TestElement(50, 50, Color.SkyBlue),
-                    new TestElement(50, 50, Color.Lime),
-                    new TestElement(50, 50, Color.Orange),
+                    new Container()
+                    {
+                        Orientation = ContainerOrientation.Vertical,
+                        Fill = ContainerFill.FillVertically,
+                        Children =
+                        [
+                            new TestElement(50, 50, Color.SkyBlue),
+                            new TestElement(50, 50, Color.Lime),
+                            new TestElement(50, 50, Color.Orange),
+                        ]
+                    },
+                    new Container()
+                    {
+                        Orientation = ContainerOrientation.Vertical,
+                        Fill = ContainerFill.FillHorizontally,
+                        Children =
+                        [
+                            new TestElement(100, 100, Color.Green),
+                            new TestElement(100, 100, Color.Blue),
+                            new TestElement(100, 100, Color.Magenta),
+                        ]
+                    },
+                    new Container()
+                    {
+                        Orientation = ContainerOrientation.Vertical,
+                        Fill = ContainerFill.FillBoth,
+                        Children =
+                        [
+                            new TestElement(100, 100, Color.DarkPurple),
+                            new TestElement(100, 100, Color.Violet),
+                            new TestElement(100, 100, Color.Purple),
+                        ]
+                    },
                 ]
-            },
-            new TestElement(100, 100, Color.Green),
-            new TestElement(100, 100, Color.Blue),
-            new TestElement(100, 100, Color.Magenta),
+            }
         ]);
     }
 

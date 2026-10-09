@@ -9,6 +9,7 @@ internal class TestElement : UiNode
     public TestElement(int w, int h, Color color)
     {
         this.DesiredSize = new(w, h);
+        this.Bounds = new(0, 0, w, h);
         this.Color = color;
     }
 }
