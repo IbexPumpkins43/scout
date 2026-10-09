@@ -26,7 +26,7 @@ internal static class SettingsData
         XElement? settingsRoot = settingsXml.Root;
         if (settingsRoot == null || settingsRoot.Name != "Settings")
         {
-            throw new SettingsException("Malformed settings root");
+            throw new SettingsException("Settings", "Malformed settings root");
         }
 
         LoadPaths(settingsRoot);

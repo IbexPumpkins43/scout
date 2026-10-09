@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Icons>
-    <Icon Name="Open" X="0" Y="0" />
-    <Icon Name="Quit" X="20" Y="0" />
-    <Icon Name="Search" X="40" Y="0" />
+    <Icon Name="Open" X="0" Y="0" Width="20" Height="20"/>
+    <Icon Name="Quit" X="20" Y="0" Width="20" Height="20" />
+    <Icon Name="Search" X="40" Y="0" Width="20" Height="20" />
 </Icons>
