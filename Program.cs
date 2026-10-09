@@ -24,6 +24,10 @@ internal class Program
         {
             if (UiManager.Tree != null)
             {
+                if (Raylib.IsKeyPressed(KeyboardKey.B))
+                {
+                    ((Container)UiManager.Tree.Children[0]).Hidden ^= true;
+                }
                 UiManager.Tree.Update();
                 UiManager.Tree.Render();
             }

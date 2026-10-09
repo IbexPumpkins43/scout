@@ -8,7 +8,7 @@ public class TestScreen : IScreen
     public void Load()
     {
         // DesiredSize example
-        UiManager.Tree = new(
+        /*UiManager.Tree = new(
         [
             new Container()
             {
@@ -25,9 +25,9 @@ public class TestScreen : IScreen
                 BackgroundColour = Color.DarkBlue,
                 Children = []
             }
-        ]);
+        ]);*/
         // Full example
-        /*UiManager.Tree = new(
+        UiManager.Tree = new(
         [
             new Container()
             {
@@ -35,11 +35,12 @@ public class TestScreen : IScreen
                 Fill = ContainerFill.FillVertically,
                 BackgroundColour = Color.Black,
                 Hidden = true,
+                DesiredSize = new(300.0f, -1.0f),
                 Children =
                 [
-                    new TestElement(50, 50, Color.SkyBlue),
-                    new TestElement(50, 50, Color.Lime),
-                    new TestElement(50, 50, Color.Orange),
+                    new TestElement(new(50, UiLength.Flexible), Color.SkyBlue),
+                    new TestElement(new(50, UiLength.Flexible), Color.Lime),
+                    new TestElement(new(50, UiLength.Flexible), Color.Orange),
                 ]
             },
             new Container()
@@ -55,9 +56,9 @@ public class TestScreen : IScreen
                         BackgroundColour = Color.Gray,
                         Children =
                         [
-                            new TestElement(100, 100, Color.Green),
-                            new TestElement(100, 100, Color.Blue),
-                            new TestElement(100, 100, Color.Magenta),
+                            new TestElement(new(UiLength.Flexible, 100.0f), Color.Green),
+                            new TestElement(new(UiLength.Flexible, 100.0f), Color.Blue),
+                            new TestElement(new(UiLength.Flexible, 100.0f), Color.Magenta),
                         ]
                     },
                     new Container()
@@ -67,15 +68,14 @@ public class TestScreen : IScreen
                         BackgroundColour = Color.White,
                         Children =
                         [
-                            new TestElement(100, 100, Color.DarkPurple),
-                            new TestElement(100, 100, Color.Violet),
-                            new TestElement(100, 100, Color.Purple),
+                            new TestElement(UiSize.Flexible, Color.DarkPurple),
+                            new TestElement(UiSize.Flexible, Color.Violet),
+                            new TestElement(UiSize.Flexible, Color.Purple),
                         ]
                     },
                 ]
             }
         ]);
-        */
     }
 
     public void Dispose() { }

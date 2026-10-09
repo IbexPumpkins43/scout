@@ -4,16 +4,6 @@ using Scout.Ui.Elements;
 
 namespace Scout.Ui;
 
-internal class UiNode
-{
-    public Vector2? DesiredSize;
-    public Vector2 ActualSize;
-    public Rectangle Bounds;
-
-    public UiNode? Parent;
-    public UiNode[]? Children;
-}
-
 internal class UiTree : Container
 {
     public UiTree(UiNode[] children)
@@ -32,7 +22,7 @@ internal class UiTree : Container
 
     public void Update()
     {
-        if (Raylib.IsWindowResized())
+        if (Raylib.IsWindowResized() || Raylib.IsKeyPressed(KeyboardKey.B))
         {
             this.UpdateRootDimensions();
             this.CalculateActualSizes();
@@ -130,25 +120,37 @@ internal class UiTree : Container
             position: parent.Bounds.Position,
             size: new());
 
+        float width = node.DesiredSize.Width.Value;
+        float height = node.DesiredSize.Height.Value;
+
+        if (node.DesiredSize.Height.IsFlexible)
+        {
+            height = parent.FlexibleCountY > 0
+                ? parent.FlexibleSpaceY / parent.FlexibleCountY
+                : 0.0f;
+        }
+
         switch (parent.Fill)
         {
-            case ContainerFill.None: break;
+            case ContainerFill.None:
+                nodeBounds.Width = node.DesiredSize.Width.IsFlexible ? 0.0f : width;
+                nodeBounds.Height = node.DesiredSize.Height.IsFlexible ? 0.0f : height;
+                break;
             case ContainerFill.FillHorizontally:
-                nodeBounds.Width = parent.Bounds.Width / parent.VisibleContainersCount;
-                nodeBounds.Height = node.Bounds.Height;
-                nodeBounds.X += parent.GetXOffset(nodeIdx);
+                nodeBounds.Width = parent.Bounds.Width;
+                nodeBounds.Height = node.DesiredSize.Height.IsFlexible ? 0.0f : height;
                 break;
             case ContainerFill.FillVertically:
-                nodeBounds.Width = node.Bounds.Width;
-                nodeBounds.Height = parent.Bounds.Height / parent.VisibleContainersCount;
-                nodeBounds.Y += parent.GetYOffset(nodeIdx);
+                nodeBounds.Width = node.DesiredSize.Width.IsFlexible ? 0.0f : width;
+                nodeBounds.Height = height;
                 break;
             case ContainerFill.FillBoth:
                 nodeBounds.Width = parent.Bounds.Width;
-                nodeBounds.Height = parent.Bounds.Height / parent.VisibleContainersCount;
-                nodeBounds.Y += parent.GetYOffset(nodeIdx);
+                nodeBounds.Height = height;
                 break;
         }
+
+        nodeBounds.Y += parent.GetYOffset(nodeIdx);
 
         return nodeBounds;
     }
@@ -159,25 +161,37 @@ internal class UiTree : Container
             position: parent.Bounds.Position,
             size: new());
 
+        float width = node.DesiredSize.Width.Value;
+        float height = node.DesiredSize.Height.Value;
+
+        if (node.DesiredSize.Width.IsFlexible)
+        {
+            width = parent.FlexibleCountX > 0
+                ? parent.FlexibleSpaceX / parent.FlexibleCountX
+                : 0.0f;
+        }
+
         switch (parent.Fill)
         {
             case ContainerFill.None:
-                // TODO
+                nodeBounds.Width = node.DesiredSize.Width.IsFlexible ? 0.0f : width;
+                nodeBounds.Height = node.DesiredSize.Height.IsFlexible ? 0.0f : height;
                 break;
             case ContainerFill.FillHorizontally:
-                // TODO
+                nodeBounds.Width = width;
+                nodeBounds.Height = node.DesiredSize.Height.IsFlexible ? 0.0f : height;
                 break;
             case ContainerFill.FillVertically:
-                // TODO
+                nodeBounds.Width = node.DesiredSize.Width.IsFlexible ? 0.0f : width;
+                nodeBounds.Height = parent.Bounds.Height;
                 break;
             case ContainerFill.FillBoth:
-                nodeBounds.Width = node.DesiredSize?.X ?? (parent.FlexibleCount > 0
-                    ? parent.FlexibleSpaceX / parent.FlexibleCount
-                    : 0.0f);
+                nodeBounds.Width = width;
                 nodeBounds.Height = parent.Bounds.Height;
-                nodeBounds.X += parent.GetXOffset(nodeIdx);
                 break;
         }
+
+        nodeBounds.X += parent.GetXOffset(nodeIdx);
 
         return nodeBounds;
     }

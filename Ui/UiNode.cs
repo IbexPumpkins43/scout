@@ -1,0 +1,29 @@
+using System.Numerics;
+using Raylib_cs;
+
+namespace Scout.Ui;
+
+// This is a type purely for deciding whether the layout engine should ignore a value or not
+internal readonly record struct UiLength(float Value, bool IsFlexible)
+{
+    public static UiLength Fixed(float value) => new(value, false);
+    public static UiLength Flexible => new(0.0f, true);
+
+    public static implicit operator UiLength(float value) => Fixed(value);
+}
+
+// Repalces Vector2 for sizes
+internal readonly record struct UiSize(UiLength Width, UiLength Height)
+{
+    public static UiSize Flexible => new(UiLength.Flexible, UiLength.Flexible);
+}
+
+internal class UiNode
+{
+    public UiSize DesiredSize = UiSize.Flexible;
+    public Vector2 ActualSize;
+    public Rectangle Bounds;
+
+    public UiNode? Parent;
+    public UiNode[]? Children;
+}

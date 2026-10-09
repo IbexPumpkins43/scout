@@ -31,23 +31,25 @@ internal class Container : UiNode
 
     public int HiddenContainersCount =>
         (this.Children ?? []).Count(child => child is Container && ((Container)child).Hidden);
+    public int VisibleChildrenCount => this.ChildrenCount - this.HiddenContainersCount;
 
-    public int VisibleContainersCount => this.ChildrenCount - this.HiddenContainersCount;
-
-    public int FlexibleCount => (this.Children ?? []).Count(child =>
-        (child is not Container || !((Container)child).Hidden) && child.DesiredSize == null);
+    public int FlexibleCountX => (this.Children ?? []).Count(child =>
+        (child is not Container || !((Container)child).Hidden)
+        && child.DesiredSize.Width.IsFlexible);
+    public int FlexibleCountY => (this.Children ?? []).Count(child =>
+        (child is not Container || !((Container)child).Hidden)
+        && child.DesiredSize.Height.IsFlexible);
 
     public float DesiredSpaceX =>
         (this.Children ?? [])
         .Where(child => child is not Container || !((Container)child).Hidden)
-        .Sum(child => child.DesiredSize?.X ?? 0.0f);
-
+        .Sum(child => child.DesiredSize.Width.IsFlexible ? 0.0f : child.DesiredSize.Width.Value);
     public float DesiredSpaceY => (this.Children ?? [])
         .Where(child => child is not Container || !((Container)child).Hidden)
-        .Sum(child => child.DesiredSize?.Y ?? 0.0f);
+        .Sum(child => child.DesiredSize.Height.IsFlexible ? 0.0f : child.DesiredSize.Height.Value);
 
     public float FlexibleSpaceX => this.Bounds.Width - this.DesiredSpaceX;
-    public float FlexibleSpaceY => this.Bounds.Width - this.DesiredSpaceY;
+    public float FlexibleSpaceY => this.Bounds.Height - this.DesiredSpaceY;
 
     public float GetXOffset(int idx) =>
         (this.Children ?? [])[..idx]
