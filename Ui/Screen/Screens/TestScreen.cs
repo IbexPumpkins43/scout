@@ -33,11 +33,16 @@ public class TestScreen : IScreen
             {
                 Orientation = ContainerOrientation.Vertical,
                 Fill = ContainerFill.FillVertically,
-                BackgroundColour = Color.Black,
+                BackgroundColour = Color.White,
                 Hidden = true,
                 DesiredSize = new(300.0f, -1.0f),
                 Children =
                 [
+                    new Label()
+                    {
+                        Text = "Hello world!",
+                        FontSize = Style.Font.LargeSize
+                    },
                     new TestElement(new(50, UiLength.Flexible), Color.SkyBlue),
                     new TestElement(new(50, UiLength.Flexible), Color.Lime),
                     new TestElement(new(50, UiLength.Flexible), Color.Orange),
@@ -65,7 +70,7 @@ public class TestScreen : IScreen
                     {
                         Orientation = ContainerOrientation.Vertical,
                         Fill = ContainerFill.FillBoth,
-                        BackgroundColour = Color.White,
+                        BackgroundColour = Color.Black,
                         Children =
                         [
                             new TestElement(UiSize.Flexible, Color.DarkPurple),

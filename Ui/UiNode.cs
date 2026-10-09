@@ -18,7 +18,7 @@ internal readonly record struct UiSize(UiLength Width, UiLength Height)
     public static UiSize Flexible => new(UiLength.Flexible, UiLength.Flexible);
 }
 
-internal class UiNode
+internal abstract class UiNode
 {
     public UiSize DesiredSize = UiSize.Flexible;
     public Vector2 ActualSize;
@@ -26,4 +26,7 @@ internal class UiNode
 
     public UiNode? Parent;
     public UiNode[]? Children;
+
+    public virtual void UpdateLayout() {}
+    public virtual void Render() {}
 }

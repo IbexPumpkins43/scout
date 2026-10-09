@@ -18,6 +18,7 @@ internal class UiTree : Container
         this.SetParents();
         this.UpdateRootDimensions();
         this.CalculateActualSizes();
+        this.UpdateElementLayouts();
     }
 
     public void Update()
@@ -26,11 +27,12 @@ internal class UiTree : Container
         {
             this.UpdateRootDimensions();
             this.CalculateActualSizes();
+            this.UpdateElementLayouts();
         }
     }
 
     // Exposed method
-    public void Render()
+    public override void Render()
     {
         Raylib.BeginDrawing();
         Raylib.ClearBackground(UiManager.ColourScheme.Background);
@@ -42,16 +44,29 @@ internal class UiTree : Container
     {
         // TODO : Replace this urgently
         if (node is TestElement element)
+        {
             Raylib.DrawRectangleLinesEx(node.Bounds, 6.0f, element.Color);
+        }
         else if (node is Container container)
         {
             if (container.Hidden)
+            {
                 return;
+            }
+
             if (container.BackgroundColour != null)
+            {
                 Raylib.DrawRectangleRec(node.Bounds, container.BackgroundColour.Value);
+            }
+        }
+        else if (node is Label label)
+        {
+            label.Render();
         }
         else
+        {
             Raylib.DrawRectangleLinesEx(node.Bounds, 6.0f, Color.Red);
+        }
 
         foreach (UiNode child in node.Children ?? [])
         {
@@ -194,5 +209,18 @@ internal class UiTree : Container
         nodeBounds.X += parent.GetXOffset(nodeIdx);
 
         return nodeBounds;
+    }
+
+    // Make the call look good
+    private void UpdateElementLayouts() => this.UpdateElementLayouts(this);
+    // Recursive version
+    private void UpdateElementLayouts(UiNode node)
+    {
+        node.UpdateLayout();
+
+        foreach (UiNode child in node.Children ?? [])
+        {
+            this.UpdateElementLayouts(child);
+        }
     }
 }
