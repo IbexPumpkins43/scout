@@ -11,25 +11,27 @@ public class TestScreen : IScreen
         [
             new Container()
             {
-                Orientation = ContainerOrientation.Horizontal,
+                Orientation = ContainerOrientation.Vertical,
+                Fill = ContainerFill.FillVertically,
+                BackgroundColour = Color.Black,
+                Children =
+                [
+                    new TestElement(50, 50, Color.SkyBlue),
+                    new TestElement(50, 50, Color.Lime),
+                    new TestElement(50, 50, Color.Orange),
+                ]
+            },
+            new Container()
+            {
+                Orientation = ContainerOrientation.Vertical,
                 Fill = ContainerFill.FillBoth,
                 Children =
                 [
                     new Container()
                     {
                         Orientation = ContainerOrientation.Vertical,
-                        Fill = ContainerFill.FillVertically,
-                        Children =
-                        [
-                            new TestElement(50, 50, Color.SkyBlue),
-                            new TestElement(50, 50, Color.Lime),
-                            new TestElement(50, 50, Color.Orange),
-                        ]
-                    },
-                    new Container()
-                    {
-                        Orientation = ContainerOrientation.Vertical,
                         Fill = ContainerFill.FillHorizontally,
+                        BackgroundColour = Color.Gray,
                         Children =
                         [
                             new TestElement(100, 100, Color.Green),
@@ -41,6 +43,7 @@ public class TestScreen : IScreen
                     {
                         Orientation = ContainerOrientation.Vertical,
                         Fill = ContainerFill.FillBoth,
+                        BackgroundColour = Color.White,
                         Children =
                         [
                             new TestElement(100, 100, Color.DarkPurple),

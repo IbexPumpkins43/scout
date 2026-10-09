@@ -1,3 +1,5 @@
+using Raylib_cs;
+
 namespace Scout.Ui.Elements;
 
 internal enum ContainerOrientation
@@ -18,4 +20,5 @@ internal class Container : UiNode
 {
     public ContainerOrientation Orientation;
     public ContainerFill Fill;
+    public Color? BackgroundColour;
 }
