@@ -53,8 +53,14 @@ internal class UiTree : Container
         // TODO : Replace this urgently
         if (node.GetType() == typeof(TestElement))
             Raylib.DrawRectangleLinesEx(node.Bounds, 6.0f, ((TestElement)node).Color);
-        else if (node.GetType() == typeof(Container) && ((Container)node).BackgroundColour != null)
-            Raylib.DrawRectangleRec(node.Bounds, ((Container)node).BackgroundColour.Value);
+        else if (node.GetType() == typeof(Container))
+        {
+            Container container = (Container)node;
+            if (container.Hidden)
+                return;
+            if (container.BackgroundColour != null)
+                Raylib.DrawRectangleRec(node.Bounds, container.BackgroundColour.Value);
+        }
         else
             Raylib.DrawRectangleLinesEx(node.Bounds, 6.0f, Color.Red);
 
@@ -80,7 +86,7 @@ internal class UiTree : Container
     private void UpdateRootDimensions()
     {
         // The root of the tree is just the size of the window
-        this.DesiredSize = new(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+        this.DesiredSize = 0.0f;//new(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
         this.ActualSize = new(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
         this.Bounds = new(
             x: 0.0f,
@@ -93,14 +99,23 @@ internal class UiTree : Container
     // Recursive verison
     private void CalculateActualSizes(UiNode node, int nodeIdx)
     {
-        // If the element is not the tree root
-        if (node.Parent != null)
+        if (node is Container)
         {
-            Container container = (Container)node.Parent;
+            Container container = (Container)node;
+            if (container.Hidden)
+            {
+                return;
+            }
+        }
 
-            Rectangle newNodeBounds = container.Orientation == ContainerOrientation.Vertical
-                ? this.CalculateVertContainerElement(container, node, nodeIdx)
-                : this.CalculateHorizContainerElement(container, node, nodeIdx);
+        // If the element is part of a container
+        if (node.Parent is Container)
+        {
+            Container parent = (Container)node.Parent;
+
+            Rectangle newNodeBounds = parent.Orientation == ContainerOrientation.Vertical
+                ? this.CalculateVertContainerElement(parent, node, nodeIdx)
+                : this.CalculateHorizContainerElement(parent, node, nodeIdx);
 
             node.ActualSize = newNodeBounds.Size;
             node.Bounds = newNodeBounds;
@@ -115,28 +130,28 @@ internal class UiTree : Container
         }
     }
 
-    private Rectangle CalculateVertContainerElement(Container container, UiNode node, int nodeIdx)
+    private Rectangle CalculateVertContainerElement(Container parent, UiNode node, int nodeIdx)
     {
         Rectangle nodeBounds = new(
-            position: container.Bounds.Position,
+            position: parent.Bounds.Position,
             size: new());
 
-        switch (container.Fill)
+        switch (parent.Fill)
         {
             case ContainerFill.None: break;
             case ContainerFill.FillHorizontally:
-                nodeBounds.Width = container.Bounds.Width / (container.Children ?? []).Length;
+                nodeBounds.Width = parent.Bounds.Width / parent.ChildrenCount;
                 nodeBounds.Height = node.Bounds.Height;
                 nodeBounds.X += nodeBounds.Width * nodeIdx;
                 break;
             case ContainerFill.FillVertically:
                 nodeBounds.Width = node.Bounds.Width;
-                nodeBounds.Height = container.Bounds.Height / (container.Children ?? []).Length;
+                nodeBounds.Height = parent.Bounds.Height / parent.ChildrenCount;
                 nodeBounds.Y += nodeBounds.Height * nodeIdx;
                 break;
             case ContainerFill.FillBoth:
-                nodeBounds.Width = container.Bounds.Width;
-                nodeBounds.Height = container.Bounds.Height / (container.Children ?? []).Length;
+                nodeBounds.Width = parent.Bounds.Width;
+                nodeBounds.Height = parent.Bounds.Height / parent.ChildrenCount;
                 nodeBounds.Y += nodeBounds.Height * nodeIdx;
                 break;
         }
@@ -144,13 +159,13 @@ internal class UiTree : Container
         return nodeBounds;
     }
 
-    private Rectangle CalculateHorizContainerElement(Container container, UiNode node, int nodeIdx)
+    private Rectangle CalculateHorizContainerElement(Container parent, UiNode node, int nodeIdx)
     {
         Rectangle nodeBounds = new(
-            position: container.Bounds.Position,
+            position: parent.Bounds.Position,
             size: new());
 
-        switch (container.Fill)
+        switch (parent.Fill)
         {
             case ContainerFill.None:
                 // TODO
@@ -162,33 +177,12 @@ internal class UiTree : Container
                 // TODO
                 break;
             case ContainerFill.FillBoth:
-                nodeBounds.Width = container.Bounds.Width / (container.Children ?? []).Length;;
-                nodeBounds.Height = container.Bounds.Height;
-                nodeBounds.X += nodeBounds.Width * nodeIdx;
+                nodeBounds.Width = parent.Bounds.Width / parent.VisibleChildrenCount;
+                nodeBounds.Height = parent.Bounds.Height;
+                nodeBounds.X += nodeBounds.Width * (nodeIdx - parent.HiddenContainersCount);
                 break;
         }
 
         return nodeBounds;
-    }
-
-    private void CalculateRougeElement(UiNode node, int nodeIdx)
-    {
-        Console.WriteLine($"{nodeIdx}");
-
-        if (node.Parent == null)
-        {
-            return;
-        }
-
-        float parentWidth = node.Parent.Bounds.Width;
-        float parentHeight = node.Parent.Bounds.Height;
-
-        float childWidth = parentWidth / (node.Parent.Children ?? []).Length;
-
-        node.ActualSize = new(childWidth, parentHeight);
-        node.Bounds = new(
-            x: childWidth * nodeIdx,
-            y: 0.0f,
-            size: node.ActualSize);
     }
 }

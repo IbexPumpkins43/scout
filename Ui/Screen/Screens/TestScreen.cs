@@ -7,6 +7,26 @@ public class TestScreen : IScreen
 {
     public void Load()
     {
+        // DesiredSize example
+        UiManager.Tree = new(
+        [
+            new Container()
+            {
+                Orientation = ContainerOrientation.Vertical,
+                Fill = ContainerFill.FillHorizontally,
+                BackgroundColour = Color.Blue,
+                DesiredSize = 300.0f,
+                Children = []
+            },
+            new Container()
+            {
+                Orientation = ContainerOrientation.Vertical,
+                Fill = ContainerFill.FillBoth,
+                BackgroundColour = Color.DarkBlue,
+                Children = []
+            }
+        ]);
+        /* Full example
         UiManager.Tree = new(
         [
             new Container()
@@ -14,6 +34,7 @@ public class TestScreen : IScreen
                 Orientation = ContainerOrientation.Vertical,
                 Fill = ContainerFill.FillVertically,
                 BackgroundColour = Color.Black,
+                Hidden = true,
                 Children =
                 [
                     new TestElement(50, 50, Color.SkyBlue),
@@ -54,6 +75,7 @@ public class TestScreen : IScreen
                 ]
             }
         ]);
+        */
     }
 
     public void Dispose() { }

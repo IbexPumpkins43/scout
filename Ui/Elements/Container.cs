@@ -22,4 +22,12 @@ internal class Container : UiNode
     public ContainerFill Fill;
     public Color? BackgroundColour;
     public bool Hidden;
+    public new float? DesiredSize;
+
+    public int ChildrenCount => (this.Children ?? []).Length;
+
+    public int HiddenContainersCount =>
+        (this.Children ?? []).Count(child => child is Container && ((Container)child).Hidden);
+
+    public int VisibleChildrenCount => this.ChildrenCount - this.HiddenContainersCount;
 }
