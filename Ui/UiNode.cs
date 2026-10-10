@@ -32,8 +32,13 @@ internal abstract class UiNode
     public Vector2 ActualSize;
     public Rectangle Bounds;
 
+    public UiTree Root;
     public Container? Parent;
 
+    // Sends an invalidate layout request up the tree to the root
+    public virtual void InvalidateLayout() => this.Parent?.InvalidateLayout();
+
+    public virtual void Initialise() {}
     public virtual void Measure() {}
     public virtual void UpdateLayout() {}
     public virtual void Render() {}

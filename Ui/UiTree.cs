@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Raylib_cs;
 using Scout.Ui.Elements;
 
@@ -6,82 +7,105 @@ namespace Scout.Ui;
 
 internal class UiTree : Container
 {
+    // Elements can subscribe to these to get the events
+    public event Action<Vector2>? MouseMoved;
+    public event Action<MouseButton, Vector2>? MousePressed;
+    public event Action<KeyboardKey>? KeyPressed;
+
+    private bool _isLayoutDirty = true;
+
     public UiTree(UiNode[] children)
     {
         // Container properties
         this.Orientation = ContainerOrientation.Horizontal;
         this.BackgroundColour = Color.White;
-
         this.Children = children;
 
-        this.SetParents();
-        this.UpdateRootDimensions();
-        this.MeasureElements();
-        this.CalculateBounds();
-        this.UpdateElementLayouts();
+        this.SetReferences();
+        this.InitialiseNodes();
     }
 
     public void Update()
     {
-        if (Raylib.IsWindowResized() || Raylib.IsKeyPressed(KeyboardKey.B))
+        this.UpdateLayout();
+        this.UpdateInput();
+    }
+
+    public void UpdateInput()
+    {
+        // Handle mouse movement
+        Vector2 mousePosition = Raylib.GetMousePosition();
+        if (Raylib.GetMouseDelta() != Vector2.Zero)
         {
-            this.UpdateRootDimensions();
-            this.MeasureElements();
-            this.CalculateBounds();
-            this.UpdateElementLayouts();
+            this.MouseMoved?.Invoke(mousePosition);
+        }
+
+        // Handle mouse buttons
+        switch (true)
+        {
+            case true when Raylib.IsMouseButtonPressed(MouseButton.Left):
+                this.MousePressed?.Invoke(MouseButton.Left, mousePosition);
+                break;
+            case true when Raylib.IsMouseButtonPressed(MouseButton.Middle):
+                this.MousePressed?.Invoke(MouseButton.Middle, mousePosition);
+                break;
+            case true when Raylib.IsMouseButtonPressed(MouseButton.Right):
+                this.MousePressed?.Invoke(MouseButton.Right, mousePosition);
+                break;
+        }
+
+        // Handle keyboard
+        KeyboardKey key;
+        while ((key = (KeyboardKey)Raylib.GetKeyPressed()) != KeyboardKey.Null)
+        {
+            this.KeyPressed?.Invoke(key);
         }
     }
 
-    // Exposed method
+    public override void UpdateLayout()
+    {
+        if (!Raylib.IsWindowResized() && !this._isLayoutDirty)
+        {
+            return;
+        }
+
+        this._isLayoutDirty = false;
+
+        this.UpdateRootDimensions();
+        this.MeasureNodes();
+        this.CalculateBounds();
+        this.UpdateElementLayouts();
+    }
+
+    // Stop the invaldate layout from going further and mark the tree as dirty
+    public override void InvalidateLayout() => this._isLayoutDirty = true;
+
     public override void Render()
     {
         Raylib.BeginDrawing();
         Raylib.ClearBackground(UiManager.ColourScheme.Background);
-        this.Render(this);
+
+        this.TraverseTree(this, (node, _) =>
+        {
+            if (node is not UiTree)
+            {
+                node.Render();
+            }
+        }, skipHiddenContainers: true);
+
         Raylib.EndDrawing();
     }
-    // Recursive internal method
-    private void Render(UiNode node)
+
+    private void SetReferences()
     {
-        // Skip hidden containers and their children
-        if (node is Container { Hidden: true })
+        this.TraverseTree(this, null, (node, parent) =>
         {
-            return;
-        }
-
-        if (node is not UiTree)
-        {
-            node.Render();
-        }
-
-        if (node is not Container container)
-        {
-            return;
-        }
-
-        foreach (UiNode child in container.Children)
-        {
-            this.Render(child);
-        }
+            node.Parent = parent;
+            node.Root = this;
+        });
     }
 
-    // Can't use "this" in default args so this is what I came up with
-    private void SetParents() => this.SetParents(this, null);
-    // Recursive version
-    private void SetParents(UiNode node, Container? parent)
-    {
-        node.Parent = parent;
-
-        if (node is not Container container)
-        {
-            return;
-        }
-
-        foreach (UiNode child in container.Children)
-        {
-            this.SetParents(child, container);
-        }
-    }
+    private void InitialiseNodes() => this.TraverseTree(this, null, (node, _) => node.Initialise());
 
     private void UpdateRootDimensions()
     {
@@ -94,37 +118,59 @@ internal class UiTree : Container
             size: this.ActualSize);
     }
 
-    // Make the call look good
-    private void UpdateElementLayouts() => this.UpdateElementLayouts(this);
-    // Recursive version
-    private void UpdateElementLayouts(UiNode node)
+    private void UpdateElementLayouts()
     {
-        node.UpdateLayout();
+        this.TraverseTree(this, (node, _) =>
+        {
+            if (node is not UiTree)
+            {
+                node.UpdateLayout();
+            }
+        });
+    }
 
-        if (node is not Container container)
+    private void MeasureNodes() => this.TraverseTree(this, (node, _) => node.Measure(), true);
+
+    // Helper method that makes traversing the tree better.
+    private void TraverseTree(
+        UiNode node,
+        Container? parent,
+        TraverseTreeAction action,
+        bool backwards = false,
+        bool skipHiddenContainers = false)
+    {
+        if (skipHiddenContainers && node is Container { Hidden: true })
         {
             return;
         }
 
-        foreach (UiNode child in container.Children)
+        if (!backwards)
         {
-            this.UpdateElementLayouts(child);
+            action(node, parent);
         }
-    }
 
-    // Make the call look good
-    private void MeasureElements() => this.MeasureElements(this);
-    // Recursive version
-    private void MeasureElements(UiNode node)
-    {
         if (node is Container container)
         {
             foreach (UiNode child in container.Children)
             {
-                this.MeasureElements(child);
+                this.TraverseTree(child, container, action);
             }
         }
 
-        node.Measure();
+        if (backwards)
+        {
+            action(node, parent);
+        }
     }
+
+    // Override to simplify calls who don't need a parent container
+    private void TraverseTree(
+        UiNode node,
+        TraverseTreeAction action,
+        bool backwards = false,
+        bool skipHiddenContainers = false) =>
+        this.TraverseTree(node, null, action, backwards, skipHiddenContainers);
+
+    // Custom type to define the action
+    private delegate void TraverseTreeAction(UiNode node, Container? parent = null);
 }
