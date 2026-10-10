@@ -36,6 +36,11 @@ internal class Renderer : IDisposable
         this.Canvas.OnRerender += this.OnRerender;
     }
 
+    public void Dispose()
+    {
+        this.Canvas.Dispose();
+    }
+
     private void OnCanvasResize(float width, float height)
     {
         this._camera.Offset.X = width / 2;
@@ -69,72 +74,6 @@ internal class Renderer : IDisposable
 
         this.RenderPlaces();
     }
-
-    public void Dispose()
-    {
-        this.Canvas.Dispose();
-    }
-
-    /*public void Update()
-    {
-        if (Raylib.IsWindowResized())
-        {
-            this._camera.Offset.X = Raylib.GetScreenWidth() / 2;
-            this._camera.Offset.Y = Raylib.GetScreenHeight() / 2;
-
-            Raylib.UnloadRenderTexture(this._texture);
-            this._texture = Raylib.LoadRenderTexture(
-                Raylib.GetScreenWidth(),
-                Raylib.GetScreenHeight());
-
-            this._redraw = true;
-        }
-
-        if (Raylib.IsMouseButtonDown(MouseButton.Left))
-        {
-            Vector2 mouseDelta = Raylib.GetMouseDelta();
-            this._camera.Target.X -= mouseDelta.X / this._camera.Zoom;
-            this._camera.Target.Y -= mouseDelta.Y / this._camera.Zoom;
-
-            this._redraw = true;
-        }
-
-        float mouseWheel = Raylib.GetMouseWheelMove();
-        if (mouseWheel != 0.0f)
-        {
-            this._camera.Zoom *= MathF.Pow(1.1f, mouseWheel);
-            this._camera.Zoom = Raymath.Clamp(this._camera.Zoom, 0.001f, 10.0f);
-
-            this._redraw = true;
-        }
-    }*/
-
-    /*public void Render()
-    {
-        if (this._redraw)
-        {
-            Raylib.BeginTextureMode(this._texture);
-            Raylib.ClearBackground(Color.White);
-
-            Raylib.BeginMode2D(this._camera);
-            this.RenderRoads();
-            this.RenderBuildings();
-            Raylib.EndMode2D();
-
-            this.RenderPlaces();
-
-            Raylib.EndTextureMode();
-
-            this._redraw = false;
-        }
-
-        Raylib.DrawTextureRec(
-            this._texture.Texture,
-            new(0, 0, this._texture.Texture.Width, -this._texture.Texture.Height),
-            new(0, 0),
-            Color.White);
-    }*/
-
 
     public void RenderPath(int[] path, bool moveCamera = false)
     {
