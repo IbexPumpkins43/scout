@@ -33,7 +33,7 @@ public class TestScreen : IScreen
         ]);*/
 
         // Canvas + sidebar example
-        this._myButton.Clicked += () =>
+        this._myButton.OnClick += () =>
         {
             Console.WriteLine("test");
         };
@@ -143,5 +143,4 @@ public class TestScreen : IScreen
 
     public void Dispose() { }
     public void Update() { }
-    public void Render() { }
 }

@@ -1,7 +1,6 @@
 ﻿using Raylib_cs;
 using Scout.Settings;
 using Scout.Ui;
-using Scout.Ui.Elements;
 using Scout.Ui.Screen.Screens;
 
 namespace Scout;
@@ -25,11 +24,6 @@ internal class Program
         {
             if (UiManager.Tree != null)
             {
-                /*if (Raylib.IsKeyPressed(KeyboardKey.B))
-                {
-                    ((Container)UiManager.Tree.Children[0]).Hidden ^= true;
-                    UiManager.Tree.InvalidateLayout();
-                }*/
                 UiManager.Tree.Update();
                 UiManager.Tree.Render();
             }

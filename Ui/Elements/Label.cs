@@ -22,11 +22,7 @@ internal class Label : UiNode
 
     public override void Measure()
     {
-        this._textSize = Raylib.MeasureTextEx(
-            this.Font,
-            this.Text,
-            this.FontSize,
-            this.FontSpacing);
+        this._textSize = this.MeasureText;
 
         this.DesiredSize = this.DesiredSizeMode switch
         {
@@ -52,4 +48,10 @@ internal class Label : UiNode
             this.FontSpacing,
             this.Colour);
     }
+
+    public Vector2 MeasureText => Raylib.MeasureTextEx(
+        this.Font,
+        this.Text,
+        this.FontSize,
+        this.FontSpacing);
 }

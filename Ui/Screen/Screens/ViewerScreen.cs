@@ -30,16 +30,25 @@ internal class ViewerScreen : IScreen
         // Build the user interface
         UiManager.Tree = new(
         [
+            new Menubar([]),
             // Sidebar
-            new Container()
+            /*new Container()
             {
                 Orientation = ContainerOrientation.Vertical,
                 Hidden = false,
                 DesiredSize = new(300.0f, UiLength.Flexible),
                 Children =
                 [
+                    // Title
+                    new Label("Toolbox")
+                    {
+                        FontSize = Style.Font.LargeSize,
+                        DesiredSize = new (UiLength.Flexible, Style.Font.LargeSize)
+                    },
+                    new LabelButton("Open map..."),
+                    new LabelButton("Quit"),
                     // Logo
-                    new Container()
+                    /*new Container()
                     {
                         Orientation = ContainerOrientation.Horizontal,
                         DesiredSize = new(UiLength.Flexible, 80.0f),
@@ -58,9 +67,12 @@ internal class ViewerScreen : IScreen
                         ]
                     },
                 ]
-            },
+            },*/
             this._renderer.Canvas
-        ]);
+        ])
+        {
+            Orientation = ContainerOrientation.Vertical
+        };
     }
 
     public void Dispose()
@@ -68,6 +80,8 @@ internal class ViewerScreen : IScreen
         this._renderer.Dispose();
     }
 
-    public void Update() { }
-    public void Render() { }
+    public void Update()
+    {
+
+    }
 }

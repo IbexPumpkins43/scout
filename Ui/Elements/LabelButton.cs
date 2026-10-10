@@ -7,7 +7,10 @@ namespace Scout.Ui.Elements;
 internal class LabelButton : Container
 {
     public Label Label;
-    public event Action? Clicked;
+    public UiDesiredSizeMode DesiredSizeMode = UiDesiredSizeMode.FillParent;
+    public bool HideBorder;
+
+    public event Action? OnClick;
 
     private bool _isPressed;
 
@@ -36,9 +39,15 @@ internal class LabelButton : Container
 
     public override void Measure()
     {
-        this.DesiredSize = new(
-            UiLength.Flexible,
-            this.Label.FontSize + Style.Padding.InnerPx * 2);
+        Vector2 textSize = this.Label.MeasureText;
+
+        this.DesiredSize = this.DesiredSizeMode switch
+        {
+            UiDesiredSizeMode.FitToContent => new(
+                textSize.X + Style.Padding.InnerPx * 2,
+                textSize.Y + Style.Padding.InnerPx * 2),
+            UiDesiredSizeMode.FillParent => UiSize.Flexible
+        };
     }
 
     public override void Render()
@@ -46,7 +55,10 @@ internal class LabelButton : Container
         base.Render();
 
         // Button border
-        Raylib.DrawRectangleLinesEx(this.Bounds, 1.0f, UiManager.ColourScheme.BorderColour);
+        if (!this.HideBorder)
+        {
+            Raylib.DrawRectangleLinesEx(this.Bounds, 1.0f, UiManager.ColourScheme.BorderColour);
+        }
     }
 
     private void HandleOnMouseHover(Vector2 position, Vector2 delta)
