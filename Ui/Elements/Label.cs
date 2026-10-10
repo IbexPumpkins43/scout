@@ -10,6 +10,7 @@ internal class Label : UiNode
     public Font Font = UiManager.AssetsManager.GetRegularFont(Style.Font.LargeSize);
     public int FontSize = Style.Font.MediumSize;
     public float FontSpacing = Style.Font.MediumSpacing;
+    public UiDesiredSizeMode DesiredSizeMode = UiDesiredSizeMode.FitToContent;
 
     private Vector2 _textSize;
     private Vector2 _textPosition;
@@ -21,7 +22,12 @@ internal class Label : UiNode
             this.Text,
             this.FontSize,
             this.FontSpacing);
-        this.DesiredSize = new UiSize(this._textSize.X, this._textSize.Y);
+
+        this.DesiredSize = this.DesiredSizeMode switch
+        {
+            UiDesiredSizeMode.FitToContent => new(this._textSize.X, this._textSize.Y),
+            UiDesiredSizeMode.FillParent => UiSize.Flexible
+        };
     }
 
     public override void UpdateLayout()

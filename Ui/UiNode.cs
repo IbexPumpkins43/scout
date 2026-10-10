@@ -19,6 +19,13 @@ internal readonly record struct UiSize(UiLength Width, UiLength Height)
     public static UiSize Flexible => new(UiLength.Flexible, UiLength.Flexible);
 }
 
+// A simple enum that lets elements choose how to size themselves
+internal enum UiDesiredSizeMode
+{
+    FitToContent,
+    FillParent
+}
+
 internal abstract class UiNode
 {
     public UiSize DesiredSize = UiSize.Flexible;

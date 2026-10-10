@@ -22,45 +22,79 @@ internal class Container : UiNode
     public ContainerFill Fill;
     public Color? BackgroundColour;
     public bool Hidden;
+
     public UiNode[] Children = [];
 
-    // NOTE: LINQ experession are heavily used here. I have no problems with using them here
+    // NOTE: LINQ experessions are used here. I have no problems with using them here
     //       because UI trees are typically not very big and these are only performed when
     //       specific events are caused.
 
-    public int ChildrenCount => this.Children.Length;
+    public void CalculateBounds()
+    {
+        bool isVertical = this.Orientation == ContainerOrientation.Vertical;
 
-    public int HiddenContainersCount =>
-        this.Children.Count(child => child is Container && ((Container)child).Hidden);
-    public int VisibleChildrenCount => this.ChildrenCount - this.HiddenContainersCount;
+        UiNode[] children = this.Children
+            .Where(child => child is not Container { Hidden: true })
+            .ToArray();
 
-    public int FlexibleCountX => this.Children.Count(child =>
-        (child is not Container || !((Container)child).Hidden)
-        && child.DesiredSize.Width.IsFlexible);
-    public int FlexibleCountY => this.Children.Count(child =>
-        (child is not Container || !((Container)child).Hidden)
-        && child.DesiredSize.Height.IsFlexible);
+        // Anonymous function for geting the length of the axis where the container arranges the
+        // children
+        UiLength GetMainLength(UiNode child) => isVertical
+            ? child.DesiredSize.Height
+            : child.DesiredSize.Width;
 
-    public float DesiredSpaceX =>
-        this.Children
-        .Where(child => child is not Container || !((Container)child).Hidden)
-        .Sum(child => child.DesiredSize.Width.IsFlexible ? 0.0f : child.DesiredSize.Width.Value);
-    public float DesiredSpaceY => this.Children
-        .Where(child => child is not Container || !((Container)child).Hidden)
-        .Sum(child => child.DesiredSize.Height.IsFlexible ? 0.0f : child.DesiredSize.Height.Value);
+        // Anonymous function for geting the length of the axis perpendicular to where the container
+        // arranges the children
+        UiLength GetPerpendicularLength(UiNode child) => isVertical
+            ? child.DesiredSize.Width
+            : child.DesiredSize.Height;
 
-    public float FlexibleSpaceX => Math.Max(0, this.Bounds.Width - this.DesiredSpaceX);
-    public float FlexibleSpaceY => Math.Max(0, this.Bounds.Height - this.DesiredSpaceY);
+        float availableSpace = isVertical ? this.Bounds.Height : this.Bounds.Width;
+        float fixedSpace = children
+            .Where(child => !GetMainLength(child).IsFlexible)
+            .Sum(child => GetMainLength(child).Value);
 
-    public float GetXOffset(int idx) =>
-        this.Children[..idx]
-        .Where(child => child is not Container || !((Container)child).Hidden)
-        .Sum(child => child.Bounds.Width);
+        int flexibleCount = children.Count(child => GetMainLength(child).IsFlexible);
+        float flexibleNodeSize = flexibleCount > 0
+            ? Math.Max(0, availableSpace - fixedSpace) / flexibleCount
+            : 0.0f;
 
-    public float GetYOffset(int idx) =>
-        this.Children[..idx]
-        .Where(child => child is not Container || !((Container)child).Hidden)
-        .Sum(child => child.Bounds.Height);
+        bool fillPerpendicularAxis = isVertical
+            ? this.Fill is ContainerFill.FillHorizontally or ContainerFill.FillBoth
+            : this.Fill is ContainerFill.FillVertically or ContainerFill.FillBoth;
+
+        float mainOffset = 0.0f;
+
+        foreach (UiNode child in children)
+        {
+            UiLength main = GetMainLength(child);
+            UiLength perpendicular = GetPerpendicularLength(child);
+
+            // Either use the calculated flexible size or use the value defined by the child
+            // depending on whether the main axis is flexible or not
+            float mainSize = main.IsFlexible ? flexibleNodeSize : main.Value;
+
+            // Similar to the calculation above but for the perpendicular axis
+            float perpendicularSize = perpendicular.IsFlexible || fillPerpendicularAxis
+                ? (isVertical ? this.Bounds.Width : this.Bounds.Height)
+                : perpendicular.Value;
+
+            child.Bounds = isVertical
+                // Vertical
+                ? new(this.Bounds.X, this.Bounds.Y + mainOffset, perpendicularSize, mainSize)
+                // Horizontal
+                : new(this.Bounds.X + mainOffset, this.Bounds.Y, mainSize, perpendicularSize);
+            child.ActualSize = child.Bounds.Size;
+
+            // Update the offset
+            mainOffset += mainSize;
+
+            if (child is Container container)
+            {
+                container.CalculateBounds();
+            }
+        }
+    }
 
     public override void Render()
     {

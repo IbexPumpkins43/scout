@@ -17,7 +17,8 @@ internal class LabelButton : Container
         [
             new Label()
             {
-                Text = this.Text
+                Text = this.Text,
+                DesiredSizeMode = UiDesiredSizeMode.FillParent,
             }
         ];
     }
@@ -28,7 +29,7 @@ internal class LabelButton : Container
 
     public override void Render()
     {
-        //Raylib.DrawRectangleRec(this.Bounds, UiManager.ColourScheme.ButtonBackgroundColour);
+        Raylib.DrawRectangleRec(this.Bounds, UiManager.ColourScheme.ButtonBackgroundColour);
         Raylib.DrawRectangleLinesEx(this.Bounds, 4.0f, UiManager.ColourScheme.BorderColour);
     }
 }

@@ -7,6 +7,7 @@ internal class Icon : UiNode
 {
     public required string Name;
     public float Scale = 1.0f;
+    public UiDesiredSizeMode DesiredSizeMode = UiDesiredSizeMode.FitToContent;
 
     private Rectangle _iconSource;
     private Rectangle _iconDestination;
@@ -15,10 +16,14 @@ internal class Icon : UiNode
     {
         this._iconSource = UiManager.AssetsManager.IconsLookup[this.Name];
 
-        this.DesiredSize = new(
-            this._iconSource.Width * this.Scale,
-            this._iconSource.Height * this.Scale
-        );
+        this.DesiredSize =
+        this.DesiredSize = this.DesiredSizeMode switch
+        {
+            UiDesiredSizeMode.FitToContent => new(
+                this._iconSource.Width * this.Scale,
+                this._iconSource.Height * this.Scale),
+            UiDesiredSizeMode.FillParent => UiSize.Flexible
+        };
     }
 
     public override void UpdateLayout()

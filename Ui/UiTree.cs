@@ -18,7 +18,7 @@ internal class UiTree : Container
         this.SetParents();
         this.UpdateRootDimensions();
         this.MeasureElements();
-        this.CalculateActualSizes();
+        this.CalculateBounds();
         this.UpdateElementLayouts();
     }
 
@@ -28,7 +28,7 @@ internal class UiTree : Container
         {
             this.UpdateRootDimensions();
             this.MeasureElements();
-            this.CalculateActualSizes();
+            this.CalculateBounds();
             this.UpdateElementLayouts();
         }
     }
@@ -95,119 +95,6 @@ internal class UiTree : Container
             size: this.ActualSize);
     }
 
-    // Makes the call further up look nicer
-    private void CalculateActualSizes() => this.CalculateActualSizes(this, 0);
-    // Recursive verison
-    private void CalculateActualSizes(UiNode node, int nodeIdx)
-    {
-        // Skip hidden containers and their children
-        if (node is Container { Hidden: true })
-        {
-            return;
-        }
-
-        // If the element is part of a container
-        if (node.Parent is Container parent)
-        {
-            Rectangle newNodeBounds = parent.Orientation == ContainerOrientation.Vertical
-                ? this.CalculateVertContainerElement(parent, node, nodeIdx)
-                : this.CalculateHorizContainerElement(parent, node, nodeIdx);
-
-            node.ActualSize = newNodeBounds.Size;
-            node.Bounds = newNodeBounds;
-        }
-
-        if (node is Container container)
-        {
-            for (int i = 0; i < container.Children.Length; i++)
-            {
-                this.CalculateActualSizes(container.Children[i], i);
-            }
-        }
-    }
-
-    private Rectangle CalculateVertContainerElement(Container parent, UiNode node, int nodeIdx)
-    {
-        Rectangle nodeBounds = new(
-            position: parent.Bounds.Position,
-            size: new());
-
-        float width = node.DesiredSize.Width.Value;
-        float height = node.DesiredSize.Height.Value;
-
-        if (node.DesiredSize.Height.IsFlexible)
-        {
-            height = parent.FlexibleCountY > 0
-                ? parent.FlexibleSpaceY / parent.FlexibleCountY
-                : 0.0f;
-        }
-
-        switch (parent.Fill)
-        {
-            case ContainerFill.None:
-                nodeBounds.Width = node.DesiredSize.Width.IsFlexible ? 0.0f : width;
-                nodeBounds.Height = height;
-                break;
-            case ContainerFill.FillHorizontally:
-                nodeBounds.Width = parent.Bounds.Width;
-                nodeBounds.Height = height;
-                break;
-            case ContainerFill.FillVertically:
-                nodeBounds.Width = node.DesiredSize.Width.IsFlexible ? 0.0f : width;
-                nodeBounds.Height = height;
-                break;
-            case ContainerFill.FillBoth:
-                nodeBounds.Width = parent.Bounds.Width;
-                nodeBounds.Height = height;
-                break;
-        }
-
-        nodeBounds.Y += parent.GetYOffset(nodeIdx);
-
-        return nodeBounds;
-    }
-
-    private Rectangle CalculateHorizContainerElement(Container parent, UiNode node, int nodeIdx)
-    {
-        Rectangle nodeBounds = new(
-            position: parent.Bounds.Position,
-            size: new());
-
-        float width = node.DesiredSize.Width.Value;
-        float height = node.DesiredSize.Height.Value;
-
-        if (node.DesiredSize.Width.IsFlexible)
-        {
-            width = parent.FlexibleCountX > 0
-                ? parent.FlexibleSpaceX / parent.FlexibleCountX
-                : 0.0f;
-        }
-
-        switch (parent.Fill)
-        {
-            case ContainerFill.None:
-                nodeBounds.Width = width;
-                nodeBounds.Height = node.DesiredSize.Height.IsFlexible ? 0.0f : height;
-                break;
-            case ContainerFill.FillHorizontally:
-                nodeBounds.Width = width;
-                nodeBounds.Height = node.DesiredSize.Height.IsFlexible ? 0.0f : height;
-                break;
-            case ContainerFill.FillVertically:
-                nodeBounds.Width = width;
-                nodeBounds.Height = parent.Bounds.Height;
-                break;
-            case ContainerFill.FillBoth:
-                nodeBounds.Width = width;
-                nodeBounds.Height = parent.Bounds.Height;
-                break;
-        }
-
-        nodeBounds.X += parent.GetXOffset(nodeIdx);
-
-        return nodeBounds;
-    }
-
     // Make the call look good
     private void UpdateElementLayouts() => this.UpdateElementLayouts(this);
     // Recursive version
@@ -231,16 +118,14 @@ internal class UiTree : Container
     // Recursive version
     private void MeasureElements(UiNode node)
     {
+        if (node is Container container)
+        {
+            foreach (UiNode child in container.Children)
+            {
+                this.MeasureElements(child);
+            }
+        }
+
         node.Measure();
-
-        if (node is not Container container)
-        {
-            return;
-        }
-
-        foreach (UiNode child in container.Children)
-        {
-            this.MeasureElements(child);
-        }
     }
 }

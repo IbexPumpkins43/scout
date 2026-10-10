@@ -32,23 +32,36 @@ public class TestScreen : IScreen
             new Container()
             {
                 Orientation = ContainerOrientation.Vertical,
-                Fill = ContainerFill.FillVertically,
+                Fill = ContainerFill.FillHorizontally,
                 BackgroundColour = Color.White,
                 Hidden = true,
-                DesiredSize = new(300.0f, -1.0f),
+                DesiredSize = new(300.0f, UiLength.Flexible),
                 Children =
                 [
-                    new Label()
+                    // Logo
+                    new Container()
                     {
-                        Text = "Scout",
-                        FontSize = Style.Font.LargeSize
+                        Orientation = ContainerOrientation.Horizontal,
+                        Fill = ContainerFill.FillHorizontally,
+                        Children =
+                        [
+                            new Label()
+                            {
+                                Text = "Scout",
+                                FontSize = Style.Font.LargeSize,
+                                DesiredSizeMode = UiDesiredSizeMode.FillParent
+                            },
+                            new Icon()
+                            {
+                                Name = "Search",
+                                Scale = 4.0f,
+                                DesiredSizeMode = UiDesiredSizeMode.FillParent
+                            },
+                        ]
                     },
-                    new Icon()
+                    new LabelButton("Search")
                     {
-                        Name = "Search",
-                        Scale = 4.0f
                     },
-                    new LabelButton("Search"),
                     new TestElement(new(50, UiLength.Flexible), Color.SkyBlue),
                     new TestElement(new(50, UiLength.Flexible), Color.Lime),
                     new TestElement(new(50, UiLength.Flexible), Color.Orange),
