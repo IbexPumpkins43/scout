@@ -4,12 +4,16 @@ namespace Scout.Ui.Elements;
 
 internal class TestElement : UiNode
 {
-    public Color Color;
+    public Color Colour;
 
-    public TestElement(UiSize size, Color color)
+    public TestElement(UiSize size, Color colour)
     {
         this.DesiredSize = size;
-        this.Bounds = new(0, 0, size.Width.Value, size.Height.Value);
-        this.Color = color;
+        this.Colour = colour;
+    }
+
+    public override void Render()
+    {
+        Raylib.DrawRectangleLinesEx(this.Bounds, 6.0f, this.Colour);
     }
 }

@@ -40,8 +40,13 @@ public class TestScreen : IScreen
                 [
                     new Label()
                     {
-                        Text = "Hello world!",
+                        Text = "Scout",
                         FontSize = Style.Font.LargeSize
+                    },
+                    new Icon()
+                    {
+                        Name = "Search",
+                        Scale = 4.0f
                     },
                     new TestElement(new(50, UiLength.Flexible), Color.SkyBlue),
                     new TestElement(new(50, UiLength.Flexible), Color.Lime),

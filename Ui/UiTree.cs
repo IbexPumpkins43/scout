@@ -42,12 +42,7 @@ internal class UiTree : Container
     // Recursive internal method
     private void Render(UiNode node)
     {
-        // TODO : Replace this urgently
-        if (node is TestElement element)
-        {
-            Raylib.DrawRectangleLinesEx(node.Bounds, 6.0f, element.Color);
-        }
-        else if (node is not UiTree)
+        if (node is not UiTree)
         {
             node.Render();
         }
