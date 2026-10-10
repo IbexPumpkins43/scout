@@ -22,5 +22,6 @@ internal abstract class ColourScheme
 
     public Color BorderColour { get; protected set; }
     public Color BorderColourAlt { get; protected set; }
+
     public Color Background { get; protected set; }
 }

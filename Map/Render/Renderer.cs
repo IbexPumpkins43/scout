@@ -1,31 +1,81 @@
 using System.Numerics;
 using Raylib_cs;
 using Scout.Map.Graph;
+using Scout.Ui.Elements;
 
 namespace Scout.Map;
 
-internal class Renderer(RenderData renderData, GraphData graphData, Font font) : IDisposable
+internal class Renderer : IDisposable
 {
-    private RenderData _renderData = renderData;
-    private GraphData _graphData = graphData;
-    private Font _font = font;
+    private RenderData _renderData;
+    private GraphData _graphData;
+    private Font _font;
 
     private bool _redraw = true;
-    private RenderTexture2D _texture = Raylib.LoadRenderTexture(
-        Raylib.GetScreenWidth(),
-        Raylib.GetScreenHeight());
+    //private RenderTexture2D _texture = Raylib.LoadRenderTexture(
+    //    Raylib.GetScreenWidth(),
+    //    Raylib.GetScreenHeight());
     private Camera2D _camera = new(
         offset: new(Raylib.GetScreenWidth() / 2, Raylib.GetScreenHeight() / 2),
         target: new(0.0f, 0.0f),
         rotation: 0.0f,
         zoom: 1.0f);
 
-    public void Dispose()
+    public Canvas Canvas { get; private set; }
+
+    public Renderer(RenderData renderData, GraphData graphData, Font font)
     {
-        Raylib.UnloadRenderTexture(this._texture);
+        this._renderData = renderData;
+        this._graphData = graphData;
+        this._font = font;
+
+        this.Canvas = new();
+        this.Canvas.OnResize += this.OnCanvasResize;
+        this.Canvas.OnMouseDown += this.OnCanvasMouseDown;
+        this.Canvas.OnMouseScroll += this.OnCanvasMouseScroll;
+        this.Canvas.OnRerender += this.OnRerender;
     }
 
-    public void Update()
+    private void OnCanvasResize(float width, float height)
+    {
+        this._camera.Offset.X = width / 2;
+        this._camera.Offset.Y = height / 2;
+        this.Canvas.Invalidate();
+    }
+
+    private void OnCanvasMouseDown(MouseButton button, Vector2 position, Vector2 delta)
+    {
+        if (button == MouseButton.Left)
+        {
+            this._camera.Target.X -= delta.X / this._camera.Zoom;
+            this._camera.Target.Y -= delta.Y / this._camera.Zoom;
+            this.Canvas.Invalidate();
+        }
+    }
+
+    private void OnCanvasMouseScroll(float wheel)
+    {
+        this._camera.Zoom *= MathF.Pow(1.1f, wheel);
+        this._camera.Zoom = Raymath.Clamp(this._camera.Zoom, 0.001f, 10.0f);
+        this.Canvas.Invalidate();
+    }
+
+    private void OnRerender()
+    {
+        Raylib.BeginMode2D(this._camera);
+        this.RenderRoads();
+        this.RenderBuildings();
+        Raylib.EndMode2D();
+
+        this.RenderPlaces();
+    }
+
+    public void Dispose()
+    {
+        this.Canvas.Dispose();
+    }
+
+    /*public void Update()
     {
         if (Raylib.IsWindowResized())
         {
@@ -57,9 +107,9 @@ internal class Renderer(RenderData renderData, GraphData graphData, Font font) :
 
             this._redraw = true;
         }
-    }
+    }*/
 
-    public void Draw()
+    /*public void Render()
     {
         if (this._redraw)
         {
@@ -67,11 +117,11 @@ internal class Renderer(RenderData renderData, GraphData graphData, Font font) :
             Raylib.ClearBackground(Color.White);
 
             Raylib.BeginMode2D(this._camera);
-            this.DrawRoads();
-            this.DrawBuildings();
+            this.RenderRoads();
+            this.RenderBuildings();
             Raylib.EndMode2D();
 
-            this.DrawPlaces();
+            this.RenderPlaces();
 
             Raylib.EndTextureMode();
 
@@ -83,10 +133,10 @@ internal class Renderer(RenderData renderData, GraphData graphData, Font font) :
             new(0, 0, this._texture.Texture.Width, -this._texture.Texture.Height),
             new(0, 0),
             Color.White);
-    }
+    }*/
 
 
-    public void DrawPath(int[] path, bool moveCamera = false)
+    public void RenderPath(int[] path, bool moveCamera = false)
     {
         if (path.Length == 0)
         {
@@ -129,7 +179,7 @@ internal class Renderer(RenderData renderData, GraphData graphData, Font font) :
 
     }
 
-    private void DrawRoads()
+    private void RenderRoads()
     {
         BoundBox viewBounds = this.GetViewBoundBox();
 
@@ -165,7 +215,7 @@ internal class Renderer(RenderData renderData, GraphData graphData, Font font) :
         }
     }
 
-    private void DrawPlaces()
+    private void RenderPlaces()
     {
         foreach (DrawablePlace place in this._renderData.Places)
         {
@@ -189,7 +239,7 @@ internal class Renderer(RenderData renderData, GraphData graphData, Font font) :
         }
     }
 
-    private void DrawBuildings()
+    private void RenderBuildings()
     {
         if (this._camera.Zoom < 0.09f)
         {

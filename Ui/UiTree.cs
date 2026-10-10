@@ -8,10 +8,11 @@ namespace Scout.Ui;
 internal class UiTree : Container
 {
     // Elements can subscribe to these to get the events
-    public event Action<Vector2>? MouseMoved;
-    public event Action<MouseButton, Vector2>? MouseDown;
-    public event Action<MouseButton, Vector2>? MouseUp;
-    public event Action<KeyboardKey>? KeyPressed;
+    public event Action<Vector2, Vector2>? OnMouseMove;
+    public event Action<MouseButton, Vector2, Vector2>? OnMouseDown;
+    public event Action<MouseButton, Vector2, Vector2>? OnMouseUp;
+    public event Action<float, Vector2, Vector2>? OnMouseScroll;
+    public event Action<KeyboardKey>? OnKeyPress;
 
     private bool _isLayoutDirty = true;
 
@@ -30,15 +31,24 @@ internal class UiTree : Container
     {
         this.UpdateLayout();
         this.UpdateInput();
+        this.UpdateWindow();
     }
 
     public void UpdateInput()
     {
         // Handle mouse movement
         Vector2 mousePosition = Raylib.GetMousePosition();
+        Vector2 mouseDelta = Raylib.GetMouseDelta();
         if (Raylib.GetMouseDelta() != Vector2.Zero)
         {
-            this.MouseMoved?.Invoke(mousePosition);
+            this.OnMouseMove?.Invoke(mousePosition, mouseDelta);
+        }
+
+        // Handle mouse scroll
+        float mouseWheel = Raylib.GetMouseWheelMove();
+        if (mouseWheel != 0.0f)
+        {
+            this.OnMouseScroll?.Invoke(mouseWheel, mousePosition, mouseDelta);
         }
 
         // Handle mouse buttons
@@ -46,23 +56,23 @@ internal class UiTree : Container
         {
             // Down
             case true when Raylib.IsMouseButtonDown(MouseButton.Left):
-                this.MouseDown?.Invoke(MouseButton.Left, mousePosition);
+                this.OnMouseDown?.Invoke(MouseButton.Left, mousePosition, mouseDelta);
                 break;
             case true when Raylib.IsMouseButtonDown(MouseButton.Middle):
-                this.MouseDown?.Invoke(MouseButton.Middle, mousePosition);
+                this.OnMouseDown?.Invoke(MouseButton.Middle, mousePosition, mouseDelta);
                 break;
             case true when Raylib.IsMouseButtonDown(MouseButton.Right):
-                this.MouseDown?.Invoke(MouseButton.Right, mousePosition);
+                this.OnMouseDown?.Invoke(MouseButton.Right, mousePosition, mouseDelta);
                 break;
             // Up
             case true when Raylib.IsMouseButtonUp(MouseButton.Left):
-                this.MouseUp?.Invoke(MouseButton.Left, mousePosition);
+                this.OnMouseUp?.Invoke(MouseButton.Left, mousePosition, mouseDelta);
                 break;
             case true when Raylib.IsMouseButtonUp(MouseButton.Middle):
-                this.MouseUp?.Invoke(MouseButton.Middle, mousePosition);
+                this.OnMouseUp?.Invoke(MouseButton.Middle, mousePosition, mouseDelta);
                 break;
             case true when Raylib.IsMouseButtonUp(MouseButton.Right):
-                this.MouseUp?.Invoke(MouseButton.Right, mousePosition);
+                this.OnMouseUp?.Invoke(MouseButton.Right, mousePosition, mouseDelta);
                 break;
         }
 
@@ -70,13 +80,13 @@ internal class UiTree : Container
         KeyboardKey key;
         while ((key = (KeyboardKey)Raylib.GetKeyPressed()) != KeyboardKey.Null)
         {
-            this.KeyPressed?.Invoke(key);
+            this.OnKeyPress?.Invoke(key);
         }
     }
 
     public override void UpdateLayout()
     {
-        if (!Raylib.IsWindowResized() && !this._isLayoutDirty)
+        if (!this._isLayoutDirty)
         {
             return;
         }
@@ -91,6 +101,16 @@ internal class UiTree : Container
 
     // Stop the invaldate layout from going further and mark the tree as dirty
     public override void InvalidateLayout() => this._isLayoutDirty = true;
+
+
+    public void UpdateWindow()
+    {
+        if (Raylib.IsWindowResized())
+        {
+            this._isLayoutDirty = true;
+            //this.WindowResized?.Invoke(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+        }
+    }
 
     public override void Render()
     {
@@ -165,7 +185,7 @@ internal class UiTree : Container
         {
             foreach (UiNode child in container.Children)
             {
-                this.TraverseTree(child, container, action);
+                this.TraverseTree(child, container, action, backwards, skipHiddenContainers);
             }
         }
 

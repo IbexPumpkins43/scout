@@ -21,19 +21,24 @@ internal class LabelButton : Container
 
         // Configure the container
         this.Orientation = ContainerOrientation.Horizontal;
-        this.DesiredSize = new(
-            UiLength.Flexible,
-            this.Label.FontSize + Style.Padding.InnerPx * 2);
         this.Children = [this.Label];
         this.IsEventDeadEnd = true;
+        this.BackgroundColour = UiManager.ColourScheme.ButtonBackgroundColour;
     }
 
     public override void Initialise()
     {
         // Subscribe to events
-        this.Root.MouseMoved += this.HandleMouseHover;
-        this.Root.MouseDown += this.HandleMouseDown;
-        this.Root.MouseUp += this.HandleMouseUp;
+        this.Root.OnMouseMove += this.HandleOnMouseHover;
+        this.Root.OnMouseDown += this.HandleOnMouseDown;
+        this.Root.OnMouseUp += this.HandleOnMouseUp;
+    }
+
+    public override void Measure()
+    {
+        this.DesiredSize = new(
+            UiLength.Flexible,
+            this.Label.FontSize + Style.Padding.InnerPx * 2);
     }
 
     public override void Render()
@@ -44,12 +49,12 @@ internal class LabelButton : Container
         Raylib.DrawRectangleLinesEx(this.Bounds, 1.0f, UiManager.ColourScheme.BorderColour);
     }
 
-    private void HandleMouseHover(Vector2 position)
+    private void HandleOnMouseHover(Vector2 position, Vector2 delta)
     {
         this.UpdateAppearance(position);
     }
 
-    private void HandleMouseDown(MouseButton button, Vector2 position)
+    private void HandleOnMouseDown(MouseButton button, Vector2 position, Vector2 delta)
     {
         if (button != MouseButton.Left)
         {
@@ -60,7 +65,7 @@ internal class LabelButton : Container
         this.UpdateAppearance(position);
     }
 
-    private void HandleMouseUp(MouseButton button, Vector2 position)
+    private void HandleOnMouseUp(MouseButton button, Vector2 position, Vector2 delta)
     {
         if (button != MouseButton.Left)
         {

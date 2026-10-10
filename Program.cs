@@ -18,16 +18,18 @@ internal class Program
         Raylib.SetTargetFPS(60);
 
         UiManager.ScreenManager.RegisterScreen<TestScreen>();
-        UiManager.ScreenManager.SwitchToScreen<TestScreen>();
+        UiManager.ScreenManager.RegisterScreen<ViewerScreen>();
+        UiManager.ScreenManager.SwitchToScreen<ViewerScreen>();
 
         while (!Raylib.WindowShouldClose())
         {
             if (UiManager.Tree != null)
             {
-                if (Raylib.IsKeyPressed(KeyboardKey.B))
+                /*if (Raylib.IsKeyPressed(KeyboardKey.B))
                 {
                     ((Container)UiManager.Tree.Children[0]).Hidden ^= true;
-                }
+                    UiManager.Tree.InvalidateLayout();
+                }*/
                 UiManager.Tree.Update();
                 UiManager.Tree.Render();
             }

@@ -5,14 +5,12 @@ namespace Scout.Ui.Screen.Screens;
 
 public class TestScreen : IScreen
 {
-    private LabelButton myButton = new LabelButton("Test button!");
+    private LabelButton _myButton = new("Test button!");
+    private Canvas _myCanvas = new();
 
     public void Load()
     {
-        this.myButton.Clicked += () =>
-        {
-            Console.WriteLine("test");
-        };
+
 
         // DesiredSize example
         /*UiManager.Tree = new(
@@ -33,8 +31,50 @@ public class TestScreen : IScreen
                 Children = []
             }
         ]);*/
-        // Full example
+
+        // Canvas + sidebar example
+        this._myButton.Clicked += () =>
+        {
+            Console.WriteLine("test");
+        };
         UiManager.Tree = new(
+        [
+            new Container()
+            {
+                Orientation = ContainerOrientation.Vertical,
+                Hidden = true,
+                DesiredSize = new(300.0f, UiLength.Flexible),
+                Children =
+                [
+                    // Logo
+                    new Container()
+                    {
+                        Orientation = ContainerOrientation.Horizontal,
+                        DesiredSize = new(UiLength.Flexible, 80.0f),
+                        Children =
+                        [
+                            new Label("Scout")
+                            {
+                                FontSize = Style.Font.LargeSize,
+                                DesiredSizeMode = UiDesiredSizeMode.FillParent
+                            },
+                            new Icon("Search")
+                            {
+                                Scale = 4.0f,
+                                DesiredSizeMode = UiDesiredSizeMode.FillParent
+                            },
+                        ]
+                    },
+                    this._myButton,
+                    new TestElement(new(50, 40), Color.SkyBlue),
+                    new TestElement(new(50, 40), Color.Lime),
+                    new TestElement(new(50, 40), Color.Orange),
+                ]
+            },
+            this._myCanvas
+        ]);
+        // Full example
+        /*UiManager.Tree = new(
         [
             new Container()
             {
@@ -98,7 +138,7 @@ public class TestScreen : IScreen
                     },
                 ]
             }
-        ]);
+        ]);*/
     }
 
     public void Dispose() { }

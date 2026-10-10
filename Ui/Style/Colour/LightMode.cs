@@ -22,8 +22,9 @@ internal class LightMode : ColourScheme
 
         this.TooltipBackgroundColour = Color.Yellow;
 
-        this.BorderColour = Color.Black;
-        this.BorderColourAlt = Color.Gray;
+        this.BorderColour = Color.LightGray;
+        this.BorderColourAlt = Color.DarkGray;
+
         this.Background = Color.White;
     }
 }
