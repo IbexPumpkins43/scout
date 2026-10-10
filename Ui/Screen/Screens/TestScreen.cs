@@ -48,6 +48,7 @@ public class TestScreen : IScreen
                         Name = "Search",
                         Scale = 4.0f
                     },
+                    new LabelButton("Search"),
                     new TestElement(new(50, UiLength.Flexible), Color.SkyBlue),
                     new TestElement(new(50, UiLength.Flexible), Color.Lime),
                     new TestElement(new(50, UiLength.Flexible), Color.Orange),

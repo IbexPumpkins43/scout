@@ -1,5 +1,6 @@
 using System.Numerics;
 using Raylib_cs;
+using Scout.Ui.Elements;
 
 namespace Scout.Ui;
 
@@ -24,9 +25,9 @@ internal abstract class UiNode
     public Vector2 ActualSize;
     public Rectangle Bounds;
 
-    public UiNode? Parent;
-    public UiNode[]? Children;
+    public Container? Parent;
 
+    public virtual void Measure() {}
     public virtual void UpdateLayout() {}
     public virtual void Render() {}
 }

@@ -14,17 +14,21 @@ internal class Label : UiNode
     private Vector2 _textSize;
     private Vector2 _textPosition;
 
-    public override void UpdateLayout()
+    public override void Measure()
     {
         this._textSize = Raylib.MeasureTextEx(
             this.Font,
             this.Text,
             this.FontSize,
             this.FontSpacing);
+        this.DesiredSize = new UiSize(this._textSize.X, this._textSize.Y);
+    }
+
+    public override void UpdateLayout()
+    {
         this._textPosition = new(
             this.Bounds.X + (this.Bounds.Width / 2) - (this._textSize.X / 2),
             this.Bounds.Y + (this.Bounds.Height / 2) - (this._textSize.Y / 2));
-        this.DesiredSize = new UiSize(this._textSize.X, this._textSize.Y);
     }
 
     public override void Render()

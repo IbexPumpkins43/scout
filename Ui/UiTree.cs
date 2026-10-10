@@ -17,6 +17,7 @@ internal class UiTree : Container
 
         this.SetParents();
         this.UpdateRootDimensions();
+        this.MeasureElements();
         this.CalculateActualSizes();
         this.UpdateElementLayouts();
     }
@@ -26,6 +27,7 @@ internal class UiTree : Container
         if (Raylib.IsWindowResized() || Raylib.IsKeyPressed(KeyboardKey.B))
         {
             this.UpdateRootDimensions();
+            this.MeasureElements();
             this.CalculateActualSizes();
             this.UpdateElementLayouts();
         }
@@ -42,12 +44,23 @@ internal class UiTree : Container
     // Recursive internal method
     private void Render(UiNode node)
     {
+        // Skip hidden containers and their children
+        if (node is Container { Hidden: true })
+        {
+            return;
+        }
+
         if (node is not UiTree)
         {
             node.Render();
         }
 
-        foreach (UiNode child in node.Children ?? [])
+        if (node is not Container container)
+        {
+            return;
+        }
+
+        foreach (UiNode child in container.Children)
         {
             this.Render(child);
         }
@@ -56,13 +69,18 @@ internal class UiTree : Container
     // Can't use "this" in default args so this is what I came up with
     private void SetParents() => this.SetParents(this, null);
     // Recursive version
-    private void SetParents(UiNode node, UiNode? parent)
+    private void SetParents(UiNode node, Container? parent)
     {
         node.Parent = parent;
 
-        foreach (UiNode child in node.Children ?? [])
+        if (node is not Container container)
         {
-            this.SetParents(child, node);
+            return;
+        }
+
+        foreach (UiNode child in container.Children)
+        {
+            this.SetParents(child, container);
         }
     }
 
@@ -83,7 +101,7 @@ internal class UiTree : Container
     private void CalculateActualSizes(UiNode node, int nodeIdx)
     {
         // Skip hidden containers and their children
-        if (node is Container container && container.Hidden)
+        if (node is Container { Hidden: true })
         {
             return;
         }
@@ -99,11 +117,11 @@ internal class UiTree : Container
             node.Bounds = newNodeBounds;
         }
 
-        if (node.Children != null)
+        if (node is Container container)
         {
-            for (int i = 0; i < node.Children.Length; i++)
+            for (int i = 0; i < container.Children.Length; i++)
             {
-                this.CalculateActualSizes(node.Children[i], i);
+                this.CalculateActualSizes(container.Children[i], i);
             }
         }
     }
@@ -128,11 +146,11 @@ internal class UiTree : Container
         {
             case ContainerFill.None:
                 nodeBounds.Width = node.DesiredSize.Width.IsFlexible ? 0.0f : width;
-                nodeBounds.Height = node.DesiredSize.Height.IsFlexible ? 0.0f : height;
+                nodeBounds.Height = height;
                 break;
             case ContainerFill.FillHorizontally:
                 nodeBounds.Width = parent.Bounds.Width;
-                nodeBounds.Height = node.DesiredSize.Height.IsFlexible ? 0.0f : height;
+                nodeBounds.Height = height;
                 break;
             case ContainerFill.FillVertically:
                 nodeBounds.Width = node.DesiredSize.Width.IsFlexible ? 0.0f : width;
@@ -168,7 +186,7 @@ internal class UiTree : Container
         switch (parent.Fill)
         {
             case ContainerFill.None:
-                nodeBounds.Width = node.DesiredSize.Width.IsFlexible ? 0.0f : width;
+                nodeBounds.Width = width;
                 nodeBounds.Height = node.DesiredSize.Height.IsFlexible ? 0.0f : height;
                 break;
             case ContainerFill.FillHorizontally:
@@ -176,7 +194,7 @@ internal class UiTree : Container
                 nodeBounds.Height = node.DesiredSize.Height.IsFlexible ? 0.0f : height;
                 break;
             case ContainerFill.FillVertically:
-                nodeBounds.Width = node.DesiredSize.Width.IsFlexible ? 0.0f : width;
+                nodeBounds.Width = width;
                 nodeBounds.Height = parent.Bounds.Height;
                 break;
             case ContainerFill.FillBoth:
@@ -197,9 +215,32 @@ internal class UiTree : Container
     {
         node.UpdateLayout();
 
-        foreach (UiNode child in node.Children ?? [])
+        if (node is not Container container)
+        {
+            return;
+        }
+
+        foreach (UiNode child in container.Children)
         {
             this.UpdateElementLayouts(child);
+        }
+    }
+
+    // Make the call look good
+    private void MeasureElements() => this.MeasureElements(this);
+    // Recursive version
+    private void MeasureElements(UiNode node)
+    {
+        node.Measure();
+
+        if (node is not Container container)
+        {
+            return;
+        }
+
+        foreach (UiNode child in container.Children)
+        {
+            this.MeasureElements(child);
         }
     }
 }
