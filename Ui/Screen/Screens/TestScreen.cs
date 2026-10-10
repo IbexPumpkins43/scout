@@ -5,8 +5,15 @@ namespace Scout.Ui.Screen.Screens;
 
 public class TestScreen : IScreen
 {
+    private LabelButton myButton = new LabelButton("Test button!");
+
     public void Load()
     {
+        this.myButton.Clicked += () =>
+        {
+            Console.WriteLine("test");
+        };
+
         // DesiredSize example
         /*UiManager.Tree = new(
         [
@@ -56,7 +63,7 @@ public class TestScreen : IScreen
                             },
                         ]
                     },
-                    new LabelButton("Test button!"),
+                    myButton,
                     new TestElement(new(50, 40), Color.SkyBlue),
                     new TestElement(new(50, 40), Color.Lime),
                     new TestElement(new(50, 40), Color.Orange),

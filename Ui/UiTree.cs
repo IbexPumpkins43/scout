@@ -9,7 +9,8 @@ internal class UiTree : Container
 {
     // Elements can subscribe to these to get the events
     public event Action<Vector2>? MouseMoved;
-    public event Action<MouseButton, Vector2>? MousePressed;
+    public event Action<MouseButton, Vector2>? MouseDown;
+    public event Action<MouseButton, Vector2>? MouseUp;
     public event Action<KeyboardKey>? KeyPressed;
 
     private bool _isLayoutDirty = true;
@@ -43,14 +44,25 @@ internal class UiTree : Container
         // Handle mouse buttons
         switch (true)
         {
-            case true when Raylib.IsMouseButtonPressed(MouseButton.Left):
-                this.MousePressed?.Invoke(MouseButton.Left, mousePosition);
+            // Down
+            case true when Raylib.IsMouseButtonDown(MouseButton.Left):
+                this.MouseDown?.Invoke(MouseButton.Left, mousePosition);
                 break;
-            case true when Raylib.IsMouseButtonPressed(MouseButton.Middle):
-                this.MousePressed?.Invoke(MouseButton.Middle, mousePosition);
+            case true when Raylib.IsMouseButtonDown(MouseButton.Middle):
+                this.MouseDown?.Invoke(MouseButton.Middle, mousePosition);
                 break;
-            case true when Raylib.IsMouseButtonPressed(MouseButton.Right):
-                this.MousePressed?.Invoke(MouseButton.Right, mousePosition);
+            case true when Raylib.IsMouseButtonDown(MouseButton.Right):
+                this.MouseDown?.Invoke(MouseButton.Right, mousePosition);
+                break;
+            // Up
+            case true when Raylib.IsMouseButtonUp(MouseButton.Left):
+                this.MouseUp?.Invoke(MouseButton.Left, mousePosition);
+                break;
+            case true when Raylib.IsMouseButtonUp(MouseButton.Middle):
+                this.MouseUp?.Invoke(MouseButton.Middle, mousePosition);
+                break;
+            case true when Raylib.IsMouseButtonUp(MouseButton.Right):
+                this.MouseUp?.Invoke(MouseButton.Right, mousePosition);
                 break;
         }
 

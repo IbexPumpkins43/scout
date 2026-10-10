@@ -7,6 +7,9 @@ namespace Scout.Ui.Elements;
 internal class LabelButton : Container
 {
     public Label Label;
+    public event Action? Clicked;
+
+    private bool _isPressed;
 
     public LabelButton(string text)
     {
@@ -23,32 +26,64 @@ internal class LabelButton : Container
             this.Label.FontSize + Style.Padding.InnerPx * 2);
         this.Children = [this.Label];
         this.IsEventDeadEnd = true;
-
-
     }
 
     public override void Initialise()
     {
         // Subscribe to events
         this.Root.MouseMoved += this.HandleMouseHover;
-        this.Root.MousePressed += this.HandleMouseClick;
+        this.Root.MouseDown += this.HandleMouseDown;
+        this.Root.MouseUp += this.HandleMouseUp;
     }
 
     public override void Render()
     {
         base.Render();
+
         // Button border
         Raylib.DrawRectangleLinesEx(this.Bounds, 1.0f, UiManager.ColourScheme.BorderColour);
     }
 
     private void HandleMouseHover(Vector2 position)
     {
-        this.BackgroundColour = Raylib.CheckCollisionPointRec(position, this.Bounds)
-            ? UiManager.ColourScheme.ButtonBackgroundAltColour
-            : UiManager.ColourScheme.ButtonBackgroundColour;
+        this.UpdateAppearance(position);
     }
 
-    private void HandleMouseClick(MouseButton button, Vector2 position)
+    private void HandleMouseDown(MouseButton button, Vector2 position)
     {
+        if (button != MouseButton.Left)
+        {
+            return;
+        }
+
+        this._isPressed = Raylib.CheckCollisionPointRec(position, this.Bounds);
+        this.UpdateAppearance(position);
+    }
+
+    private void HandleMouseUp(MouseButton button, Vector2 position)
+    {
+        if (button != MouseButton.Left)
+        {
+            return;
+        }
+
+        this._isPressed = false;
+        this.UpdateAppearance(position);
+    }
+
+    private void UpdateAppearance(Vector2 mousePosition)
+    {
+        bool isHovered = Raylib.CheckCollisionPointRec(mousePosition, this.Bounds);
+        bool isPressed = this._isPressed && isHovered;
+
+        this.BackgroundColour = isPressed
+            ? UiManager.ColourScheme.ButtonDownBackgroundColour
+            : isHovered
+                ? UiManager.ColourScheme.ButtonBackgroundAltColour
+                : UiManager.ColourScheme.ButtonBackgroundColour;
+
+        this.Label.Colour = isPressed
+            ? UiManager.ColourScheme.ButtonDownTextColour
+            : UiManager.ColourScheme.TextColour;
     }
 }
