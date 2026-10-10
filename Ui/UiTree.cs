@@ -10,7 +10,6 @@ internal class UiTree : Container
     {
         // Container properties
         this.Orientation = ContainerOrientation.Horizontal;
-        this.Fill = ContainerFill.FillBoth;
         this.BackgroundColour = Color.White;
 
         this.Children = children;

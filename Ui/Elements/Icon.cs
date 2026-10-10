@@ -5,23 +5,30 @@ namespace Scout.Ui.Elements;
 
 internal class Icon : UiNode
 {
-    public required string Name;
+    public string Name;
     public float Scale = 1.0f;
     public UiDesiredSizeMode DesiredSizeMode = UiDesiredSizeMode.FitToContent;
 
     private Rectangle _iconSource;
     private Rectangle _iconDestination;
+    private Vector2 _iconSize;
+
+    public Icon(string name)
+    {
+        this.Name = name;
+    }
 
     public override void Measure()
     {
         this._iconSource = UiManager.AssetsManager.IconsLookup[this.Name];
 
-        this.DesiredSize =
+        this._iconSize = new(
+            this._iconSource.Width * this.Scale,
+            this._iconSource.Height * this.Scale);
+
         this.DesiredSize = this.DesiredSizeMode switch
         {
-            UiDesiredSizeMode.FitToContent => new(
-                this._iconSource.Width * this.Scale,
-                this._iconSource.Height * this.Scale),
+            UiDesiredSizeMode.FitToContent => new(this._iconSize.X, this._iconSize.Y),
             UiDesiredSizeMode.FillParent => UiSize.Flexible
         };
     }
@@ -29,10 +36,10 @@ internal class Icon : UiNode
     public override void UpdateLayout()
     {
         this._iconDestination = new(
-            x: this.Bounds.X + (this.Bounds.Width - this.DesiredSize.Width.Value) / 2,
-            y: this.Bounds.Y + (this.Bounds.Height - this.DesiredSize.Height.Value) / 2,
-            width: this.DesiredSize.Width.Value,
-            height: this.DesiredSize.Height.Value
+            x: this.Bounds.X + (this.Bounds.Width - this._iconSize.X) / 2,
+            y: this.Bounds.Y + (this.Bounds.Height - this._iconSize.Y) / 2,
+            width: this._iconSize.X,
+            height: this._iconSize.Y
         );
     }
 

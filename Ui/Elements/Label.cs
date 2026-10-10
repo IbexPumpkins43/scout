@@ -5,7 +5,7 @@ namespace Scout.Ui.Elements;
 
 internal class Label : UiNode
 {
-    public required string Text;
+    public string Text;
     public Color Colour = UiManager.ColourScheme.TextColour;
     public Font Font = UiManager.AssetsManager.GetRegularFont(Style.Font.LargeSize);
     public int FontSize = Style.Font.MediumSize;
@@ -14,6 +14,11 @@ internal class Label : UiNode
 
     private Vector2 _textSize;
     private Vector2 _textPosition;
+
+    public Label(string text)
+    {
+        this.Text = text;
+    }
 
     public override void Measure()
     {

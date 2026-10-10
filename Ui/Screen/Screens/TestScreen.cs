@@ -32,7 +32,6 @@ public class TestScreen : IScreen
             new Container()
             {
                 Orientation = ContainerOrientation.Vertical,
-                Fill = ContainerFill.FillHorizontally,
                 BackgroundColour = Color.White,
                 Hidden = true,
                 DesiredSize = new(300.0f, UiLength.Flexible),
@@ -42,41 +41,35 @@ public class TestScreen : IScreen
                     new Container()
                     {
                         Orientation = ContainerOrientation.Horizontal,
-                        Fill = ContainerFill.FillHorizontally,
+                        DesiredSize = new(UiLength.Flexible, 80.0f),
                         Children =
                         [
-                            new Label()
+                            new Label("Scout")
                             {
-                                Text = "Scout",
                                 FontSize = Style.Font.LargeSize,
                                 DesiredSizeMode = UiDesiredSizeMode.FillParent
                             },
-                            new Icon()
+                            new Icon("Search")
                             {
-                                Name = "Search",
                                 Scale = 4.0f,
                                 DesiredSizeMode = UiDesiredSizeMode.FillParent
                             },
                         ]
                     },
-                    new LabelButton("Search")
-                    {
-                    },
-                    new TestElement(new(50, UiLength.Flexible), Color.SkyBlue),
-                    new TestElement(new(50, UiLength.Flexible), Color.Lime),
-                    new TestElement(new(50, UiLength.Flexible), Color.Orange),
+                    new LabelButton("Test button!"),
+                    new TestElement(new(50, 40), Color.SkyBlue),
+                    new TestElement(new(50, 40), Color.Lime),
+                    new TestElement(new(50, 40), Color.Orange),
                 ]
             },
             new Container()
             {
                 Orientation = ContainerOrientation.Vertical,
-                Fill = ContainerFill.FillBoth,
                 Children =
                 [
                     new Container()
                     {
                         Orientation = ContainerOrientation.Vertical,
-                        Fill = ContainerFill.FillHorizontally,
                         BackgroundColour = Color.Gray,
                         Children =
                         [
@@ -88,7 +81,6 @@ public class TestScreen : IScreen
                     new Container()
                     {
                         Orientation = ContainerOrientation.Vertical,
-                        Fill = ContainerFill.FillBoth,
                         BackgroundColour = Color.Black,
                         Children =
                         [

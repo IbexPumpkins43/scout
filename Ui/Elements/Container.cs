@@ -8,20 +8,12 @@ internal enum ContainerOrientation
     Horizontal
 }
 
-internal enum ContainerFill
-{
-    None,
-    FillHorizontally,
-    FillVertically,
-    FillBoth
-}
-
 internal class Container : UiNode
 {
     public ContainerOrientation Orientation;
-    public ContainerFill Fill;
     public Color? BackgroundColour;
     public bool Hidden;
+    public bool IsEventDeadEnd;
 
     public UiNode[] Children = [];
 
@@ -59,10 +51,6 @@ internal class Container : UiNode
             ? Math.Max(0, availableSpace - fixedSpace) / flexibleCount
             : 0.0f;
 
-        bool fillPerpendicularAxis = isVertical
-            ? this.Fill is ContainerFill.FillHorizontally or ContainerFill.FillBoth
-            : this.Fill is ContainerFill.FillVertically or ContainerFill.FillBoth;
-
         float mainOffset = 0.0f;
 
         foreach (UiNode child in children)
@@ -75,7 +63,7 @@ internal class Container : UiNode
             float mainSize = main.IsFlexible ? flexibleNodeSize : main.Value;
 
             // Similar to the calculation above but for the perpendicular axis
-            float perpendicularSize = perpendicular.IsFlexible || fillPerpendicularAxis
+            float perpendicularSize = perpendicular.IsFlexible
                 ? (isVertical ? this.Bounds.Width : this.Bounds.Height)
                 : perpendicular.Value;
 
