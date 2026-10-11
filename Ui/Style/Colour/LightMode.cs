@@ -26,5 +26,6 @@ internal class LightMode : ColourScheme
         this.BorderColourAlt = Color.DarkGray;
 
         this.Background = Color.White;
+        this.BackgroundAlt = new Color(220, 220, 220, 255);
     }
 }

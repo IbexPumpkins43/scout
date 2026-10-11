@@ -33,6 +33,7 @@ internal class Label : UiNode
 
     public override void UpdateLayout()
     {
+        // Recentre the text
         this._textPosition = new(
             this.Bounds.X + (this.Bounds.Width / 2) - (this._textSize.X / 2),
             this.Bounds.Y + (this.Bounds.Height / 2) - (this._textSize.Y / 2));

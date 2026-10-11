@@ -1,6 +1,7 @@
 using System.Numerics;
 using Raylib_cs;
 using Scout.Map.Graph;
+using Scout.Ui;
 using Scout.Ui.Elements;
 
 namespace Scout.Map;
@@ -68,6 +69,7 @@ internal class Renderer : IDisposable
     private void OnRerender()
     {
         Raylib.BeginMode2D(this._camera);
+        Raylib.ClearBackground(new Color(250, 250, 250, 255));
         this.RenderRoads();
         this.RenderBuildings();
         Raylib.EndMode2D();

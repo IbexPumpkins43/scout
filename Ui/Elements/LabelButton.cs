@@ -4,9 +4,17 @@ using Raylib_cs;
 
 namespace Scout.Ui.Elements;
 
+internal enum LabelButtonAlign
+{
+    Left,
+    Middle,
+    Right
+}
+
 internal class LabelButton : Container
 {
     public Label Label;
+    public LabelButtonAlign LabelAlign = LabelButtonAlign.Middle;
     public UiDesiredSizeMode DesiredSizeMode = UiDesiredSizeMode.FillParent;
     public bool HideBorder;
 
@@ -19,18 +27,23 @@ internal class LabelButton : Container
         // Configure the label
         this.Label = new Label(text)
         {
-            DesiredSizeMode = UiDesiredSizeMode.FillParent
+            DesiredSizeMode = this.LabelAlign == LabelButtonAlign.Middle
+                ? UiDesiredSizeMode.FillParent
+                : UiDesiredSizeMode.FitToContent
         };
 
         // Configure the container
         this.Orientation = ContainerOrientation.Horizontal;
         this.Children = [this.Label];
-        this.IsEventDeadEnd = true;
         this.BackgroundColour = UiManager.ColourScheme.ButtonBackgroundColour;
     }
 
     public override void Initialise()
     {
+        this.Label.DesiredSizeMode = this.LabelAlign == LabelButtonAlign.Middle
+            ? UiDesiredSizeMode.FillParent
+            : UiDesiredSizeMode.FitToContent;
+
         // Subscribe to events
         this.Root.OnMouseMove += this.HandleOnMouseHover;
         this.Root.OnMouseDown += this.HandleOnMouseDown;
@@ -84,8 +97,16 @@ internal class LabelButton : Container
             return;
         }
 
+        bool wasClicked = this._isPressed && Raylib.CheckCollisionPointRec(position, this.Bounds);
+
         this._isPressed = false;
         this.UpdateAppearance(position);
+
+        if (wasClicked)
+        {
+            this.OnClick?.Invoke();
+        }
+
     }
 
     private void UpdateAppearance(Vector2 mousePosition)

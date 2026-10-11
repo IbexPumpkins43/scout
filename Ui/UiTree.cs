@@ -55,23 +55,23 @@ internal class UiTree : Container
         switch (true)
         {
             // Down
-            case true when Raylib.IsMouseButtonDown(MouseButton.Left):
+            case true when Raylib.IsMouseButtonPressed(MouseButton.Left):
                 this.OnMouseDown?.Invoke(MouseButton.Left, mousePosition, mouseDelta);
                 break;
-            case true when Raylib.IsMouseButtonDown(MouseButton.Middle):
+            case true when Raylib.IsMouseButtonPressed(MouseButton.Middle):
                 this.OnMouseDown?.Invoke(MouseButton.Middle, mousePosition, mouseDelta);
                 break;
-            case true when Raylib.IsMouseButtonDown(MouseButton.Right):
+            case true when Raylib.IsMouseButtonPressed(MouseButton.Right):
                 this.OnMouseDown?.Invoke(MouseButton.Right, mousePosition, mouseDelta);
                 break;
-            // Up
-            case true when Raylib.IsMouseButtonUp(MouseButton.Left):
+            // Released
+            case true when Raylib.IsMouseButtonReleased(MouseButton.Left):
                 this.OnMouseUp?.Invoke(MouseButton.Left, mousePosition, mouseDelta);
                 break;
-            case true when Raylib.IsMouseButtonUp(MouseButton.Middle):
+            case true when Raylib.IsMouseButtonReleased(MouseButton.Middle):
                 this.OnMouseUp?.Invoke(MouseButton.Middle, mousePosition, mouseDelta);
                 break;
-            case true when Raylib.IsMouseButtonUp(MouseButton.Right):
+            case true when Raylib.IsMouseButtonReleased(MouseButton.Right):
                 this.OnMouseUp?.Invoke(MouseButton.Right, mousePosition, mouseDelta);
                 break;
         }
@@ -117,15 +117,38 @@ internal class UiTree : Container
         Raylib.BeginDrawing();
         Raylib.ClearBackground(UiManager.ColourScheme.Background);
 
+        // Render normal elements
         this.TraverseTree(this, (node, _) =>
         {
-            if (node is not UiTree)
+            if (node is not UiTree && !IsFloating(node))
+            {
+                node.Render();
+            }
+        }, skipHiddenContainers: true);
+
+        // Render floating elements and their children
+        this.TraverseTree(this, (node, _) =>
+        {
+            if (IsFloating(node))
             {
                 node.Render();
             }
         }, skipHiddenContainers: true);
 
         Raylib.EndDrawing();
+    }
+
+    private static bool IsFloating(UiNode node)
+    {
+        for (UiNode? current = node; current != null; current = current.Parent)
+        {
+            if (current is FloatingContainer)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void SetReferences()

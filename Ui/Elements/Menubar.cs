@@ -2,10 +2,6 @@ using Raylib_cs;
 
 namespace Scout.Ui.Elements;
 
-internal readonly record struct Menu(
-    string Name,
-    string[] Entires);
-
 internal class Menubar : Container
 {
     public Menu[] Menus;
@@ -16,13 +12,7 @@ internal class Menubar : Container
 
         // Container configuration
         this.Orientation = ContainerOrientation.Horizontal;
-        this.Children =
-        [
-            new LabelButton("File"){ DesiredSizeMode = UiDesiredSizeMode.FitToContent, HideBorder = true },
-            new LabelButton("Edit"){ DesiredSizeMode = UiDesiredSizeMode.FitToContent, HideBorder = true },
-            new LabelButton("Help"){ DesiredSizeMode = UiDesiredSizeMode.FitToContent, HideBorder = true },
-        ];
-        this.IsEventDeadEnd = true;
+        this.Children = this.Menus;
         this.BackgroundColour = UiManager.ColourScheme.ButtonBackgroundColour;
     }
 

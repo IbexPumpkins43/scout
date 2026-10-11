@@ -1,3 +1,5 @@
+using Raylib_cs;
+using NativeFileDialogNET;
 using Scout.Map;
 using Scout.Map.Graph;
 using Scout.Ui.Elements;
@@ -12,63 +14,50 @@ internal class ViewerScreen : IScreen
     private GraphData _graphData;
     private Graph _graph;
 
+    private Container _leftSidebar;
+    private Container _rightSidebar;
+
     public void Load()
     {
         // Import the map
-        using MapImporter mapImporter = new(SettingsData.DataPath + "Maps/monaco.osm.pbf");
-        MapData mapData = mapImporter.Import();
-
-        // Setup the viewer state
-        this._renderData = mapData.RenderData;
-        this._graphData = mapData.GraphData;
-        this._renderer = new(
-            renderData: this._renderData,
-            graphData: this._graphData,
-            font: UiManager.AssetsManager.GetRegularFont(64));
-        this._graph = new(this._graphData);
+        this.LoadMap(SettingsData.DataPath + "Maps/monaco.osm.pbf");
 
         // Build the user interface
+        this._leftSidebar = new()
+        {
+            Orientation = ContainerOrientation.Vertical,
+            DesiredSize = new(500.0f, UiLength.Flexible),
+            BackgroundColour = UiManager.ColourScheme.Background,
+            Hidden = true
+        };
+        this._rightSidebar = new()
+        {
+            Orientation = ContainerOrientation.Vertical,
+            DesiredSize = new(500.0f, UiLength.Flexible),
+            BackgroundColour = UiManager.ColourScheme.Background,
+            Hidden = true
+        };
         UiManager.Tree = new(
         [
-            new Menubar([]),
-            // Sidebar
-            /*new Container()
+            new Menubar(
+            [
+                new("File",
+                [
+                    new("Open map...", this.OpenMap),
+                    new("Download map...", this.DownloadMap),
+                    new("Quit", () => Raylib.CloseWindow())
+                ])
+            ]),
+            new Container()
             {
-                Orientation = ContainerOrientation.Vertical,
-                Hidden = false,
-                DesiredSize = new(300.0f, UiLength.Flexible),
+                Orientation = ContainerOrientation.Horizontal,
                 Children =
                 [
-                    // Title
-                    new Label("Toolbox")
-                    {
-                        FontSize = Style.Font.LargeSize,
-                        DesiredSize = new (UiLength.Flexible, Style.Font.LargeSize)
-                    },
-                    new LabelButton("Open map..."),
-                    new LabelButton("Quit"),
-                    // Logo
-                    /*new Container()
-                    {
-                        Orientation = ContainerOrientation.Horizontal,
-                        DesiredSize = new(UiLength.Flexible, 80.0f),
-                        Children =
-                        [
-                            new Label("Scout")
-                            {
-                                FontSize = Style.Font.LargeSize,
-                                DesiredSizeMode = UiDesiredSizeMode.FillParent
-                            },
-                            new Icon("Search")
-                            {
-                                Scale = 4.0f,
-                                DesiredSizeMode = UiDesiredSizeMode.FillParent
-                            },
-                        ]
-                    },
+                    this._leftSidebar,
+                    this._renderer.Canvas,
+                    this._rightSidebar
                 ]
-            },*/
-            this._renderer.Canvas
+            },
         ])
         {
             Orientation = ContainerOrientation.Vertical
@@ -84,4 +73,34 @@ internal class ViewerScreen : IScreen
     {
 
     }
+
+    private void LoadMap(string path)
+    {
+        using MapImporter mapImporter = new(path);
+        MapData mapData = mapImporter.Import();
+
+        // Setup the viewer state
+        this._renderData = mapData.RenderData;
+        this._graphData = mapData.GraphData;
+        this._renderer = new(
+            renderData: this._renderData,
+            graphData: this._graphData,
+            font: UiManager.AssetsManager.GetRegularFont(64));
+        this._graph = new(this._graphData);
+    }
+
+    private void OpenMap()
+    {
+        this._leftSidebar.Hidden = false;
+        this._leftSidebar.Children =
+        [
+            new Label("Open map")
+            {
+                Font = UiManager.AssetsManager.GetRegularFont(40),
+                FontSize = 40
+            }
+        ];
+    }
+
+    private void DownloadMap() {}
 }

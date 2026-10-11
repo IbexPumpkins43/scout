@@ -1,3 +1,4 @@
+using System.Numerics;
 using Raylib_cs;
 
 namespace Scout.Ui.Elements;
@@ -13,7 +14,6 @@ internal class Container : UiNode
     public ContainerOrientation Orientation;
     public Color? BackgroundColour;
     public bool Hidden;
-    public bool IsEventDeadEnd;
 
     public UiNode[] Children = [];
 
@@ -27,6 +27,7 @@ internal class Container : UiNode
 
         UiNode[] children = this.Children
             .Where(child => child is not Container { Hidden: true })
+            .Where(child => child is not FloatingContainer)
             .ToArray();
 
         // Anonymous function for geting the length of the axis where the container arranges the
@@ -43,16 +44,19 @@ internal class Container : UiNode
 
         float availableSpace = isVertical ? this.Bounds.Height : this.Bounds.Width;
         float fixedSpace = children
+            //.Where(child => child is Container && child is Container { Position: null })
             .Where(child => !GetMainLength(child).IsFlexible)
             .Sum(child => GetMainLength(child).Value);
 
-        int flexibleCount = children.Count(child => GetMainLength(child).IsFlexible);
+        int flexibleCount = children
+            .Count(child => GetMainLength(child).IsFlexible);
         float flexibleNodeSize = flexibleCount > 0
             ? Math.Max(0, availableSpace - fixedSpace) / flexibleCount
             : 0.0f;
 
         float mainOffset = 0.0f;
 
+        // Calculate containers & children classes
         foreach (UiNode child in children)
         {
             UiLength main = GetMainLength(child);
@@ -69,9 +73,17 @@ internal class Container : UiNode
 
             child.Bounds = isVertical
                 // Vertical
-                ? new(this.Bounds.X, this.Bounds.Y + mainOffset, perpendicularSize, mainSize)
+                ? new(
+                    x: this.Bounds.X,
+                    y: this.Bounds.Y + mainOffset,
+                    width: perpendicularSize,
+                    height: mainSize)
                 // Horizontal
-                : new(this.Bounds.X + mainOffset, this.Bounds.Y, mainSize, perpendicularSize);
+                : new(
+                    x: this.Bounds.X + mainOffset,
+                    y: this.Bounds.Y,
+                    width: mainSize,
+                    height: perpendicularSize);
             child.ActualSize = child.Bounds.Size;
 
             // Update the offset
@@ -81,6 +93,32 @@ internal class Container : UiNode
             {
                 container.CalculateBounds();
             }
+        }
+
+        // Calculate floating children separately
+        foreach (FloatingContainer floating in this.Children.OfType<FloatingContainer>())
+        {
+            if (floating.Hidden)
+            {
+                continue;
+            }
+
+            float width = floating.DesiredSize.Width.IsFlexible
+                ? this.Bounds.Width
+                : floating.DesiredSize.Width.Value;
+
+            float height = floating.DesiredSize.Height.IsFlexible
+                ? this.Bounds.Height
+                : floating.DesiredSize.Height.Value;
+
+            floating.Bounds = new(
+                this.Bounds.Position + floating.Position,
+                width,
+                height);
+
+            floating.ActualSize = floating.Bounds.Size;
+
+            floating.CalculateBounds();
         }
     }
 
