@@ -55,23 +55,23 @@ internal class UiTree : Container
         switch (true)
         {
             // Down
-            case true when Raylib.IsMouseButtonPressed(MouseButton.Left):
+            case true when Raylib.IsMouseButtonDown(MouseButton.Left):
                 this.OnMouseDown?.Invoke(MouseButton.Left, mousePosition, mouseDelta);
                 break;
-            case true when Raylib.IsMouseButtonPressed(MouseButton.Middle):
+            case true when Raylib.IsMouseButtonDown(MouseButton.Middle):
                 this.OnMouseDown?.Invoke(MouseButton.Middle, mousePosition, mouseDelta);
                 break;
-            case true when Raylib.IsMouseButtonPressed(MouseButton.Right):
+            case true when Raylib.IsMouseButtonDown(MouseButton.Right):
                 this.OnMouseDown?.Invoke(MouseButton.Right, mousePosition, mouseDelta);
                 break;
-            // Released
-            case true when Raylib.IsMouseButtonReleased(MouseButton.Left):
+            // Up
+            case true when Raylib.IsMouseButtonUp(MouseButton.Left):
                 this.OnMouseUp?.Invoke(MouseButton.Left, mousePosition, mouseDelta);
                 break;
-            case true when Raylib.IsMouseButtonReleased(MouseButton.Middle):
+            case true when Raylib.IsMouseButtonUp(MouseButton.Middle):
                 this.OnMouseUp?.Invoke(MouseButton.Middle, mousePosition, mouseDelta);
                 break;
-            case true when Raylib.IsMouseButtonReleased(MouseButton.Right):
+            case true when Raylib.IsMouseButtonUp(MouseButton.Right):
                 this.OnMouseUp?.Invoke(MouseButton.Right, mousePosition, mouseDelta);
                 break;
         }

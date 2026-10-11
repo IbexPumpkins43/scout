@@ -223,8 +223,8 @@ internal class Renderer : IDisposable
 
     private BoundBox GetViewBoundBox()
     {
-        float halfWidth = Raylib.GetScreenWidth() / (2.0f * this._camera.Zoom);
-        float halfHeight = Raylib.GetScreenHeight() / (2.0f * this._camera.Zoom);
+        float halfWidth = this.Canvas.Bounds.Width / (2.0f * this._camera.Zoom);
+        float halfHeight = this.Canvas.Bounds.Height / (2.0f * this._camera.Zoom);
 
         return new(
             MinX: this._camera.Target.X - halfWidth,
