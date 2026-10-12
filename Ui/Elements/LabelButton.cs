@@ -16,7 +16,6 @@ internal class LabelButton : Container
     public Label Label;
     public LabelButtonAlign LabelAlign = LabelButtonAlign.Middle;
     public UiDesiredSizeMode DesiredSizeMode = UiDesiredSizeMode.FillParent;
-    public bool HideBorder;
 
     public event Action? OnClick;
 
@@ -63,17 +62,6 @@ internal class LabelButton : Container
         };
     }
 
-    public override void Render()
-    {
-        base.Render();
-
-        // Button border
-        if (!this.HideBorder)
-        {
-            Raylib.DrawRectangleLinesEx(this.Bounds, 1.0f, UiManager.ColourScheme.BorderColour);
-        }
-    }
-
     private void HandleOnMouseHover(Vector2 position, Vector2 delta)
     {
         this.UpdateAppearance(position);
@@ -81,7 +69,7 @@ internal class LabelButton : Container
 
     private void HandleOnMouseDown(MouseButton button, Vector2 position, Vector2 delta)
     {
-        if (button != MouseButton.Left)
+        if (!this.IsVisible || button != MouseButton.Left)
         {
             return;
         }
@@ -92,7 +80,7 @@ internal class LabelButton : Container
 
     private void HandleOnMouseUp(MouseButton button, Vector2 position, Vector2 delta)
     {
-        if (button != MouseButton.Left)
+        if (!this.IsVisible || button != MouseButton.Left)
         {
             return;
         }
@@ -106,7 +94,6 @@ internal class LabelButton : Container
         {
             this.OnClick?.Invoke();
         }
-
     }
 
     private void UpdateAppearance(Vector2 mousePosition)

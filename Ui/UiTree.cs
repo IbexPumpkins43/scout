@@ -135,6 +135,15 @@ internal class UiTree : Container
             }
         }, skipHiddenContainers: true);
 
+        // Render for containers borders
+        this.TraverseTree(this, (node, _) =>
+        {
+            if (node is Container or FloatingContainer && ((Container)node).Border)
+            {
+                Raylib.DrawRectangleLinesEx(node.Bounds, 1.0f, UiManager.ColourScheme.BorderColour);
+            }
+        }, skipHiddenContainers: true);
+
         Raylib.EndDrawing();
     }
 

@@ -9,7 +9,7 @@ internal class MenuItem : LabelButton
     {
         this.DesiredSizeMode = UiDesiredSizeMode.FillParent;
         this.LabelAlign = LabelButtonAlign.Left;
-        this.HideBorder = true;
+        this.Border = false;
 
         this.OnClick += onClick;
     }
@@ -50,7 +50,7 @@ internal class Menu : Container
         this.OpenButton = new(name)
         {
             DesiredSizeMode = UiDesiredSizeMode.FitToContent,
-            HideBorder = true
+            Border = false
         };
         this.OpenButton.OnClick += () =>
         {
@@ -60,12 +60,21 @@ internal class Menu : Container
 
         // Configure floating container
         this.Orientation = ContainerOrientation.Horizontal;
-        this.BackgroundColour = Color.Magenta;
+        this.BackgroundColour = UiManager.ColourScheme.Background;
         this.Children =
         [
             this.OpenButton,
             this.ItemsMenu
         ];
+    }
+
+    public override void Initialise()
+    {
+        this.Root.OnMouseDown += (_, _, _) =>
+        {
+            //this.ItemsMenu.Hidden = true;
+            //this.InvalidateLayout();
+        };
     }
 
     public override void Measure()
@@ -95,13 +104,5 @@ internal class Menu : Container
             // Recalculate because the floating position has changed
             this.CalculateBounds();
         }
-    }
-
-    public override void Render()
-    {
-        base.Render();
-
-        // Border
-        Raylib.DrawRectangleLinesEx(this.Bounds, 1.0f, UiManager.ColourScheme.BorderColour);
     }
 }

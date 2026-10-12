@@ -98,8 +98,20 @@ internal class ViewerScreen : IScreen
             {
                 Font = UiManager.AssetsManager.GetRegularFont(40),
                 FontSize = 40
-            }
+            },
+            new List(
+            [
+                new ListItem("Hello world!"),
+                new ListItem("United Kingdom"),
+                new ListItem("United States"),
+                new ListItem("Germany"),
+                new ListItem("Finland"),
+                new ListItem("Denmark"),
+                new ListItem("Netherlands")
+            ])
         ];
+        ((List)this._leftSidebar.Children[1]).OnItemSelected += name => Console.WriteLine(name);
+        UiManager.Tree.InvalidateLayout();
     }
 
     private void DownloadMap() {}

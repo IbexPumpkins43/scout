@@ -14,12 +14,30 @@ internal class Container : UiNode
     public ContainerOrientation Orientation;
     public Color? BackgroundColour;
     public bool Hidden;
+    public bool Border = true;
 
     public UiNode[] Children = [];
 
     // NOTE: LINQ experessions are used here. I have no problems with using them here
     //       because UI trees are typically not very big and these are only performed when
     //       specific events are caused.
+
+    // Returns whether this container and its child are visible
+    protected bool IsVisible
+    {
+        get
+        {
+            for (UiNode? node = this; node != null; node = node.Parent)
+            {
+                if (node is Container { Hidden: true })
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
 
     public void CalculateBounds()
     {
