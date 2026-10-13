@@ -11,33 +11,61 @@ internal enum ContainerOrientation
 
 internal class Container : UiNode
 {
-    public ContainerOrientation Orientation;
-    public Color? BackgroundColour;
-    public bool Hidden;
-    public bool Border = true;
+    // I have defined a few custom setters and getter here so that I don't have to manually
+    // call this.InvalidateLayout() all the time.
 
-    public UiNode[] Children = [];
+    // If I was using C#14 I'd be using field, but I can't
+
+    private ContainerOrientation _orientation;
+    public ContainerOrientation Orientation
+    {
+        get => this._orientation;
+        set => this.SetProperty(ref this._orientation, value);
+    }
+
+    private Color? _backgroundColour;
+    public Color? BackgroundColour
+    {
+        get => this._backgroundColour;
+        set => this.SetProperty(ref this._backgroundColour, value);
+    }
+
+    private bool _hidden;
+    public bool Hidden
+    {
+        get
+        {
+            // Go up the tree to see if any of the containers parents are hidden
+            for (UiNode? node = this; node != null; node = node.Parent)
+            {
+                if (node is Container { _hidden: true })
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        set => this.SetProperty(ref this._hidden, value);
+    }
+
+    private bool _border = true;
+    public bool Border
+    {
+        get => this._border;
+        set => this.SetProperty(ref this._border, value);
+    }
+
+    private UiNode[] _children = [];
+    public UiNode[] Children
+    {
+        get => this._children;
+        set => this.SetProperty(ref this._children, value);
+    }
 
     // NOTE: LINQ experessions are used here. I have no problems with using them here
     //       because UI trees are typically not very big and these are only performed when
     //       specific events are caused.
-
-    // Returns whether this container and its child are visible
-    protected bool IsVisible
-    {
-        get
-        {
-            for (UiNode? node = this; node != null; node = node.Parent)
-            {
-                if (node is Container { Hidden: true })
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-    }
 
     public void CalculateBounds()
     {

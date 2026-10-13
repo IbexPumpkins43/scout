@@ -36,10 +36,28 @@ internal abstract class UiNode
     public Container? Parent;
 
     // Sends an invalidate layout request up the tree to the root
-    public virtual void InvalidateLayout() => this.Parent?.InvalidateLayout();
+    protected virtual void InvalidateLayout() => this.Parent?.InvalidateLayout();
 
+    // First method called after the constructor, useful for subscribing to events
     public virtual void Initialise() {}
+    // Called to ensure the desired size of a node is set
     public virtual void Measure() {}
+    // Called to invoke a relayout of a node after potential sizing changes
     public virtual void UpdateLayout() {}
+    // Called to draw the node
     public virtual void Render() {}
+
+    // Helper to simplify the setters
+    protected bool SetProperty<T>(ref T field, T value)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value))
+        {
+            return false;
+        }
+
+        field = value;
+        this.InvalidateLayout();
+
+        return true;
+    }
 }

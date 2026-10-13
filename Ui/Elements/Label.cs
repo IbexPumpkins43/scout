@@ -5,20 +5,66 @@ namespace Scout.Ui.Elements;
 
 internal class Label : UiNode
 {
-    public string Text;
-    public Color Colour = UiManager.ColourScheme.TextColour;
-    public Font Font = UiManager.AssetsManager.GetRegularFont(Style.Font.LargeSize);
-    public int FontSize = Style.Font.MediumSize;
-    public float FontSpacing = Style.Font.MediumSpacing;
-    public UiDesiredSizeMode DesiredSizeMode = UiDesiredSizeMode.FitToContent;
+    private string _text;
+    public string Text
+    {
+        get => this._text;
+        set => this.SetProperty(ref this._text, value);
+    }
+
+    private Color _colour = UiManager.ColourScheme.TextColour;
+    public Color Colour
+    {
+        get => this._colour;
+        set => this.SetProperty(ref this._colour, value);
+    }
+
+    private Font _font = UiManager.AssetsManager.GetRegularFont(Style.Font.MediumSize);
+    private int _fontSize = Style.Font.MediumSize;
+    public int FontSize
+    {
+        get => this._fontSize;
+        set
+        {
+            if (this._fontSize == value)
+            {
+                return;
+            }
+
+            this._font = UiManager.AssetsManager.GetRegularFont(value);
+            this._fontSize = value;
+            this.InvalidateLayout();
+        }
+    }
+
+    private float _fontSpacing = Style.Font.MediumSpacing;
+    public float FontSpacing
+    {
+        get => this._fontSpacing;
+        set => this.SetProperty(ref this._fontSpacing, value);
+    }
+
+    private UiDesiredSizeMode _desiredSizeMode = UiDesiredSizeMode.FitToContent;
+    public UiDesiredSizeMode DesiredSizeMode
+    {
+        get => this._desiredSizeMode;
+        set => this.SetProperty(ref this._desiredSizeMode, value);
+    }
 
     private Vector2 _textSize;
     private Vector2 _textPosition;
+
 
     public Label(string text)
     {
         this.Text = text;
     }
+
+    public Vector2 MeasureText => Raylib.MeasureTextEx(
+        this._font,
+        this.Text,
+        this.FontSize,
+        this.FontSpacing);
 
     public override void Measure()
     {
@@ -42,17 +88,11 @@ internal class Label : UiNode
     public override void Render()
     {
         Raylib.DrawTextEx(
-            this.Font,
+            this._font,
             this.Text,
             this._textPosition,
             this.FontSize,
             this.FontSpacing,
             this.Colour);
     }
-
-    public Vector2 MeasureText => Raylib.MeasureTextEx(
-        this.Font,
-        this.Text,
-        this.FontSize,
-        this.FontSpacing);
 }

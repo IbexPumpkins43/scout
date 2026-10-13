@@ -96,7 +96,6 @@ internal class ViewerScreen : IScreen
         [
             new Label("Open map")
             {
-                Font = UiManager.AssetsManager.GetRegularFont(40),
                 FontSize = 40
             },
             new List(
@@ -111,7 +110,7 @@ internal class ViewerScreen : IScreen
             ])
         ];
         ((List)this._leftSidebar.Children[1]).OnItemSelected += name => Console.WriteLine(name);
-        UiManager.Tree.InvalidateLayout();
+        ((List)this._leftSidebar.Children[1]).Initialise();
     }
 
     private void DownloadMap() {}

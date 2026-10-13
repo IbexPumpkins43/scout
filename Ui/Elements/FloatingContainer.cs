@@ -4,5 +4,10 @@ namespace Scout.Ui.Elements;
 
 internal class FloatingContainer : Container
 {
-    public Vector2 Position;
+    private Vector2 _position;
+    public Vector2 Position
+    {
+        get => this._position;
+        set => this.SetProperty(ref this._position, value);
+    }
 }

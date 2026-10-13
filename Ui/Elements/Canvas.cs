@@ -13,11 +13,6 @@ internal class Canvas : UiNode, IDisposable
     private RenderTexture2D _canvasTexture;
     private Rectangle _canvasTextureSource;
 
-    public Canvas()
-    {
-        this.DesiredSize = UiSize.Flexible;
-    }
-
     public void Dispose()
     {
         Raylib.UnloadRenderTexture(this._canvasTexture);
@@ -40,6 +35,11 @@ internal class Canvas : UiNode, IDisposable
                 this.OnMouseScroll?.Invoke(wheel);
             }
         };
+    }
+
+    public override void Measure()
+    {
+        this.DesiredSize = UiSize.Flexible;
     }
 
     public override void UpdateLayout()

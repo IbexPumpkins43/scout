@@ -5,9 +5,26 @@ namespace Scout.Ui.Elements;
 
 internal class Icon : UiNode
 {
-    public string Name;
-    public float Scale = 1.0f;
-    public UiDesiredSizeMode DesiredSizeMode = UiDesiredSizeMode.FitToContent;
+    private string _name;
+    public string Name
+    {
+        get => this._name;
+        set => this.SetProperty(ref this._name, value);
+    }
+
+    private float _scale = 1.0f;
+    public float Scale
+    {
+        get => this._scale;
+        set => this.SetProperty(ref this._scale, value);
+    }
+
+    private UiDesiredSizeMode _desiredSizeMode = UiDesiredSizeMode.FitToContent;
+    public UiDesiredSizeMode DesiredSizeMode
+    {
+        get => this._desiredSizeMode;
+        set => this.SetProperty(ref this._desiredSizeMode, value);
+    }
 
     private Rectangle _iconSource;
     private Rectangle _iconDestination;

@@ -100,8 +100,7 @@ internal class UiTree : Container
     }
 
     // Stop the invaldate layout from going further and mark the tree as dirty
-    public override void InvalidateLayout() => this._isLayoutDirty = true;
-
+    protected override void InvalidateLayout() => this._isLayoutDirty = true;
 
     public void UpdateWindow()
     {

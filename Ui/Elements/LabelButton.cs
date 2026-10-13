@@ -69,7 +69,7 @@ internal class LabelButton : Container
 
     private void HandleOnMouseDown(MouseButton button, Vector2 position, Vector2 delta)
     {
-        if (!this.IsVisible || button != MouseButton.Left)
+        if (this.Hidden || button != MouseButton.Left)
         {
             return;
         }
@@ -80,7 +80,7 @@ internal class LabelButton : Container
 
     private void HandleOnMouseUp(MouseButton button, Vector2 position, Vector2 delta)
     {
-        if (!this.IsVisible || button != MouseButton.Left)
+        if (this.Hidden || button != MouseButton.Left)
         {
             return;
         }
