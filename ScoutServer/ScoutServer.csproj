@@ -11,4 +11,8 @@
         <PackageReference Include="Microsoft.Data.Sqlite" Version="11.0.0-rc.1.26425.128" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Data\" />
+    </ItemGroup>
+
 </Project>

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Raylib_cs;
@@ -13,6 +14,7 @@ internal class UiTree : Container
     public event Action<MouseButton, Vector2, Vector2>? OnMouseUp;
     public event Action<float, Vector2, Vector2>? OnMouseScroll;
     public event Action<KeyboardKey>? OnKeyPress;
+    public event Action<char>? OnCharPress;
 
     private bool _isLayoutDirty = true;
 
@@ -76,11 +78,18 @@ internal class UiTree : Container
                 break;
         }
 
-        // Handle keyboard
+        // Handle keyboard keys
         KeyboardKey key;
         while ((key = (KeyboardKey)Raylib.GetKeyPressed()) != KeyboardKey.Null)
         {
             this.OnKeyPress?.Invoke(key);
+        }
+
+        // Handle keyboard characters
+        char keyChar;
+        while ((keyChar = (char)Raylib.GetCharPressed()) != 0)
+        {
+            this.OnCharPress?.Invoke(keyChar);
         }
     }
 
@@ -143,6 +152,8 @@ internal class UiTree : Container
             }
         }, skipHiddenContainers: true);
 
+        this.DebugBoxes();
+
         Raylib.EndDrawing();
     }
 
@@ -193,6 +204,17 @@ internal class UiTree : Container
     }
 
     private void MeasureNodes() => this.TraverseTree(this, (node, _) => node.Measure(), true);
+
+    private void DebugBoxes()
+    {
+        if (Debugger.IsAttached)
+        {
+            this.TraverseTree(this, (node, _) =>
+            {
+                Raylib.DrawRectangleLinesEx(node.Bounds, 1.0f, Color.Magenta);
+            }, skipHiddenContainers: true);
+        }
+    }
 
     // Helper method that makes traversing the tree better.
     private void TraverseTree(

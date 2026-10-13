@@ -39,9 +39,9 @@ internal class LabelButton : Container
 
     public override void Initialise()
     {
-        this.Label.DesiredSizeMode = this.LabelAlign == LabelButtonAlign.Middle
-            ? UiDesiredSizeMode.FillParent
-            : UiDesiredSizeMode.FitToContent;
+        //this.Label.DesiredSizeMode = this.LabelAlign == LabelButtonAlign.Middle
+        //    ? UiDesiredSizeMode.FillParent
+        //    : UiDesiredSizeMode.FitToContent;
 
         // Subscribe to events
         this.Root.OnMouseMove += this.HandleOnMouseHover;

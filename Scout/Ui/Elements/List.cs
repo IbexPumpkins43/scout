@@ -33,6 +33,7 @@ internal class List : Container
 
     public List(ListItem[] items)
     {
+        // Ensure each item is able to invoke the public handler for a selected item
         this.Items = items;
         Array.ForEach(
             this.Items,

@@ -17,8 +17,9 @@ internal class Program
         Raylib.SetTargetFPS(60);
 
         UiManager.ScreenManager.RegisterScreen<TestScreen>();
+        UiManager.ScreenManager.RegisterScreen<NewUserScreen>();
         UiManager.ScreenManager.RegisterScreen<ViewerScreen>();
-        UiManager.ScreenManager.SwitchToScreen<ViewerScreen>();
+        UiManager.ScreenManager.SwitchToScreen<NewUserScreen>();
 
         while (!Raylib.WindowShouldClose())
         {

@@ -5,13 +5,19 @@ namespace Scout.Ui.Elements;
 
 internal class MenuItem : LabelButton
 {
+    public event Action? OnMenuItemSelected;
+
     public MenuItem(string name, Action onClick) : base(name)
     {
         this.DesiredSizeMode = UiDesiredSizeMode.FillParent;
         this.LabelAlign = LabelButtonAlign.Left;
         this.Border = false;
 
-        this.OnClick += onClick;
+        this.OnClick += () =>
+        {
+            this.OnMenuItemSelected?.Invoke();
+            onClick();
+        };
     }
 
     public override void Measure()
@@ -34,8 +40,11 @@ internal class Menu : Container
 
     public Menu(string name, MenuItem[] items)
     {
-        // Go through each menu item and make sure it knows its parent
+        // Ensure each item is able to invoke a menu hide when a click is received
         this.Items = items;
+        Array.ForEach(
+            this.Items,
+            (item) => item.OnMenuItemSelected += () => this.ItemsMenu.Hidden = true);
 
         // The menu that will house the entries
         this.ItemsMenu = new()
@@ -55,7 +64,6 @@ internal class Menu : Container
         this.OpenButton.OnClick += () =>
         {
             this.ItemsMenu.Hidden = !this.ItemsMenu.Hidden;
-            this.InvalidateLayout();
         };
 
         // Configure floating container
@@ -66,15 +74,6 @@ internal class Menu : Container
             this.OpenButton,
             this.ItemsMenu
         ];
-    }
-
-    public override void Initialise()
-    {
-        this.Root.OnMouseDown += (_, _, _) =>
-        {
-            //this.ItemsMenu.Hidden = true;
-            //this.InvalidateLayout();
-        };
     }
 
     public override void Measure()
