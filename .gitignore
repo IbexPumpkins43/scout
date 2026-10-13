@@ -61,3 +61,4 @@ nunit-*.xml
 *.swp
 .OLD/
 Scout/Data/Maps
+ScoutServer/Data
