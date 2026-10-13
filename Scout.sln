@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scout", "Scout\Scout.csproj", "{374DB354-CAA0-4DBD-8035-556044492725}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScoutServer", "ScoutServer\ScoutServer.csproj", "{860F8A2A-3997-4E5D-8AAA-611ABAF818AB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{374DB354-CAA0-4DBD-8035-556044492725}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{374DB354-CAA0-4DBD-8035-556044492725}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{374DB354-CAA0-4DBD-8035-556044492725}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{374DB354-CAA0-4DBD-8035-556044492725}.Release|Any CPU.Build.0 = Release|Any CPU
+		{860F8A2A-3997-4E5D-8AAA-611ABAF818AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{860F8A2A-3997-4E5D-8AAA-611ABAF818AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{860F8A2A-3997-4E5D-8AAA-611ABAF818AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{860F8A2A-3997-4E5D-8AAA-611ABAF818AB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
