@@ -127,7 +127,7 @@ internal class Container : UiNode
                 // Horizontal
                 : new(
                     x: this.Bounds.X + mainOffset,
-                    y: this.Bounds.Y,
+                    y: this.Bounds.Y + (this.Bounds.Height - perpendicularSize) / 2.0f,
                     width: mainSize,
                     height: perpendicularSize);
             child.ActualSize = child.Bounds.Size;

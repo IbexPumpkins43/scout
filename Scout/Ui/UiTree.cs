@@ -185,11 +185,11 @@ internal class UiTree : Container
     {
         // The root of the tree is just the size of the window
         this.DesiredSize = new(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
-        this.ActualSize = new(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
         this.Bounds = new(
             x: 0.0f,
             y: 0.0f,
-            size: this.ActualSize);
+            width: this.DesiredSize.Width.Value,
+            height: this.DesiredSize.Height.Value);
     }
 
     private void UpdateElementLayouts()
